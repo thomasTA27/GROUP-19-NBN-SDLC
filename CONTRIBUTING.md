@@ -5,6 +5,18 @@ and no application code — every change is a markdown (or exported asset)
 change. The rules below exist so four people produce work that is
 consistent and easy to find.
 
+## Setup
+
+After cloning, enable the local git hooks (one-time, per clone):
+
+```sh
+git config core.hooksPath .githooks
+```
+
+This gets you fast local feedback — a check on your commit message
+format and a block on pushing directly to `main` — before you even push.
+See [.githooks/README.md](.githooks/README.md) for details.
+
 ## Commit messages
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
@@ -44,6 +56,17 @@ research/ai-in-testing-week3
 feat/demo-project-scaffold
 chore/pr-template
 ```
+
+## Branch protection
+
+`main` is protected: nobody pushes to it directly (not even admins, by
+convention — see below). All work goes through a branch and a pull
+request. The local `pre-push` hook (see [Setup](#setup)) will refuse a
+push while you're on `main`, but the real enforcement is a GitHub
+repository ruleset applied server-side, since local hooks can be bypassed
+with `--no-verify`. The ruleset's config lives in
+[.github/rulesets/](.github/rulesets/) — see that folder's README for
+what it enforces and how it's applied.
 
 ## Everything lives in this repo
 
