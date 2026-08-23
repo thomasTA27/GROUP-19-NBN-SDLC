@@ -1,0 +1,19 @@
+#!/bin/sh
+# Block direct pushes to main. Bypass with --no-verify if you really mean it
+# (the server-side ruleset in .github/rulesets/ is the real backstop).
+
+protected_branch="main"
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$current_branch" = "$protected_branch" ]; then
+    echo "" >&2
+    echo "Push blocked: you're on '$protected_branch'." >&2
+    echo "" >&2
+    echo "Create a branch and open a pull request instead:" >&2
+    echo "  git checkout -b <type>/<short-description>" >&2
+    echo "  git push -u origin <type>/<short-description>" >&2
+    echo "" >&2
+    exit 1
+fi
+
+exit 0
