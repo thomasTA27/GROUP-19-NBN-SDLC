@@ -2,17 +2,18 @@
 
 Source material and findings that back the white paper. Four people are
 capturing research in parallel — everything here uses `TEMPLATE.md` so
-the output is comparable across streams.
+the output is comparable no matter who wrote it.
 
 ## What belongs here
 
-- `TEMPLATE.md` — the capture format; copy it for each new source
-- `sdlc-fundamentals/` — research on SDLC stages and practices generally
-- `benchmarking/` — comparative data on AI tools/models for dev tasks
-- `ai-in-development/` — research on AI use in coding/build stages
-- `ai-in-testing/` — research on AI use in testing/QA stages
-- `synthesis.md` — the rollup that pulls findings across all streams into
-  conclusions that feed the white paper
+- `TEMPLATE.md` — the capture format; copy its fields for each new source
+- `ai-in-sdlc/` — one findings file per person (e.g. `sajad.md`), covering
+  any AI-in-SDLC topic — SDLC fundamentals, AI-assisted coding, AI-assisted
+  testing, tool benchmarks
+- `modules/` — Sprint 2 research targeted at a specific white paper module
+  (named after the lifecycle phase, e.g. `code-review.md`)
+- `synthesis.md` — the rollup that pulls findings across everyone's
+  captures into conclusions that feed the white paper
 
 ## What does not belong here
 
@@ -22,8 +23,11 @@ the output is comparable across streams.
 
 ## How to add a source
 
-1. Copy `TEMPLATE.md` into the relevant stream folder
-2. Fill in every field — source, date, reviewer, key findings, lifecycle
-   stage mapping, relevance to our methodology
-3. Once a stream has enough findings to draw a conclusion, add it to
-   `synthesis.md`
+1. Open your personal file in `ai-in-sdlc/` (or the relevant file in
+   `modules/` if the research is for a specific stage) — create it if it
+   doesn't exist yet, named `firstname.md`
+2. Append a new entry using every field in `TEMPLATE.md` — source, date,
+   reviewer, key findings, lifecycle stage mapping, relevance to our
+   methodology
+3. Once there's enough findings across people to draw a conclusion, add it
+   to `synthesis.md`

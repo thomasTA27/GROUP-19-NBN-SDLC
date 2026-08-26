@@ -1,23 +1,22 @@
 # design/
 
-Design artifacts supporting the white paper, primarily the lifecycle map
-and evidence that it's been validated.
+Design artifacts supporting the white paper, centered on the lifecycle map.
 
-## Important: Miro is the source of truth for the lifecycle map
+## Important: Miro is the source of truth for the agreed lifecycle map
 
-The lifecycle map is authored live on Miro, not in this repo. This folder
-holds **exports** (images/PDFs) and a **link** to the live board — never
-edit the map by hand here, and never treat a file in
-`lifecycle-map/` as more current than the Miro board.
+The agreed lifecycle map is authored live on Miro, not in this repo.
+[lifecycle-map/README.md](lifecycle-map/README.md) holds the **link** to
+the live board — never treat a file in this folder as more current than
+the Miro board itself.
 
 ## What belongs here
 
-- `lifecycle-map/` — exports of the Miro lifecycle map, plus the link to
-  the live board
-- `validation/` — evidence that design decisions (e.g. stage
-  definitions, flow) were reviewed or tested
+- `lifecycle-map/` — the link to the live Miro board (the agreed map)
+- `lifecycle-map/proposals/` — everyone's own draft lifecycle diagram,
+  made before the team converges on the single agreed map
 
 ## What does not belong here
 
-- The editable lifecycle map itself — that only exists on Miro
+- The editable agreed lifecycle map itself — that only exists on Miro
 - White paper content — that goes in [white-paper/](../white-paper/)
+- General research — that goes in [research/](../research/)

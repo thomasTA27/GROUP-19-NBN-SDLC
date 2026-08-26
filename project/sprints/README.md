@@ -14,4 +14,4 @@ Sprint plans and reviews.
   [../meetings/](../meetings/)
 - The deliverables themselves — those live in
   [white-paper/](../../white-paper/), [research/](../../research/),
-  [design/](../../design/), or [demo/](../../demo/)
+  [design/](../../design/), or [platform/](../../platform/)

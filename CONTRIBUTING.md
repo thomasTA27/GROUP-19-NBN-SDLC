@@ -32,7 +32,7 @@ Types used in this repo:
 | Type | Use for |
 |---|---|
 | `docs` | White paper content, research notes, templates, README changes |
-| `feat` | New structural additions — a new module, a new research stream, the demo project |
+| `feat` | New structural additions — a new module, a new folder, the platform site |
 | `fix` | Correcting factual errors, broken links, wrong stage mappings |
 | `chore` | Repo housekeeping (folder structure, templates, PR template) |
 
@@ -41,7 +41,7 @@ Examples:
 ```
 docs: add benchmarking findings for code review stage
 
-feat: scaffold demo project structure for sprint 2
+feat: scaffold platform project structure for sprint 2
 
 docs: fix broken link to lifecycle map export in design/README.md
 ```
@@ -52,10 +52,20 @@ docs: fix broken link to lifecycle map export in design/README.md
 
 ```
 docs/planning-stage-module
-research/ai-in-testing-week3
-feat/demo-project-scaffold
+docs/research-ai-in-sdlc-week3
+feat/platform-scaffold
 chore/pr-template
 ```
+
+## Working without the command line
+
+You don't need Git installed to contribute. Open the file on GitHub's
+website and click the pencil (edit) icon. GitHub will not let you commit
+straight to `main` — it automatically offers to create a new branch and
+open a pull request for you instead. Fill in a commit message following
+the [Conventional Commits](#commit-messages) format above, let it create
+the branch, and open the PR it offers. From there it's the same review and
+merge process as anyone else's change.
 
 ## Branch protection
 
@@ -89,18 +99,21 @@ Note for next role: <anything they need to know before they start>
 
 ## Where does this go?
 
+See the root [README.md](README.md#where-does-my-work-go) for the full
+"where does my work go" table. Quick reference:
+
 | Artifact type | Folder |
 |---|---|
+| Personal research findings | `research/ai-in-sdlc/<firstname>.md` |
+| Module-specific Sprint 2 research | `research/modules/` |
+| Cross-person research rollup | `research/synthesis.md` |
+| Your own lifecycle diagram proposal | `design/lifecycle-map/proposals/<firstname>.md` |
+| Agreed lifecycle map (link + exports) | `design/lifecycle-map/` |
 | White paper stage module | `white-paper/modules/` |
 | Governance / oversight content | `white-paper/governance/` |
 | Learning path / onboarding material | `white-paper/learning-paths/` |
 | Storyboard / presentation flow | `white-paper/storyboard/` |
-| Research capture (source, article, paper) | `research/<stream>/` |
-| Cross-stream research rollup | `research/synthesis.md` |
-| Lifecycle map exports | `design/lifecycle-map/` |
-| Design validation evidence | `design/validation/` |
-| Demo / sample project | `demo/` |
-| Proposal documents | `project/proposal/` |
+| Platform (Next.js demo site) code | `platform/` |
 | Meeting notes | `project/meetings/` |
 | Sprint plans and reviews | `project/sprints/` |
-| Certification badges / completion proof | `project/certification/` |
+| Certification notes / completion proof | `project/certification/` |

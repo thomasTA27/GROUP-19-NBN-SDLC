@@ -1,13 +1,11 @@
 # project/
 
-Project management records for this capstone: proposal, meeting notes,
-sprint records, and certification tracking. This is administrative
-content about how the project is run, not the deliverable itself.
+Project management records for this capstone: meeting notes, sprint
+records, and certification tracking. This is administrative content about
+how the project is run, not the deliverable itself.
 
 ## What belongs here
 
-- `proposal/` — the initial project proposal and any approved changes to
-  scope
 - `meetings/` — meeting notes and minutes
 - `sprints/` — sprint plans and reviews
 - `certification/` — Claude certification tracking and completion proof
