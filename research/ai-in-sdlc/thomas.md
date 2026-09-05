@@ -17,7 +17,7 @@ keyfinding :
 
 Anthropic's Applied AI team frames the AI-native SDLC as six non-linear stages — **Plan, Design, Build, Test, Deploy, Maintain** — connected as a loop. Each stage ends by committing a machine-readable, human-readable artifact that the next stage reads, and "the chain of commits is also the audit trail: who asked for what, what the agent produced, and who approved it." The governing principle: "the agent can do everything up to the production gate, but never crosses it."
 
-The reason AI forces a redesign .Ionce agents produce code in hours, the human-speed stages then  become the constraint. Anthropic notes that traditional controls "stop matching reality and become intractable" . Reviewing each line by hand made sense when a person wrote it, "but it can't keep up once agents write most of the diff."
+The reason AI forces a redesign .I once agents produce code in hours, the human-speed stages then  become the constraint. Anthropic notes that traditional controls "stop matching reality and become intractable" . Reviewing each line by hand made sense when a person wrote it, "but it can't keep up once agents write most of the diff."
 
 ### Stage-by-stage: Traditional vs. AI-driven
 
