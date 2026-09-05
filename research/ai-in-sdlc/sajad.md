@@ -4,9 +4,19 @@
 **Date captured:** 2026-09-05  
 **Research angle:** What developers actually do at each lifecycle stage when using AI, as distinct from what the tools are capable of.
 
+All captures follow the repo `TEMPLATE.md`. Twenty-one sources, combined here into a single document for sharing.
+
 Lifecycle stage mapping is deliberately left general in every capture, since the team has not yet agreed the stage names. Revisit that field once the lifecycle map is finalised.
 
 ## Contents
+
+**Sections**
+
+1. [Notes on the set as a whole](#notes-on-the-set-as-a-whole)
+2. [Developer behaviour: what people actually do](#developer-behaviour-what-people-actually-do)
+3. [My lifecycle diagram](#my-lifecycle-diagram)
+
+**Source captures**
 
 **Productivity evidence (contested)**
 
@@ -56,6 +66,118 @@ The security sources are the most internally consistent group in the set, and ca
 The governance sources are the weakest group, not because they are poor quality but because very little has been published. That absence is itself a finding for the white paper.
 
 Two captures rest on secondary summaries and should be checked against primary sources before anything cites them: the ETH Zurich AGENTS.md evaluation, and the 31.3 percent unreviewed-merge figure inside the Codacy capture, which originates from CircleCI.
+
+## Developer behaviour: what people actually do
+
+My assigned angle is documented practice rather than tool capability. That material is spread
+across the individual captures below, so this section pulls it into one place.
+
+### The observed loop
+
+Published accounts and the trial data describe the same short cycle rather than a set of distinct
+phases. A developer describes what they want, reads the diff as it is produced, and either accepts
+it or prompts again. Prompting again is the common case. That loop runs many times an hour inside
+one session, and only then does the work leave the individual and enter the team's process as a
+pull request.
+
+This matters for the lifecycle map. Anything in a phase diagram that is not inside that loop is
+either infrastructure set up in advance, work belonging to someone other than the developer, or a
+control the team has chosen to add.
+
+### Specific documented behaviours
+
+1. **Scoping autonomy by code criticality.** Anthropic reports running agents with light
+   supervision on peripheral features while keeping close control over core business logic. The same
+   source reports first-attempt success on autonomous work at roughly one in three.
+
+2. **Checkpointing instead of reviewing at the end.** The repeated advice in first-party workflow
+   writing is to commit frequently so a bad generation can be discarded cheaply. The unit of recovery
+   is the checkpoint, not the review.
+
+3. **Reviewing and accepting rather than authoring.** Google's public statement is that a large
+   share of new code is AI generated and then reviewed and accepted by engineers. The developer's
+   role in that sentence is acceptance, not authorship.
+
+4. **Breaking large generated changes into smaller ones.** GitHub documents decomposing a single
+   oversized AI-generated pull request into a reviewable stack, which is a workflow change made
+   specifically in response to output volume.
+
+5. **Reviewing less than before.** Data cited by Codacy indicates pull requests merged with no
+   review at all rose by 31.3 percent. This is a behaviour change running in the opposite direction
+   to the one the evidence says is needed.
+
+6. **Maintaining context files at the end of sessions.** Rather than writing repository context
+   once, teams report updating it as they learn what the agent gets wrong.
+
+7. **Asking the model to explain a plan before approving it.** Anthropic's security team describes
+   pasting infrastructure plans in to ask what a change will actually do, with the human keeping the
+   decision.
+
+8. **Treating AI output as a hypothesis in operations.** Google SRE runs its operator agent at a
+   level where it proposes and a human approves. Meta frames root cause output as a ranking to
+   investigate, with published accuracy below half.
+
+### The gap between capability and practice
+
+The clearest finding from this angle is that tool capability and actual practice have diverged.
+
+Tools can act autonomously across a whole task. Documented practice keeps a human approving
+anything that reaches production. Tools can generate security-relevant code at speed. Almost no
+published account describes a team gating AI code separately, even though the vulnerability rates
+would justify it. Tools can produce very large changes. The documented human response is to make
+those changes smaller.
+
+There is one case where practice runs ahead of the evidence rather than behind it. Over 60,000
+public repositories contain an agent context file, and the only rigorous evaluation I found
+suggests that a common way of generating them makes agent performance worse.
+
+### Where the evidence for this angle is thin
+
+Almost every published behavioural account comes from a small number of very large organisations,
+Google, Meta, Microsoft, GitHub and Anthropic, plus vendors describing their customers. I found
+very little from mid-sized engineering teams, and nothing resembling systematic observational
+research into how developers use these tools day to day.
+
+The METR trial is the closest thing to direct observation, and its most useful finding here is
+that developers could not accurately report their own behaviour. They believed they were faster
+while measurably being slower. That is a reason to treat self-reported workflow accounts,
+including the survey data, with some caution.
+
+## My lifecycle diagram
+
+Board: https://miro.com/app/board/uXjVHs2QHqY=/
+
+Eight phases forming a cycle, plus a governance band running underneath all of them. One line for
+why each box exists:
+
+1. **Intent and Spec Authoring.** The spec is now the highest-leverage human artifact and the
+   thing that carries intent across agent sessions.
+2. **Context Engineering.** Agents act on the repository context you hand them, so preparing it is
+   a real repeated task rather than one-off setup.
+3. **Implementation and Generation.** Still the core act, but compressed, cheap, and no longer the
+   bottleneck.
+4. **AI Output Verification.** The writer and the reviewer can be the same intelligence, so human
+   verification becomes load-bearing.
+5. **Testing and QA.** AI inflates coverage fast without guaranteeing the tests assert anything
+   real.
+6. **Security Review.** The best-quantified risk in the research, so AI-authored change earns its
+   own gate.
+7. **Deployment and Release.** AI can read the plan and flag the blast radius, but a human still
+   approves production.
+8. **Operations and Incident Response.** Where AI practice is most documented and most measured,
+   and where the feedback that restarts the cycle comes from.
+
+Governance band, running under all eight:
+
+1. **Attribution.** Who or what wrote this line.
+2. **Accountability.** Who owns it when it fails.
+3. **Cost.** Token and API spend, tracked per team.
+4. **Metrics.** Whether any of this is working.
+
+It is a cycle. Phase 8 feeds phase 1, because incidents and telemetry become new intent.
+
+A second version of this map exists, rebuilt after critiquing the first. It is documented
+separately and is not the version being brought to the merge session.
 
 ---
 
