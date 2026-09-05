@@ -78,6 +78,25 @@ Two boxes are worth arguing about:
 
 I have reasons for both, but these are the two I expect to defend.
 
+## One line for why each box exists
+
+For quick reference, without opening the board.
+
+| Box                                 | Why it exists                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------- |
+| 1. Intent and Spec Authoring        | The spec is the main thing a human still writes, and it carries intent across sessions |
+| 2. Context Engineering              | The AI only knows what you give it, so preparing the repo is real repeated work        |
+| 3. Implementation and Generation    | Still the core act, but fast and cheap, so no longer the slow part                     |
+| 4. AI Output Verification           | The writer and the reviewer can be the same AI, so a human has to actually check       |
+| 5. Testing and QA                   | AI grows coverage fast without making sure the tests test anything                     |
+| 6. Security Review                  | The strongest evidence of risk in the research, so AI code gets its own gate           |
+| 7. Deployment and Release           | AI can flag what a change will do, but a human still approves production               |
+| 8. Operations and Incident Response | The best documented AI practice, and where the feedback comes from                     |
+| Attribution (band)                  | Who or what wrote this line                                                            |
+| Accountability (band)               | Who owns it when it fails                                                              |
+| Cost (band)                         | Token and API spend, tracked per team                                                  |
+| Metrics (band)                      | Whether any of this is working                                                         |
+
 ## Where the classic SDLC fits
 
 The old six phases were requirements, design, implementation, testing, deployment and maintenance.
