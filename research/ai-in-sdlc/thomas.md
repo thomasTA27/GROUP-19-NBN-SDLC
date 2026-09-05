@@ -1,109 +1,69 @@
-# How AI in the SDLC: A Stage-by-Stage Overview of Traditional vs. AI-Driven Software Development
+1. Anthropic (Claude Academy): The AI-Native SDLC Playbook
+Source: The AI-Native SDLC Playbook, Claude Academy, 2026, https://academy.claude.com/courses/ai-native-sdlc-playbook
+Date captured: 2026-09-05
+Reviewed by: <name>
 
+Key findings
+Frames the SDLC as six non-linear stages — Plan, Design, Build, Test, Deploy, Maintain — connected as a loop rather than a relay. Each stage ends by committing a version-controlled, machine-readable artifact (intent.md → spec.md → plan.md → the diff → the PR → the incident record) that triggers the next stage; the chain of commits doubles as an audit trail of who asked for what, what the agent produced, and who approved it.
+Governing principle stated directly: the agent can act up to the production gate but never crosses it. Practical mechanisms named across stages include CLAUDE.md as persistent repo context, reusable "skills," hooks as deterministic approval gates (e.g. a production-deploy hook that blocks release until a named release manager authorizes it), continuous evals that re-run in CI whenever agent configuration changes, and the closing-the-loop move where a breached production control band gets diagnosed and written back out as a new intent.md, re-entering Stage 1.
 
-Context 
- AI now is shifting the software development life cycle (SDLC) from a linear pipeline of human handoffs into a continuous, agent-driven loop
- The bottleneck has moved compare to the old SDLC. Once agents write most of the code, the slow parts become planning, review, testing, and deployment — so the winning move is not just faster coding but redesigning the process, controls, and metrics around human-in-the-loop oversight
+Lifecycle stage mapping
+All six stages: Plan, Design, Build, Test, Deploy, Maintain.
 
-keyfinding :
+Relevance to our methodology
+This is the backbone we map the other three sources against, since it is the only source that names a full non-linear loop with an explicit artifact at every handoff. The "agent stops at the production gate" principle gives our methodology its clearest single statement of where human authority sits, and the hooks-as-approval-gates mechanism is the most concrete answer we have to "how is oversight actually enforced" rather than just asserted.
+Vendor-published and self-referential (Claude describing Claude Code), so treat the specific mechanisms as one implementation of the loop rather than the only possible one — use IBM and Atlassian to check whether the same control points appear under different tooling.
 
-- **Traditional SDLC = linear handoffs; AI-native SDLC = a loop.** Claude's framing: the traditional SDLC is a mostly linear flow of documents, tickets, and sign-offs between roles; the AI-native SDLC becomes a non-linear loop where each stage ends by committing a version-controlled artifact (intent.md → spec.md → plan.md → the diff → the PR → the incident record) that triggers the next stage.
-- **AWS goes furthest blueprint** with AI-DLC, positioning AI as "a central collaborator ," not an assistant, and replacing Agile rituals: "sprints" become "bolts" (hours or days, not weeks) and "epics" become "Units of Work."
-- **    Human decision-making remains important at key stages** .Across all sources, humans  review artifacts, approve high-risk changes, and make the decisions requiring business context. IBM: senior engineers "will need to spend more time on architecture and review than on implementation."
-- **Measured productivity gains are real but require new metrics.** Atlassian argues engineering leaders must shift from usage metrics (active users, token consumption) to outcome metrics (PR throughput, hours saved)
+---
 
+2. Amazon Web Services: AI-Driven Development Life Cycle
+Source: AI-Driven Development Life Cycle: Reimagining Software Engineering, Amazon Web Services, 2025, https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/
+Date captured: 2026-09-05
+Reviewed by: <name>
 
-### The backbone: Claude's six-stage AI-native SDLC
+Key findings
+The most radical reframing among the sources: positions AI as "a central collaborator," not an assistant. Reworks Agile vocabulary to match a faster cadence — sprints become "bolts" (hours or days, not weeks), epics become "Units of Work" — and organizes work into three phases: Inception (business intent → detailed requirements, stories, units, via "Mob Elaboration" where the whole team validates AI's questions), Construction (a per-unit loop where AI proposes architecture, domain models, code, and tests, via "Mob Construction"), and Operations (managing infrastructure-as-code and deployments with team oversight).
+Rests on two stated principles: "AI Powered Execution with Human Oversight" (AI plans, asks clarifying questions, defers critical decisions to humans) and "Dynamic Team Collaboration" (as AI handles routine tasks, teams unite in real-time collaborative sessions). Claims teams can complete in hours or days what previously took weeks. Authored by Raja SP, a Principal Solutions Architect at AWS leading Developer Transformation Programs.
 
-Anthropic's Applied AI team frames the AI-native SDLC as six non-linear stages — **Plan, Design, Build, Test, Deploy, Maintain** — connected as a loop. Each stage ends by committing a machine-readable, human-readable artifact that the next stage reads, and "the chain of commits is also the audit trail: who asked for what, what the agent produced, and who approved it." The governing principle: "the agent can do everything up to the production gate, but never crosses it."
+Lifecycle stage mapping
+Inception (≈ Plan/Design), Construction (≈ Build/Test), Operations (≈ Deploy/Maintain).
 
-The reason AI forces a redesign .I once agents produce code in hours, the human-speed stages then  become the constraint. Anthropic notes that traditional controls "stop matching reality and become intractable" . Reviewing each line by hand made sense when a person wrote it, "but it can't keep up once agents write most of the diff."
+Relevance to our methodology
+Gives us the strongest "how much faster" claim (hours or days instead of weeks) and the clearest process-level evidence that human oversight is being redesigned rather than removed — "actively seeks clarification and guidance, and defers critical decisions to humans" is a direct statement of the human-in-the-loop principle, independent of Anthropic's framing.
+Useful as a contrast case: AWS renames the units of work themselves (bolts, Units of Work) rather than just adding an AI step to existing Agile ceremonies, which supports the argument that AI-native adoption requires process redesign, not a bolt-on. Author is a single named AWS architect rather than an org-wide guide, so treat the specific claims (hours-to-days) as directional rather than benchmarked.
 
-### Stage-by-stage: Traditional vs. AI-driven
+---
 
-**Stage 1 — Plan**
+3. Stryker, C. (IBM): AI in the SDLC
+Source: AI in the SDLC, Stryker, C., IBM, 2026, https://www.ibm.com/think/topics/ai-in-sdlc
+Date captured: 2026-09-05
+Reviewed by: <name>
 
-|||
-|---|---|
-|**Traditional approach**|person has an idea and must "convince a member of the product team to manually write the idea up" Ideas wait for PM make them into requirements and roadmaps (Claude) => This is inefficient with the use of AI as now as planning is a non-core activity consuming large amounts of product-owner and developer time (AWS)|
-|**AI-driven approach**|The originator brainstorms with Claude and produces a version-controlled `intent.md` with the problem, proposed outcome, affected users/systems, constraints, and open questions then the product owner or PM reviews and corrects (Claude). For IBM approach: NLP tools "summarize stakeholder interviews and translate them into project roadmaps" and help build timelines and allocate resources. For AMAZON , AWS's "Inception phase"  AI transform business intent into "detailed requirements, stories and units" through "Mob Elaboration," where the whole team validates AI's questions. For Atlassian approach: "Humans establish intent and requirements. Agents draft technical breakdowns, estimates, and work items"|
+Key findings
+The most cautionary of the four sources. States plainly that AI tools "are probabilistic systems" whose outputs reflect patterns in training data rather than true understanding; AI-generated code "may look correct, but can contain subtle problems," can miss cross-system dependencies, API integrations, or organizational design standards, and "can call functions that don't actually exist because they are hallucinations" — potentially introducing security vulnerabilities or resource inefficiencies.
+Also documents the positive capabilities across all seven of its named phases: NLP-based requirement/roadmap summarization (Planning), structural/architecture recommendations and interactive prototypes (Design), in-IDE code generation and auto-documentation (Coding), automated test-case generation and visual regression testing (Testing), CI/CD bottleneck prediction (Deployment), and automated incident categorization/root-cause suggestion (Maintenance). Its prescription is a human-in-the-loop approach for any serious coding project, framing "evaluating the code written by AI" as the new bottleneck that requires upgrading review processes, best practices, and culture.
 
-**Stage 2 — Design / Analyze**
+Lifecycle stage mapping
+Seven phases: Planning, Analysis, Design, Coding, Testing, Deployment, Maintenance.
 
-|||
-|---|---|
-|**Traditional approach**| collect and analyze requirements, technical architects turn requirements into designs; core steps include architecture, navigation, UI, and database schema (IBM)
-|**AI-driven approach**|Once `intent.md` is approved, Claude produces a requirements-and-design spec (`spec.md`), guided by the organization's "skills" for brand, security, compliance, and UX; the product owner reviews but doesn't write it, resolving flagged concerns with policy owners. UI work can be mocked in Claude Design and exported to Claude Code (Claude). For IBM: AI provides "structural recommendations" for architecture, frameworks, and database schema, converts unstructured inputs (emails, tickets) into requirements documents, analyzes feasibility, and produces "interactive prototypes." For AWS's "Mob Construction" has AI propose "a logical architecture, domain models, code solution and tests."|
+Relevance to our methodology
+This is our counterweight to the vendor-optimism in the Claude and AWS sources. IBM naming hallucinated function calls and missed cross-system dependencies as concrete failure modes gives our methodology a vendor-neutral statement of *why* the human-in-the-loop gate has to exist, which pairs directly with Pearce et al. (source 9) and Veracode as the evidence that the risk is real rather than hypothetical.
+Also the clearest statement of where the bottleneck has actually moved — "evaluating the code written by AI" — which is the same claim our own argument rests on, so this is a citation to lead with when making that specific point. IBM is a vendor too, so its caution should be read as compatible marketing (selling review/governance tooling) rather than fully independent, even though the substance lines up with the peer-reviewed sources.
 
-**Stage 3 — Develop / Build (Code)**
+---
 
-|||
-|---|---|
-|**Traditional approach**|Engineers write code by hand from the spec and  documentation is a time consuming manual task (Claude, IBM)|
-|**AI-driven approach**|This is where AI has "its most visible and immediate impact" (IBM). For Claude Code's "plan mode" is the default starting point; a version-controlled `CLAUDE.md` gives the agent the context "a new joiner would need" (conventions, commands, architecture, common mistakes); reusable "skills" encode institutional knowledge; parallel sessions and subagents enable concurrency.For  IBM: agents work "alongside human developers in their IDE," generate "high-quality code snippets and even entire modules" from natural-language prompts, catch complexity and refactoring opportunities in real time, and auto-generate documentation. AWS's Construction phase runs a per-unit loop generating design, code, and tests. Atlassian: "Agents work autonomously outside the IDE," pick up "well-scoped work from the backlog," run it in the background, and raise "a PR ready for review."|
+4. Geoghegan, R. and Jiang, F. (Atlassian): The AI-native SDLC is paying off
+Source: The AI-native SDLC is paying off: 19% more PRs and 2–3 hours saved per developer per week, Geoghegan, R. and Jiang, F., Atlassian, 2026, https://www.atlassian.com/blog/ai-at-work/ai-native-sdlc-paying-off-per-developer-per-week
+Date captured: 2026-09-05
+Reviewed by: <name>
 
-**Stage 4 — Test**
+Key findings
+Reports measured productivity gains — 19% more PRs and 2–3 hours saved per developer per week — and argues engineering leaders must shift measurement from usage metrics (active users, token consumption) to outcome metrics (PR throughput, hours saved).
+Structures the work as five stages: Plan (humans set intent and requirements; agents draft technical breakdowns, estimates, and work items), Orchestrate (teams coordinate work across humans and agents; agents are dispatched directly from work items with every action visible), Code (agents work autonomously outside the IDE, pick up well-scoped backlog work, run it in the background, and raise a PR), Review (agents review PRs against standards and the original plan before a human reviewer is pulled in), and Operate (site-reliability agents listen to alerts, triage incidents in Slack, and propose fixes to humans as an always-on incident co-pilot). Orchestrate has no direct one-to-one equivalent in the other three frameworks but reflects the same underlying need: coordinating a mixed human/agent team is itself new work.
 
-|||
-|---|---|
-|**Traditional approach**|QA teams verify software after it is built, testers write test cases and hunt bugs manually (IBM, Claude).|
-|**AI-driven approach**|Claude gives the agent a feedback loop so it "checks its own work and fixes its own mistakes before an engineer sees them," verifying against tests, a build, or a screenshot diff , with a hook that blocks the agent from editing test files during a fix. "Continuous evals" run in CI whenever the agent's configuration (CLAUDE.md, skills, hooks) changes, and "every production incident is turned into a permanent eval" . IBM do the same thing: AI "automatically create test cases by analyzing the codebase," identifies edge cases, detects anomalies, and performs visual regression testing|
+Lifecycle stage mapping
+Five stages: Plan, Orchestrate, Code, Review, Operate.
 
-**Stage 5 — Deploy**
-
-|||
-|---|---|
-|**Traditional approach**|Release teams ship software; approval gates, change boards, and manual sign-offs govern releases; CI/CD pipelines run but human approvals gate each step (Claude, IBM).|
-|**AI-driven approach**|Claude runs three plays: (1) **AI in the PR review loop** , the  agents review PRs against team standards and the original plan, catching bugs and style issues before a human is pulled in; (2) **Hooks as approval gates** — deterministic hooks allow, block, or pause the agent's actions ("the production deploy hook blocks the release until a named release manager authorizes it"); (3) **CI/CD integration**  Claude runs non-interactively in the pipeline (triaging failed builds, drafting changelogs, fixing lint), always arriving as a PR through branch protection with "no route to push to main," with rollback rehearsed in advance. IBM: AI "streamline and optimize" CI/CD pipelines "by predicting bottlenecks" and monitors logs/metrics in real time to "detect potential failures before they escalate." Atlassian's "Review" stage: agents review PRs against standards and plan before a human reviewer is pulled in.|
-
-**Stage 6 — Maintain / Operate**
-
-|||
-|---|---|
-|**Traditional approach**|Maintenance is a reactive phase. All tickets or incidents wait on a person to act on it and restart the process" (Claude). Teams push updates, patch bugs, and monitor manually|
-|**AI-driven approach**|This is where the loop closes. A deterministic monitor watches production "control bands"; when one is breached, Claude diagnoses the issue and writes the finding as a _new_ `intent.md`, re-entering the pipeline at Stage 1 back into the loop . This stage "runs headless, with an independent confidence  stages" deciding whether to continue or escalate to a human (Claude). IBM: AI "automatically categorize and prioritize bug reports, summarize incidents and suggest root causes," proposes debugging fixes, and enables "proactive" continuous monitoring. Atlassian's "Operate" stage: "Site reliability agents listen to alerts, triage incidents in Slack, and propose fixes to humans as an always-on incident co-pilot." AWS's "Operations phase" applies accumulated context to manage infrastructure-as-code and deployments with team oversight.|
-
-### Reconciling stage names across the four sources
-
-The sources use slightly different labels but map cleanly onto the Plan-to-Maintain backbone:
-
-| Claude (6 stages) | IBM (7 phases)      | AWS AI-DLC (3 phases)       | Atlassian (5 stages)      |
-| ----------------- | ------------------- | --------------------------- | ------------------------- |
-| Plan              | Planning + Analysis | Inception                   | Plan                      |
-| Design            | Design              | Inception → Construction    | (within Plan/Orchestrate) |
-| Build             | Coding              | Construction                | Code                      |
-| Test              | Testing             | Construction (build & test) | (within Code/Review)      |
-| Deploy            | Deployment          | Operations                  | Review                    |
-| Maintain          | Maintenance         | Operations                  | Operate                   |
-
-Atlassian adds an explicit **Orchestrate** stage ("Teams coordinate work across humans and agents. Agents are dispatched directly from work items, and every action is visible"), which has no direct one-to-one equivalent in the others but reflects the same insight — coordinating a mixed team of humans and agents is itself new work.
-
-### AWS's AI-DLC: the most radical reframing
-
-AI-DLC's answer rests on two dimensions:
-
-- **AI Powered Execution with Human Oversight**: "AI systematically creates detailed work plans, actively seeks clarification and guidance, and defers critical decisions to humans."
-- **Dynamic Team Collaboration**: "As AI handles the routine tasks, teams unite in collaborative spaces for real-time problem solving."
-
-The core mental model repeats "rapidly for every SDLC activity": **AI creates a plan -> asks clarifying questions -> implements only after human validation.** AWS reworks Agile vocabulary to match: sprints become **bolts** (hours or days, not weeks), epics become **Units of Work**, and the collaborative rituals are **Mob Elaboration** (Inception) and **Mob Construction** (Construction). The three phases **Inception** (transform business intent into requirements, stories, and units), **Construction** (propose architecture, domain models, code, and tests in a per-unit loop), and **Operations** (manage infrastructure-as-code and deployments)  each "provides richer context for the next," with AI persisting context to the project repository across sessions. AWS claims this lets teams "complete tasks in hours or days that previously took weeks," with benefits spanning velocity, innovation, quality, market responsiveness, and developer experience. The methodology is authored by Raja SP, a Principal Solutions Architect at AWS leading Developer Transformation Programs.
-
-### IBM's cautions: where AI in the SDLC breaks do dds
-
-IBM is the most explicit on risks. AI tools "are probabilistic systems" whose outputs are "based on patterns in their training dataset, not true understanding." AI-generated code "may look correct, but can contain subtle problems," can miss "cross-system dependencies, API integrations, or organizational design standards," and "can call functions that don't actually exist because they are hallucinations," potentially introducing "security vulnerabilities or resource inefficiencies." IBM's prescription: a human-in-the-loop approach for "any sort of serious coding project," and a recognition that "evaluating the code written by AI" is the new bottleneck — so organizations must "upgrade review processes, best practices and even their culture."
-
-
-### Bottom line: Traditional vs. AI-driven SDLC
-
-The traditional SDLC is a **linear relay** —  discrete phases, owned by distinct roles, connected by documents, tickets, and human sign-offs, where writing code is the slow step. The AI-driven SDLC is a **continuous loop** with agents draft, build, test, review, and monitor at every stage, committing versioned artifacts that automatically trigger the next stage, while humans move "above the loop," setting intent and governing at approval gates. The evidence that this pays off is early but real (Atlassian's 19% more PRs and 2–3 hours saved per developer per week). The catch, on which all four vendors agree, is that the gains only materialize if organizations redesign the _process, controls, and metrics_ around the code — not just bolt an AI onto the old pipeline. The new scarce skill is no longer writing code; it is evaluating and governing what the agents produce.
-
-
-
-REFFERENCE
-Claude Academy. (2026). _The AI-Native SDLC Playbook_. [online] Available at: https://academy.claude.com/courses/ai-native-sdlc-playbook [Accessed 5 Sept. 2026].
-
-
-Amazon Web Services. (2025). _AI-Driven Development Life Cycle: Reimagining Software Engineering | Amazon Web Services_. [online] Available at: https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/ [Accessed 5 Sept. 2026].
-
-Stryker, C. (2026). _AI in the SDLC_. [online] Ibm.com. Available at: https://www.ibm.com/think/topics/ai-in-sdlc [Accessed 5 Sept. 2026].
-
-Geoghegan, R. and Jiang, F. (2026). _The AI-native SDLC is paying off: 19% more PRs and 2–3 hours saved per developer per week_. [online] Inside Atlassian. Available at: https://www.atlassian.com/blog/ai-at-work/ai-native-sdlc-paying-off-per-developer-per-week [Accessed 5 Sept. 2026].
+Relevance to our methodology
+This is our source for the metrics argument specifically: the shift from usage metrics to outcome metrics is a methodological point the other three sources don't make explicitly, and the 19%-more-PRs / 2–3-hours-saved figures are the most citable "gains are real" datapoint we have, since they come from Atlassian's own product usage rather than a vendor claim about a competitor's model.
+The Orchestrate stage is the most useful addition to the six-stage backbone — it names the coordination overhead of a mixed human/agent team as its own category of work, which the Claude, AWS, and IBM framings leave implicit. Figures are self-reported by a vendor measuring its own tooling, so treat them as an internal case study rather than an independently verified benchmark.
