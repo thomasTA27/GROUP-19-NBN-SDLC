@@ -20,17 +20,26 @@ else in the repo.
 - A box with no matching `.md` file yet renders a "research not started"
   placeholder instead of a broken link.
 
-## The lifecycle map is a placeholder right now
+## The lifecycle map
 
-`src/data/lifecycle-map.ts` currently ships with generic `Stage 1`…`Stage
-8` fixture entries. **This is not the agreed team map.** The real map is
-authored live on Miro (`design/lifecycle-map/README.md`) and hadn't been
-finalised by the team as of this platform's Sprint 1 build.
+`src/data/lifecycle-map.ts` holds the team's agreed map (finalised
+2026-09-10): Planning and Spec Authoring, Design and Context
+Engineering, Implementation, Testing and QA, Security Review,
+Deployment, Maintenance and Operations. It mirrors the live Miro board
+(`design/lifecycle-map/README.md`), which stays the source of truth —
+if the board changes, update this file to match.
 
-Once the team agrees the map, update `src/data/lifecycle-map.ts`:
-`title`/`order`/`category` describe each box, and `slug` must match the
-filename the corresponding module will be written as under
-`white-paper/modules/` (or `white-paper/governance/` for the band items).
+Only `planning-and-spec-authoring.md` has real (sample) content so far;
+the other six modules are placeholders until Sprint 2 research fills
+them in — each one renders the "research not started" state.
+
+If the map itself changes shape (stages added, renamed, or reordered),
+update the entries in `src/data/lifecycle-map.ts` — `title`/`order`
+describe each box, and `slug` must match the filename of the
+corresponding file under `white-paper/modules/` (or
+`white-paper/governance/` for any future cross-cutting items, e.g.
+attribution/accountability/cost/metrics — not part of the agreed map
+yet).
 
 ## Development
 
