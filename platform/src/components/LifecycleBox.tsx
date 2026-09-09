@@ -11,13 +11,15 @@ export default function LifecycleBox({
   return (
     <Link
       href={`/modules/${box.slug}`}
-      className={`flex flex-col justify-center rounded-lg border-2 border-cyan-300 bg-cyan-50 p-4 text-center transition-colors hover:bg-cyan-100 ${
+      className={`flex flex-col justify-center rounded-lg border-2 border-cyan-300 bg-cyan-50 p-4 text-center shadow-sm transition-colors hover:bg-cyan-100 dark:border-cyan-800 dark:bg-cyan-950/40 dark:hover:bg-cyan-950/70 ${
         compact ? "min-h-[72px]" : "min-h-[96px]"
       }`}
     >
-      <span className="font-semibold text-neutral-900">{box.title}</span>
+      <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+        {box.title}
+      </span>
       {!compact && (
-        <span className="mt-1 line-clamp-2 text-sm text-neutral-600">
+        <span className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
           {box.summary}
         </span>
       )}
