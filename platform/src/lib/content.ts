@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises";
 import path from "path";
-import type { LifecycleBox } from "@/data/lifecycle-map";
+import type { LifecycleNode } from "@/data/lifecycle-map";
 
 export type ModuleContent =
   | { exists: true; markdown: string }
@@ -12,7 +12,7 @@ export type ModuleContent =
  * of truth, this app only renders it.
  */
 export async function getModuleContent(
-  box: Pick<LifecycleBox, "slug" | "source">
+  box: Pick<LifecycleNode, "slug" | "source">
 ): Promise<ModuleContent> {
   const filePath = path.join(
     process.cwd(),

@@ -1,11 +1,12 @@
 import { Fragment } from "react";
 import LifecycleBox from "./LifecycleBox";
-import { stageBoxes, crossCuttingBoxes, miroBoardUrl } from "@/data/lifecycle-map";
+import { sequenceNodes, governanceNodes, miroBoardUrl } from "@/data/lifecycle-map";
 
-const RADIUS_PCT = 36;
+const RADIUS_PCT = 38;
+const GOVERNANCE_RADIUS_PCT = 15;
 
 /** clockDeg: 0 = 12 o'clock, increasing clockwise. */
-function pointOnCircle(clockDeg: number, radius: number = RADIUS_PCT) {
+function pointOnCircle(clockDeg: number, radius: number) {
   const rad = ((clockDeg - 90) * Math.PI) / 180;
   return {
     x: 50 + radius * Math.cos(rad),
@@ -14,8 +15,9 @@ function pointOnCircle(clockDeg: number, radius: number = RADIUS_PCT) {
 }
 
 export default function LifecycleMap() {
-  const n = stageBoxes.length;
+  const n = sequenceNodes.length;
   const step = 360 / n;
+  const governanceStep = governanceNodes.length > 0 ? 360 / governanceNodes.length : 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -23,7 +25,7 @@ export default function LifecycleMap() {
           gives the absolutely-positioned boxes room to overflow the
           ring without colliding with the sections above/below. */}
       <div className="hidden px-4 py-16 md:block">
-        <div className="relative mx-auto aspect-square w-full max-w-xl">
+        <div className="relative mx-auto aspect-square w-full max-w-2xl">
           <svg
             viewBox="0 0 100 100"
             className="absolute inset-0 h-full w-full"
@@ -38,19 +40,33 @@ export default function LifecycleMap() {
               strokeDasharray="2 2"
               className="stroke-neutral-300 dark:stroke-neutral-700"
             />
-            {stageBoxes.map((box, i) => {
+            <circle
+              cx={50}
+              cy={50}
+              r={GOVERNANCE_RADIUS_PCT}
+              fill="none"
+              strokeWidth={0.4}
+              strokeDasharray="1.5 1.5"
+              className="stroke-neutral-300 dark:stroke-neutral-700"
+            />
+            {sequenceNodes.map((node, i) => {
               const mid = i * step + step / 2;
-              const { x, y } = pointOnCircle(mid);
+              const { x, y } = pointOnCircle(mid, RADIUS_PCT);
+              const isLoopBack = i === n - 1;
               return (
                 <text
-                  key={box.slug}
+                  key={node.slug}
                   x={x}
                   y={y}
-                  fontSize={4.5}
+                  fontSize={isLoopBack ? 5.5 : 4.5}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   transform={`rotate(${mid}, ${x}, ${y})`}
-                  className="fill-neutral-400 dark:fill-neutral-600"
+                  className={
+                    isLoopBack
+                      ? "fill-emerald-500 dark:fill-emerald-400"
+                      : "fill-neutral-400 dark:fill-neutral-600"
+                  }
                 >
                   &#10148;
                 </text>
@@ -58,27 +74,50 @@ export default function LifecycleMap() {
             })}
           </svg>
 
-          {stageBoxes.map((box, i) => {
-            const { x, y } = pointOnCircle(i * step);
+          {sequenceNodes.map((node, i) => {
+            const { x, y } = pointOnCircle(i * step, RADIUS_PCT);
             return (
               <div
-                key={box.slug}
-                className="absolute w-36 -translate-x-1/2 -translate-y-1/2"
+                key={node.slug}
+                className="absolute w-32 -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${x}%`, top: `${y}%` }}
               >
-                <LifecycleBox box={box} compact />
+                <LifecycleBox box={node} compact />
               </div>
             );
           })}
+
+          {governanceNodes.map((node, i) => {
+            const { x, y } = pointOnCircle(i * governanceStep + 90, GOVERNANCE_RADIUS_PCT);
+            return (
+              <div
+                key={node.slug}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+                style={{ left: `${x}%`, top: `${y}%` }}
+              >
+                <LifecycleBox box={node} />
+              </div>
+            );
+          })}
+
+          <span className="absolute left-1/2 top-[calc(50%-2.5rem)] -translate-x-1/2 text-center text-[11px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-600">
+            Governance
+          </span>
         </div>
+        <p className="mt-2 flex items-center justify-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+          <span aria-hidden>&#8635;</span>
+          Maintenance loops back to Planning
+        </p>
       </div>
 
       {/* Linear fallback — below md, where a ring would be too cramped */}
       <div className="flex flex-col gap-3 md:hidden">
-        {stageBoxes.map((box, i) => (
-          <Fragment key={box.slug}>
-            <LifecycleBox box={box} />
-            {i < stageBoxes.length - 1 && (
+        {sequenceNodes.map((node, i) => (
+          <Fragment key={node.slug}>
+            <div className={node.kind === "gate" ? "flex justify-center py-1" : undefined}>
+              <LifecycleBox box={node} />
+            </div>
+            {i < sequenceNodes.length - 1 && (
               <span
                 aria-hidden
                 className="text-center text-xl text-neutral-400 dark:text-neutral-600"
@@ -88,29 +127,30 @@ export default function LifecycleMap() {
             )}
           </Fragment>
         ))}
-        <span className="flex items-center justify-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <span className="flex items-center justify-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
           <span aria-hidden className="text-lg">
             ↩
           </span>
-          loops back to &ldquo;{stageBoxes[0]?.title}&rdquo;
+          loops back to &ldquo;{sequenceNodes[0]?.title}&rdquo;
         </span>
       </div>
 
-      {crossCuttingBoxes.length > 0 && (
-        <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
-          <p className="mb-3 text-sm font-semibold text-amber-900 dark:text-amber-200">
-            Runs underneath every stage
+      {governanceNodes.length > 0 && (
+        <div className="rounded-lg border-2 border-neutral-300 bg-neutral-100 p-4 dark:border-neutral-700 dark:bg-neutral-900">
+          <p className="mb-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+            Governance — happens across every phase, not inside one
           </p>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {crossCuttingBoxes.map((box) => (
-              <LifecycleBox key={box.slug} box={box} compact />
+            {governanceNodes.map((node) => (
+              <LifecycleBox key={node.slug} box={node} compact />
             ))}
           </div>
         </div>
       )}
 
       <p className="text-sm text-neutral-500 dark:text-neutral-400">
-        This is a rendering of the team&apos;s lifecycle map. The{" "}
+        This is a rendering of the team&apos;s lifecycle map. Rectangles are
+        phases, diamonds are gates, and the grey band is governance. The{" "}
         <a
           href={miroBoardUrl}
           target="_blank"

@@ -9,7 +9,9 @@ export default function Home() {
       <p className="mt-2 max-w-2xl text-neutral-600 dark:text-neutral-400">
         A technical white paper defining what each phase of the software
         development lifecycle looks like when developers use AI
-        continuously throughout it. Click a stage below to read its module.
+        continuously throughout it. Click a phase or gate below to read its
+        module — diamonds are gates, and the centre band is governance,
+        which applies across every phase rather than living in one.
       </p>
 
       <div className="mt-10">

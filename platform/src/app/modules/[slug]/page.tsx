@@ -21,6 +21,8 @@ export default async function ModulePage({
   }
 
   const content = await getModuleContent(box);
+  const kindNoun =
+    box.kind === "phase" ? "phase" : box.kind === "gate" ? "gate" : "governance item";
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
@@ -42,7 +44,7 @@ export default async function ModulePage({
       ) : (
         <div className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900">
           <p className="font-medium text-neutral-700 dark:text-neutral-300">
-            Research not started yet for this stage.
+            Research not started yet for this {kindNoun}.
           </p>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
             {box.summary}
