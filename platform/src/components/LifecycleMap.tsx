@@ -38,7 +38,7 @@ export default function LifecycleMap() {
               fill="none"
               strokeWidth={0.4}
               strokeDasharray="2 2"
-              className="stroke-neutral-300 dark:stroke-neutral-700"
+              className="lc-ring-outer stroke-neutral-300 dark:stroke-neutral-700"
             />
             <circle
               cx={50}
@@ -47,7 +47,7 @@ export default function LifecycleMap() {
               fill="none"
               strokeWidth={0.4}
               strokeDasharray="1.5 1.5"
-              className="stroke-neutral-300 dark:stroke-neutral-700"
+              className="lc-ring-inner stroke-neutral-300 dark:stroke-neutral-700"
             />
             {sequenceNodes.map((node, i) => {
               const mid = i * step + step / 2;
@@ -82,7 +82,7 @@ export default function LifecycleMap() {
                 className="absolute w-32 -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${x}%`, top: `${y}%` }}
               >
-                <LifecycleBox box={node} compact />
+                <LifecycleBox box={node} compact animationDelayMs={i * 60} />
               </div>
             );
           })}
@@ -95,7 +95,7 @@ export default function LifecycleMap() {
                 className="absolute -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${x}%`, top: `${y}%` }}
               >
-                <LifecycleBox box={node} />
+                <LifecycleBox box={node} animationDelayMs={n * 60 + i * 60} />
               </div>
             );
           })}
@@ -105,8 +105,10 @@ export default function LifecycleMap() {
           </span>
         </div>
         <p className="mt-2 flex items-center justify-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-          <span aria-hidden>&#8635;</span>
-          Maintenance loops back to Planning
+          <span aria-hidden className="animate-pulse">
+            &#8635;
+          </span>
+          Maintenance loops back to Planning — the cycle repeats
         </p>
       </div>
 
@@ -115,7 +117,7 @@ export default function LifecycleMap() {
         {sequenceNodes.map((node, i) => (
           <Fragment key={node.slug}>
             <div className={node.kind === "gate" ? "flex justify-center py-1" : undefined}>
-              <LifecycleBox box={node} />
+              <LifecycleBox box={node} animationDelayMs={i * 50} />
             </div>
             {i < sequenceNodes.length - 1 && (
               <span
@@ -149,8 +151,7 @@ export default function LifecycleMap() {
       )}
 
       <p className="text-sm text-neutral-500 dark:text-neutral-400">
-        This is a rendering of the team&apos;s lifecycle map. Rectangles are
-        phases, diamonds are gates, and the grey band is governance. The{" "}
+        This is a rendering of the team&apos;s lifecycle map. The{" "}
         <a
           href={miroBoardUrl}
           target="_blank"

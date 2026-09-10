@@ -1,4 +1,6 @@
 import LifecycleMap from "@/components/LifecycleMap";
+import LifecycleLegend from "@/components/LifecycleLegend";
+import LifecycleWhy from "@/components/LifecycleWhy";
 
 export default function Home() {
   return (
@@ -9,13 +11,19 @@ export default function Home() {
       <p className="mt-2 max-w-2xl text-neutral-600 dark:text-neutral-400">
         A technical white paper defining what each phase of the software
         development lifecycle looks like when developers use AI
-        continuously throughout it. Click a phase or gate below to read its
-        module — diamonds are gates, and the centre band is governance,
-        which applies across every phase rather than living in one.
+        continuously throughout it.
       </p>
 
-      <div className="mt-10">
+      <div className="mt-8">
+        <LifecycleLegend />
+      </div>
+
+      <div className="mt-4">
         <LifecycleMap />
+      </div>
+
+      <div className="mt-12">
+        <LifecycleWhy />
       </div>
     </main>
   );
