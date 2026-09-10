@@ -33,7 +33,7 @@ change is a markdown file, or an exported design asset.
 
 - **Miro board** (lifecycle map source of truth): https://miro.com/welcomeonboard/L0I2b3FaTnJBOXZ1dU5hV3hyNTdidkpmMkdvMklWNU5HZ2taS0hYNk9RMXkrNTVYWHFKQWd5YnRmMFMxU05hSG1pamNZRVMyV2tHTjRvdmpZVzdSQ3gzTmZGUnFUR2NudUhlVGpoRUxoaUY1RGFHSmJNbzdzWkhJRDdiWHVyYzY3QTNVZXpxSXBObEppZ0UxYUMzQnV3PT0hdjE=?share_link_id=414717993149
 - **Planner board** (task tracking): TBD — add link here once created
-- **Deployed platform** (Sprint 2 demo site): TBD — add link here once deployed
+- **Deployed platform** (Sprint 2 demo site): https://group-19-nbn-sdlc.vercel.app/
 
 If you only remember one rule from this README: **everything except the
 Planner board itself lives in this repository, and gets linked from the

@@ -67,7 +67,7 @@ npm run lint
 - Framework preset: Next.js (auto-detected). No environment variables
   needed.
 
-Deployed URL: TBD — add it here and in the root `README.md` once live.
+Deployed URL: https://group-19-nbn-sdlc.vercel.app/
 
 ## What does not belong here
 
