@@ -8,7 +8,7 @@ export type ModuleContent =
 
 /**
  * Reads a box's content from white-paper/<source>/<slug>.md, which lives
- * outside platform/ — content stays in white-paper/ as the single source
+ * outside platform/. Content stays in white-paper/ as the single source
  * of truth, this app only renders it.
  */
 export async function getModuleContent(

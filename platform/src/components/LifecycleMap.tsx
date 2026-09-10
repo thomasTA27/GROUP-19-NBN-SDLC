@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import LifecycleBox from "./LifecycleBox";
 import { sequenceNodes, governanceNodes, miroBoardUrl } from "@/data/lifecycle-map";
+import { LoopIcon, ArrowDownIcon } from "./icons";
 
 const RADIUS_PCT = 38;
 const GOVERNANCE_RADIUS_PCT = 15;
@@ -21,11 +22,11 @@ export default function LifecycleMap() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Circular layout — md and up. Extra padding around the square
+      {/* Circular layout, md and up. Extra padding around the square
           gives the absolutely-positioned boxes room to overflow the
           ring without colliding with the sections above/below. */}
       <div className="hidden px-4 py-16 md:block">
-        <div className="relative mx-auto aspect-square w-full max-w-2xl">
+        <div className="relative mx-auto aspect-square w-full max-w-3xl">
           <svg
             viewBox="0 0 100 100"
             className="absolute inset-0 h-full w-full"
@@ -79,7 +80,7 @@ export default function LifecycleMap() {
             return (
               <div
                 key={node.slug}
-                className="absolute w-32 -translate-x-1/2 -translate-y-1/2"
+                className="absolute w-36 -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${x}%`, top: `${y}%` }}
               >
                 <LifecycleBox box={node} compact animationDelayMs={i * 60} />
@@ -104,15 +105,13 @@ export default function LifecycleMap() {
             Governance
           </span>
         </div>
-        <p className="mt-2 flex items-center justify-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-          <span aria-hidden className="animate-pulse">
-            &#8635;
-          </span>
-          Maintenance loops back to Planning — the cycle repeats
+        <p className="mt-2 flex items-center justify-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+          <LoopIcon className="h-3.5 w-3.5 animate-pulse" />
+          Maintenance loops back to Planning: the cycle repeats
         </p>
       </div>
 
-      {/* Linear fallback — below md, where a ring would be too cramped */}
+      {/* Linear fallback, below md, where a ring would be too cramped */}
       <div className="flex flex-col gap-3 md:hidden">
         {sequenceNodes.map((node, i) => (
           <Fragment key={node.slug}>
@@ -120,19 +119,12 @@ export default function LifecycleMap() {
               <LifecycleBox box={node} animationDelayMs={i * 50} />
             </div>
             {i < sequenceNodes.length - 1 && (
-              <span
-                aria-hidden
-                className="text-center text-xl text-neutral-400 dark:text-neutral-600"
-              >
-                ↓
-              </span>
+              <ArrowDownIcon className="mx-auto h-5 w-5 text-neutral-400 dark:text-neutral-600" />
             )}
           </Fragment>
         ))}
-        <span className="flex items-center justify-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-          <span aria-hidden className="text-lg">
-            ↩
-          </span>
+        <span className="flex items-center justify-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400">
+          <LoopIcon className="h-4 w-4" />
           loops back to &ldquo;{sequenceNodes[0]?.title}&rdquo;
         </span>
       </div>
@@ -140,7 +132,7 @@ export default function LifecycleMap() {
       {governanceNodes.length > 0 && (
         <div className="rounded-lg border-2 border-neutral-300 bg-neutral-100 p-4 dark:border-neutral-700 dark:bg-neutral-900">
           <p className="mb-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-            Governance — happens across every phase, not inside one
+            Governance: happens across every phase, not inside one
           </p>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {governanceNodes.map((node) => (

@@ -19,8 +19,8 @@ function LegendRow({
     <div className="flex items-start gap-3">
       <Swatch shape={shape} className={swatchClassName} />
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        <span className="font-semibold text-neutral-800 dark:text-neutral-200">{label}</span>{" "}
-        — {description}
+        <span className="font-semibold text-neutral-800 dark:text-neutral-200">{label}:</span>{" "}
+        {description}
       </p>
     </div>
   );
@@ -31,7 +31,7 @@ export default function LifecycleLegend() {
     <div className="grid gap-6 rounded-xl border border-neutral-200 bg-neutral-50/60 p-5 dark:border-neutral-800 dark:bg-neutral-900/40 sm:grid-cols-3">
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Phases — rectangles
+          Phases: rectangles
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Where work actually happens. Six of them.
@@ -41,23 +41,23 @@ export default function LifecycleLegend() {
             shape="rect"
             swatchClassName="border-orange-300 bg-orange-100 dark:border-orange-700 dark:bg-orange-950/60"
             label="Human decision"
-            description="a person makes the call and owns the outcome. AI can draft and advise, it can't decide."
+            description="a person makes the call and owns the outcome. AI can draft and advise, but it can't decide."
           />
           <LegendRow
             shape="rect"
             swatchClassName="border-blue-300 bg-blue-100 dark:border-blue-700 dark:bg-blue-950/60"
             label="Human verification"
-            description="the AI does the work, a person checks it before it moves on."
+            description="the AI does the work, and a person checks it before it moves on."
           />
         </div>
       </div>
 
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Gates — diamonds
+          Gates: diamonds
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Blocking controls between phases. No work happens in a gate — a
+          Blocking controls between phases. No work happens in a gate; a
           change either passes it or it stops. Three of them.
         </p>
         <div className="mt-3 flex flex-col gap-2">
@@ -71,18 +71,18 @@ export default function LifecycleLegend() {
             shape="diamond"
             swatchClassName="border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-950/60"
             label="Blocking gate"
-            description="automated — it either passes or the change doesn't ship. Only the security gate is red."
+            description="automated. It either passes or the change doesn't ship. Only the security gate is red."
           />
         </div>
       </div>
 
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Governance — the band
+          Governance: the band
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Things that happen everywhere and belong to no single phase — drawn
-          in the centre rather than in the sequence.
+          Things that happen everywhere and belong to no single phase,
+          drawn in the centre rather than in the sequence.
         </p>
         <div className="mt-3 flex flex-col gap-2">
           <LegendRow
