@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes lc-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lc-node-enter {
+  opacity: 0;
+  animation: lc-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes lc-dash-outer {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
+
+@keyframes lc-dash-inner {
+  to {
+    stroke-dashoffset: -6;
+  }
+}
+
+.lc-ring-outer {
+  animation: lc-dash-outer 6s linear infinite;
+}
+
+.lc-ring-inner {
+  animation: lc-dash-inner 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-node-enter {
+    opacity: 1;
+    animation: none;
+  }
+
+  .lc-ring-outer,
+  .lc-ring-inner {
+    animation: none;
+  }
+}
