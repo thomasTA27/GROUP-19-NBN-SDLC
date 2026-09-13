@@ -1,18 +1,16 @@
 # white-paper/storyboard/
 
-The narrative flow and structure of the white paper as a presentable
-artifact — how the document is meant to be walked through, e.g. for a
-stakeholder presentation or review session.
+A walkthrough of the lifecycle map from a developer's point of view.
 
 ## What belongs here
 
-- Storyboards, outlines, and flow diagrams describing the order and framing
-  of the white paper's sections
-- Presentation-ready sequencing notes
+- `storyboard.md` — one feature followed from ticket to production,
+  describing what a developer does at each phase, what they ask the AI,
+  and what they check before accepting its output
+- Any later walkthroughs testing the map against a different kind of work
 
 ## What does not belong here
 
 - The actual white paper content — that lives in `modules/`,
   `governance/`, and `learning-paths/`
-- Design/lifecycle map assets — those belong in
-  [design/](../../design/)
+- Lifecycle map assets — those belong in [design/](../../design/)
