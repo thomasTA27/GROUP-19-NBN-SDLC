@@ -31,8 +31,8 @@ change is a markdown file, or an exported design asset.
 
 ### Boards
 
-- **Miro board** (lifecycle map source of truth): https://miro.com/welcomeonboard/L0I2b3FaTnJBOXZ1dU5hV3hyNTdidkpmMkdvMklWNU5HZ2taS0hYNk9RMXkrNTVYWHFKQWd5YnRmMFMxU05hSG1pamNZRVMyV2tHTjRvdmpZVzdSQ3gzTmZGUnFUR2NudUhlVGpoRUxoaUY1RGFHSmJNbzdzWkhJRDdiWHVyYzY3QTNVZXpxSXBObEppZ0UxYUMzQnV3PT0hdjE=?share_link_id=414717993149
-- **Planner board** (task tracking): TBD — add link here once created
+- **Miro board** (lifecycle map source of truth): https://miro.com/welcomeonboard/ZDY2S3p0S3ZoLy80NEpUblR3T2MvN2N2V0RFRm96SlQ3bHhJaUN1K0NINjNrVTdqN3QwR2J2NTJSMTk3Qkx2UmV1YXVxZzd3ZG1vZEdoSU1xZmNzVUxkQ1ozYTdwZGIvY00yU1R6NEUvL3lITThuWElDMHN0VXQzMG5IZjhmTWhzVXVvMm53MW9OWFg5bkJoVXZxdFhRPT0hdjE=?share_link_id=997382362854
+- **Planner board** (task tracking): https://planner.cloud.microsoft/webui/plan/6HIxBhFLhk2uaWYoDQRGp8gAGAgo/view/board?tid=d1323671-cdbe-4417-b4d4-bdb24b51316b
 - **Deployed platform** (Sprint 2 demo site): https://group-19-nbn-sdlc.vercel.app/
 
 If you only remember one rule from this README: **everything except the
