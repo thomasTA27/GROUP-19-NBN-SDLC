@@ -41,7 +41,7 @@ relevant Planner card** — see [Planner and this repo](#planner-and-this-repo).
 
 ## Where does my work go?
 
-Not sure where to put something you just produced? Find it here.
+Not sure where to put something you just produced? Find it here
 
 | I produced... | It goes in... |
 |---|---|
