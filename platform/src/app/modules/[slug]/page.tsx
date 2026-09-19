@@ -39,7 +39,10 @@ export default async function ModulePage({
 
       {content.exists ? (
         <div className="mt-6">
-          <MarkdownContent markdown={content.markdown} />
+          <MarkdownContent
+            markdown={content.markdown}
+            sourcePath={content.sourcePath}
+          />
         </div>
       ) : (
         <div className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900">
