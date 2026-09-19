@@ -26,7 +26,7 @@ else in the repo.
 2026-09-10): Planning and Spec Authoring, Design and Context
 Engineering, Implementation, Testing and QA, Security Review,
 Deployment, Maintenance and Operations. It mirrors the live Miro board
-(`design/lifecycle-map/README.md`), which stays the source of truth —
+(`white-paper/lifecycle-map/README.md`), which stays the source of truth —
 if the board changes, update this file to match.
 
 Only `planning-and-spec-authoring.md` has real (sample) content so far;
@@ -73,5 +73,5 @@ Deployed URL: https://group-19-nbn-sdlc.vercel.app/
 
 - The methodology definition itself — that lives in
   [white-paper/](../white-paper/), as plain markdown
-- Research, design, or project-management content — those have their own
+- Research, sprint, or certification content — those have their own
   top-level folders
