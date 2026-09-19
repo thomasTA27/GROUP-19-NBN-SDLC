@@ -8,10 +8,3 @@ described in the white paper.
 
 - Cross-cutting policy documents (e.g. review/approval requirements,
   escalation paths, acceptable-use guidance for AI tools)
-
-## What does not belong here
-
-- Stage-specific guidance — that belongs in the relevant file under
-  [../modules/](../modules/)
-- Raw research on governance practices — that goes in
-  [research/](../../research/) and gets synthesized here

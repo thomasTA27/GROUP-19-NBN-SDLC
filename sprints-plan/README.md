@@ -1,4 +1,4 @@
-# project/sprints/
+# sprints-plan/
 
 Sprint plans and reviews.
 
@@ -8,10 +8,3 @@ Sprint plans and reviews.
   `sprint-1-plan.md`)
 - Links to what was actually produced in the sprint, in its proper folder
 
-## What does not belong here
-
-- Meeting notes not tied to sprint planning/review — those go in
-  [../meetings/](../meetings/)
-- The deliverables themselves — those live in
-  [white-paper/](../../white-paper/), [research/](../../research/),
-  [design/](../../design/), or [platform/](../../platform/)

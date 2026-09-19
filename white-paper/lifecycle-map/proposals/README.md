@@ -1,4 +1,4 @@
-# design/lifecycle-map/proposals/
+# white-paper/lifecycle-map/proposals/
 
 Everyone's own draft of what the SDLC lifecycle map should look like,
 made independently before the team discusses and converges on the single
@@ -12,15 +12,3 @@ agreed map in [../README.md](../README.md).
   named them and why, so the synthesis discussion has something to argue
   with
 
-## What does not belong here
-
-- The agreed map itself, or exports of it — that goes in
-  [../README.md](../README.md), sourced from the live Miro board
-- General research on SDLC models — that goes in
-  [research/ai-in-sdlc/](../../../research/ai-in-sdlc/)
-
-## Example
-
-`thomas.md` (or `thomas.png` for an exported diagram) — one file per
-person, so four people can propose independently without overwriting each
-other.

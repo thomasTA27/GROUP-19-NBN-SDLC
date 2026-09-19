@@ -47,12 +47,11 @@ Not sure where to put something you just produced? Find it here
 |---|---|
 | Research findings from a source I read | `research/ai-in-sdlc/<firstname>.md` |
 | Research specifically for one white paper module (Sprint 2) | `research/modules/<phase-name>.md` |
-| A rollup of findings into a conclusion | `research/synthesis.md` |
-| My own proposed lifecycle diagram | `design/lifecycle-map/proposals/<firstname>.md` (or `.png`/`.pdf`) |
-| The team-agreed lifecycle map | `design/lifecycle-map/README.md` (holds the Miro link) — exports go alongside it |
-| Meeting minutes | `project/meetings/<yyyy-mm-dd>-<topic>.md` |
-| A sprint plan or review | `project/sprints/sprint-<n>.md` |
-| Certification notes / completion proof | `project/certification/<firstname>-notes.md` |
+| A rollup of findings into a conclusion | `research/ai-in-sdlc/synthesis.md` |
+| My own proposed lifecycle diagram | `white-paper/lifecycle-map/proposals/<firstname>.md` (or `.png`/`.pdf`) |
+| The team-agreed lifecycle map | `white-paper/lifecycle-map/README.md` (holds the Miro link) — exports go alongside it |
+| A sprint plan or review | `sprints-plan/sprint-<n>.md` |
+| Certification notes / completion proof | `certification/<firstname>-notes.md` |
 | Governance / AI-use policy research | `white-paper/governance/` |
 | The white paper storyboard / presentation flow | `white-paper/storyboard/` |
 | A white paper module (one lifecycle phase) | `white-paper/modules/<phase-name>.md` |
@@ -71,26 +70,14 @@ ask.
 
 Source material and findings backing the white paper, captured by four
 people in parallel so everyone uses the same format
-([`research/TEMPLATE.md`](research/TEMPLATE.md)).
+([`research/ai-in-sdlc/TEMPLATE.md`](research/ai-in-sdlc/TEMPLATE.md)).
 
-- `ai-in-sdlc/` — one findings file per person, any AI-in-SDLC topic
+- `ai-in-sdlc/` — one findings file per person, any AI-in-SDLC topic, plus
+  the capture template and the cross-person `synthesis.md` rollup
 - `modules/` — Sprint 2 research targeted at a specific white paper module
-- `synthesis.md` — cross-person conclusions that feed the white paper
 
 **Does not belong here:** white paper prose (that's `white-paper/`),
-lifecycle map content (that's `design/`).
-
-### `design/`
-
-The lifecycle map and everyone's proposals toward it.
-
-- `lifecycle-map/README.md` — the link to the live Miro board (the
-  **agreed** map — Miro is the source of truth, not this repo)
-- `lifecycle-map/proposals/` — everyone's own draft diagram, made before
-  the team converges on the agreed map
-
-**Does not belong here:** an editable copy of the agreed map (only exists
-on Miro), white paper content, general research.
+lifecycle map content (that's `white-paper/lifecycle-map/`).
 
 ### `white-paper/`
 
@@ -105,10 +92,13 @@ The deliverable itself.
   methodology
 - `storyboard/` — the narrative flow of the white paper as a presentable
   artifact
+- `lifecycle-map/` — the team-agreed lifecycle map: `README.md` holds the
+  live Miro link (Miro is the source of truth, not this repo), and
+  `proposals/` holds everyone's own draft diagram made before the team
+  converged on it
 
 **Does not belong here:** raw research (cite it instead, from
-`research/`), lifecycle map source or exports (`design/`), meeting or
-sprint records (`project/`).
+`research/`).
 
 ### `platform/`
 
@@ -119,18 +109,22 @@ including the root. Empty/placeholder until Sprint 2.
 
 **Does not belong here:** the methodology definition itself (`white-paper/`).
 
-### `project/`
+### `sprints-plan/`
 
-Administrative records for how the project is run — not the deliverable.
-
-- `certification/` — Claude certification completion proof and notes
-  (already has `sajad-notes.md` — add your own `<firstname>-notes.md`
-  alongside it, don't edit someone else's)
-- `meetings/` — meeting notes and minutes
-- `sprints/` — sprint plans and reviews
+Sprint plans and reviews — administrative records for how the project is
+run, not the deliverable itself.
 
 **Does not belong here:** any white paper, research, or design content —
 link to it from here instead of copying it in.
+
+### `certification/`
+
+Claude certification completion proof and notes, one file per person
+(`<firstname>-notes.md`) — already has `sajad-notes.md`, `thomas-notes.md`,
+`ujjawal-notes.md`, and `william-notes.md`. Add your own alongside them,
+don't edit someone else's.
+
+**Does not belong here:** general AI research — that goes in `research/`.
 
 ## How to contribute
 
@@ -176,11 +170,12 @@ in [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Planner and this repo
 
 The Planner board is for tracking tasks only — it is not where
-deliverables live. Every research capture, white paper draft, design
-export, and meeting note lives in **this repository**, and is **linked
-from** the relevant Planner card, never pasted or attached there. If it
-isn't in this repo, it doesn't exist as far as the white paper is
-concerned.
+deliverables live. Every research capture, white paper draft, and
+lifecycle map export lives in **this repository**, and is **linked from**
+the relevant Planner card, never pasted or attached there. If it isn't in
+this repo, it doesn't exist as far as the white paper is concerned.
+Meeting notes are not tracked in this repo — leave them on the Planner
+card itself.
 
 When you move a Planner card to the next role, leave a comment in this
 format so the next person doesn't have to chase you down:
