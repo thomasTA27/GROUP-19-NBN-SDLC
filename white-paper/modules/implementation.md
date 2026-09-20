@@ -34,7 +34,11 @@ A well-formed AI-assisted PR states what the change does, how it was tested, and
 The working cycle of AI-Assisted implementation:
 
 1. **Intent and Solution Shaping.** The developer states what to build and how the change should be structured, scoped small. Task size is the strongest predictor of success as smaller tasks tend to be more accurate.
+
+On the CLI, `/plan` formalises this step. Copilot asks clarifying questions, produces a checkboxed implementation plan saved to plan.md, and waits for approval before writing code. GitHub states models achieve higher success rates when given a concrete plan to follow. That approval is a human checkpoint before generation, and it suits complex multi-file changes and refactoring rather than quick fixes or single-file edits. Plan mode is a CLI feature whereas VS Code agent mode shows progress as it works but has no equivalent approval gate.
+
 2. **Generate.** The AI writes; the developer directs and verifies actively rather than watching passively.
+
 3. **Verify in flight.** Read the diff, run the checks, re-prompt. This is the Human-Verification checkpoint, firing on every generation.
 
 The three steps run many times per hour in a loop. Most iterations are corrective, re-prompting because the output was not right. Others are simply the next increment of a task that was decomposed. Repeated corrective iterations on the same piece of work are a signal that the task was scoped too large or specified too loosely, and that the developer should re-scope or take over directly rather than re-prompt again.
@@ -44,6 +48,8 @@ Verification sits inside the loop because review is a constraint.
 **Exit condition.** The loop ends not when tests pass, but when the developer can explain every line without deferring to the AI.
 
 ## What to ask the AI
+
+These examples use VS Code and the CLI differs
 
 Examples tied to acceptance criteria and grounded in GitHub's prompt-engineering principles:
 
@@ -112,7 +118,7 @@ See [white-paper/governance/](../governance/) for the full attribution and accou
 A suggested sequence for adopting this phase. These are recommended defaults rather than settled requirements. Where an open question below is unresolved, treat the recommendation as a starting position for NBN to confirm.
 
 - **Encode the readiness layer (week 1).** Ship a tight `.github/copilot-instructions.md` (project map, build/test/validate commands, conventions, "never commit secrets/PII", "verify every new dependency exists"). Keep it short and put non-negotiables first. If agent/chat output routinely ignores a rule, split it into a scoped `*.instructions.md` with an `applyTo` clause.
-- **Encode the inner loop (weeks 2-3).** Provide `*.prompt.md` files for the five prompt patterns above, plus a custom chat mode for "diff self-review." Train developers to read the diff as it streams and to re-prompt rather than accept.
+- **Encode the inner loop (weeks 2-3).** Provide `*.prompt.md` files for the five prompt patterns above, plus a custom chat mode for "diff self-review." For complex or multi-file work on the CLI, use `/plan` and review the plan before approving it. Train developers to read the diff as it streams and to re-prompt rather than accept.
 - **Encode what leaves the phase (weeks 3-4).** Enforce the governance trailers at the commit: `Assisted-by:` for tool disclosure and `Signed-off-by:` certifying NBN's DCO, with a commit hook or CI check verifying their presence. Add a PR template requiring intent, test plan and caveats. Apply `CODEOWNERS` so every change has a named human approver, and branch-protection rules requiring SAST, secret scanning and dependency verification as blocking status checks which are server-side enforcement, not editor-side hooks. Enable Copilot code review as a supplement only; it defaults to a non-blocking "Comment" review and GitHub states it must not replace human review. Benchmark: if AI-authored changes show higher change-failure or rework, tighten the escalation criteria.
 - **Measure and tune (ongoing).** Track measured PR cycle time, review time, change failure/rework rate, and GitClear-style duplication/churn, segmented for AI-authored PRs. Benchmark to escalate: if a 25%+ rise in AI adoption coincides with falling stability, enforce smaller batch sizes and tighten the security gate before expanding agent use.
 - **Pilot the coding agent narrowly.** Start with cleanup/well-specified tasks, pre-configure `copilot-setup-steps.yml`, and keep humans as the arbiter of merge. Treat VS Code hooks as a useful but Preview-stage control, do not let them replace server-side branch protection.
@@ -125,7 +131,7 @@ A suggested sequence for adopting this phase. These are recommended defaults rat
 
 ## How this differs by experience level
 
-- **Juniors: over-reliance and skill-erosion risk.** The responsible-AI literature warns of "metacognitive erosion" and reduced pre-testing (attempting a problem before consulting AI builds stronger understanding). Differentiated guidance: attempt the problem first, use AI to explain not to author unread code, work on smaller simpler tasks to understand.
+- **Juniors: over-reliance and skill-erosion risk.** LLVM reserves "good first issue" tickets for human learning and advises new contributors to start with small contributions they can fully understand, which is the clearest published statement of the concern. Differentiated guidance: attempt the problem first, use AI to explain not to author unread code, work on smaller simpler tasks to understand.
 - **Seniors: review-complacency risk.** The "almost-right" near-miss (Stack Overflow 66%) is most dangerous to skim-reviewers. The METR gap shows even experts misjudge their own speed. Differentiated guidance: treat AI PRs with the same scrutiny as an unfamiliar contributor's, verify tests assert behaviour.
 
 ## What this stage does not cover
@@ -141,6 +147,7 @@ The implementation phase produces a verified change and its immediate unit tests
 - **Which attribution trailer, and is it mandatory?** The governance work has settled on `Assisted-by:` for tool disclosure and `Signed-off-by:` for human certification, following the Linux kernel model, in preference to Copilot's `Co-authored-by: Copilot` trailer, which asserts AI authorship and proved unreliable when a 2026 default change caused it to appear on commits made without Copilot. What remains open is enforcement. Assumption until NBN confirms otherwise: no trailer is currently mandatory and none is mechanically verified. Sensible approach: mandate both trailers by policy, enforce their presence with a commit hook or CI check, and treat the trailer as advisory metadata rather than proof with Sigstore/gitsign layered on where verifiable provenance is genuinely required.
 - **Do AI-authored pull requests need a different review standard?** Assumption until NBN confirms otherwise: AI-authored and human-authored pull requests are reviewed identically, with no distinct service level or reviewer requirement. Sensible approach: apply `CODEOWNERS` with a named approver on all changes, and escalate high-risk areas such as authentication, payments, personally identifiable information, infrastructure, public APIs to a mandatory second reviewer, regardless of authorship. To close this, NBN needs to decide whether AI authorship itself is a risk tier, or whether risk should be assessed purely on what the code touches.
 - **Should security scanning block the merge of AI-authored changes?** A named reviewer is not a sufficient control on its own. This methodology places security checks inside each phase, with the Security Gate consolidating rather than performing the first check. Assumption until NBN confirms otherwise: no scanning is mandatory at merge for AI-assisted changes specifically. Sensible approach: require SAST, dependency scanning and secret scanning as blocking status checks enforced through branch protection, which is server-side and cannot be bypassed locally in preference to relying on editor-side agent hooks, which are Preview-stage, IDE-scoped, and defeated by any developer working outside that editor. To close this, NBN needs to confirm which scanning tools it already runs, and whether branch protection can be configured to make them blocking.
+- **Which Copilot surface do NBN's developers use?** Assumption until NBN confirms otherwise: both VS Code chat and the CLI are in use, with no standard across teams. This matters because context syntax differs between them, and several controls exist only on one side. Plan mode, tool allowlists and session credit limits are CLI features while Copilot code review and the #file and @workspace syntax used in the prompt examples above are VS Code. Custom instruction files work on both. Sensible approach: write guidance against the shared surface, which is the instruction files and the verification checklist, and treat surface-specific controls as additions for whichever teams use them. To close this, NBN needs to confirm which surfaces are in use and whether a standard is intended.
 
 ## Key takeaways
 

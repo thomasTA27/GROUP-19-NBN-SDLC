@@ -410,9 +410,10 @@ METR's demonstration that experienced developers misjudge their own throughput.
 junior against senior comprehension outcomes is thin. Skill erosion is a well-supported
 concern, not a settled quantified finding, and should not be written as one.
 
-**A gap to close:** the module refers to "metacognitive erosion" and reduced pre-testing,
-attributed to the responsible-AI literature. No source for either has been captured. Either
-find a citation or soften the phrasing to something the captured sources support.
+**Previously a gap, now closed:** the module referred to "metacognitive erosion" and
+reduced pre-testing, attributed to the responsible-AI literature, with no source captured.
+The phrasing was changed to rest on LLVM's reservation of beginner tickets for human
+learning, which is already a primary source here.
 
 ---
 
