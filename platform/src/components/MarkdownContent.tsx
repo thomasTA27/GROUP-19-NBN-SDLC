@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { AnchorHTMLAttributes } from "react";
 import type { ExtraProps } from "react-markdown";
 import { resolveMarkdownLink } from "@/lib/links";
+import CodeBlock from "@/components/CodeBlock";
 
 type MarkdownContentProps = {
   markdown: string;
@@ -24,6 +25,7 @@ export default function MarkdownContent({
         remarkPlugins={[remarkGfm]}
         components={{
           a: (props) => <MarkdownLink {...props} sourcePath={sourcePath} />,
+          pre: CodeBlock,
         }}
       >
         {markdown}
