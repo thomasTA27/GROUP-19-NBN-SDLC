@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables (never commit these)
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.local.example
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Build outputs
+frontend/dist/
+backend/lib/
+backend/dist/
+
+# Testing
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Claude Code session data (machine-local, not shared)
+.claude/sessions/
+.claude/checkpoints.log
+
+# Misc
+*.log
+*.tsbuildinfo
+.turbo/
+service-account.json
+docs/BOILERPLATE-COMPARISON.md
+docs/BOILERPLATE-BENCHMARK.md
+
+# Microsoft Office lock files
+~$*
+
+# Internal QA notes — not for the public repo
+docs/REPLICATION-LOG.md
