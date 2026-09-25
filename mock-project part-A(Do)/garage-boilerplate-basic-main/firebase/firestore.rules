@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ───────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Role checked against Firestore document (not custom claims).
+    // For performance-critical rules, use hasCustomClaim() instead.
+    function isAdmin() {
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return isAuthenticated()
+        && exists(userPath)
+        && get(userPath).data.role == 'admin';
+    }
+
+    // Role checked against Firebase Auth custom claims — no Firestore read needed.
+    // Set custom claims via Admin SDK: adminAuth.setCustomUserClaims(uid, { admin: true })
+    function hasCustomClaim(claim) {
+      return isAuthenticated() && request.auth.token[claim] == true;
+    }
+
+    // Soft-delete guard — filters out logically deleted documents.
+    // Include in read rules: allow read: if isOwner(userId) && notDeleted();
+    function notDeleted() {
+      return resource == null || !('deletedAt' in resource.data) || resource.data.deletedAt == null;
+    }
+
+    // ── Collections ────────────────────────────────────────────────────────
+
+    // users/{userId}
+    // Each user can only read and update their own profile.
+    // Admins can read any profile.
+    // Creation is triggered by AuthProvider on first sign-in (syncUserProfile).
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin()) && notDeleted();
+
+      allow create: if isAuthenticated() && isOwner(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasAll(['uid', 'email', 'role', 'createdAt', 'updatedAt', '_schemaVersion'])
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'role', 'createdAt', 'updatedAt', '_schemaVersion'])
+        && request.resource.data.role == 'user';  // only admin SDK can set 'admin' role
+
+      allow update: if isAuthenticated() && isOwner(userId)
+        && request.resource.data.uid == resource.data.uid    // uid is immutable
+        && request.resource.data.role == resource.data.role  // role is immutable by user
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'role', 'createdAt', 'updatedAt', '_schemaVersion']);
+
+      allow delete: if false; // soft-delete only — set deletedAt field instead
+    }
+
+    // notes/{noteId}
+    // Users can only read and write their own notes.
+    match /notes/{noteId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.uid) && notDeleted();
+
+      allow create: if isAuthenticated() && isOwner(request.resource.data.uid)
+        && request.resource.data.keys().hasAll(['uid', 'title', 'body', 'createdAt', 'updatedAt', '_schemaVersion'])
+        && request.resource.data.keys().hasOnly(['uid', 'title', 'body', 'createdAt', 'updatedAt', '_schemaVersion']);
+
+      allow update: if isAuthenticated() && isOwner(resource.data.uid)
+        && request.resource.data.uid == resource.data.uid  // uid is immutable
+        && request.resource.data.keys().hasOnly(['uid', 'title', 'body', 'createdAt', 'updatedAt', 'deletedAt', '_schemaVersion']);
+
+      allow delete: if false; // soft-delete only — set deletedAt instead
+    }
+
+    // ── Default deny ───────────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

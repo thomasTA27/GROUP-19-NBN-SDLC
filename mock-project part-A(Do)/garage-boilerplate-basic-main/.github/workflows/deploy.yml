@@ -1,0 +1,73 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # Frontend deploys are handled by Vercel's own GitHub integration — connect
+  # the repo in the Vercel dashboard and it deploys automatically on push.
+  # This job only handles what Firebase itself owns: Firestore security rules.
+  deploy-firestore-rules:
+    name: Deploy Firestore Rules
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode > /tmp/gcp-sa.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-sa.json" >> $GITHUB_ENV
+
+      - name: Deploy Firestore rules
+        run: |
+          npx firebase-tools deploy \
+            --only firestore:rules \
+            --project ${{ secrets.FIREBASE_PROJECT_ID }} \
+            --non-interactive
+
+  # Optional — only needed if this project actually uses backend/ (the Express
+  # API). Cloud Functions v2 requires the Blaze (pay-as-you-go) plan, so this
+  # never runs automatically — trigger it manually via "Run workflow" in the
+  # Actions tab once the Firebase project is on Blaze and you're ready to ship
+  # the backend.
+  deploy-functions:
+    name: Deploy Backend (optional, manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build backend
+        run: pnpm --filter backend build
+
+      - name: Authenticate to Google Cloud
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64 }}" | base64 --decode > /tmp/gcp-sa.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-sa.json" >> $GITHUB_ENV
+
+      - name: Deploy Cloud Function
+        run: |
+          npx firebase-tools deploy \
+            --only functions \
+            --project ${{ secrets.FIREBASE_PROJECT_ID }} \
+            --non-interactive
