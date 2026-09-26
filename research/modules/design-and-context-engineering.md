@@ -13,7 +13,7 @@
 2. [Michael Nygard: Architecture Decision Records](#2-michael-nygard-architecture-decision-records)
 
 **AI in design and context engineering**
-3. [Empirical studies of AI context files](#3-empirical-studies-of-ai-context-files)
+3. [Empirical research on context files and context adaptation](#3-empirical-research-on-context-files-and-context-adaptation)
 4. [Thoughtworks: context engineering and the limits of evaluating it](#4-thoughtworks-context-engineering-and-the-limits-of-evaluating-it)
 
 **Cross-cutting**
@@ -41,7 +41,7 @@ The most important finding across the set is a negative one, and it is stated in
 
 **Date captured:** 2026-09-27
 
-**Reviewed by:** William
+**Reviewed by:** William Lor
 
 ### Key findings
 
@@ -69,7 +69,7 @@ Replaces ISO/IEC/IEEE 12207 as the standards anchor, which is paywalled and unav
 
 **Date captured:** 2026-09-27
 
-**Reviewed by:** William
+**Reviewed by:** William Lor
 
 ### Key findings
 
@@ -93,15 +93,16 @@ The module extends Nygard's format with front-matter fields naming the decider a
 
 # AI in design and context engineering
 
-## 3. Empirical studies of AI context files
+## 3. Empirical research on context files and context adaptation
 
 **Sources:**
 - Shaokang Jiang and Daye Nam (UC Irvine), "An Empirical Study of Developer-Provided Context for AI Coding Assistants in Open-Source Projects", arXiv:2512.18925, December 2025, https://arxiv.org/abs/2512.18925
 - Seyedmoein Mohsenimofidi, Matthias Galster, Christoph Treude and Sebastian Baltes, "Context Engineering for AI Agents in Open-Source Software", MSR '26, arXiv:2510.21413, https://arxiv.org/abs/2510.21413
+- Qizheng Zhang, Changran Hu et al. (Stanford, SambaNova, UC Berkeley), "Agentic Context Engineering: Evolving Contexts for Self-Improving Language Models", ICLR 2026, https://ace-agent.github.io
 
 **Date captured:** 2026-09-27
 
-**Reviewed by:** William
+**Reviewed by:** William Lor
 
 ### Key findings
 
@@ -123,7 +124,21 @@ Two independent studies of the same artifact, from different angles. Jiang and N
 
 **Context files are maintained artifacts.** Mohsenimofidi et al. conclude that AI context files are versioned, reviewed, quality-assured and tested, i.e. software artifacts rather than documentation.
 
-**Efficacy is unmeasured.** Both papers say so explicitly. Jiang and Nam: the rules observed are primarily based on developer intuition and their actual impact on model performance remains an open question. Mohsenimofidi et al.: future work needs to evaluate how content, structure and style affect agent behaviour and task performance.
+**Efficacy is unmeasured.** Both descriptive papers say so explicitly. Jiang and Nam: the rules observed are primarily based on developer intuition and their actual impact on model performance remains an open question. Mohsenimofidi et al.: future work needs to evaluate how content, structure and style affect agent behaviour and task performance.
+
+### The ACE paper: evidence pointing the other way
+
+Zhang et al. is a different kind of source from the other two. It is an intervention study with measured outcomes rather than a description of what developers write, and it is peer-reviewed at ICLR. It matters here because it argues against the "shorter is better" intuition.
+
+**Brevity bias is named as a failure mode.** The paper documents context optimisation collapsing toward short generic instructions that omit domain-specific heuristics, tool-use guidelines and common failure modes. Its position is that contexts should be comprehensive structured playbooks rather than concise summaries, on the argument that LLMs, unlike humans, are more effective given long detailed contexts and can distil relevance at inference time.
+
+**Short files do not automatically cost less.** ACE reports 91.8% of input tokens served from cache during evaluation, reducing billed input-token cost by 82.6% relative to counting raw context tokens. The paper's claim is that longer context does not translate linearly into higher serving cost under modern KV-cache reuse.
+
+**Context collapse.** Monolithic rewriting of an accumulated context erodes detail over time. Their case study records a context dropping from 18,282 tokens to 122 in a single step, with accuracy falling from 66.7 to 57.1, below the 63.7 baseline without adaptation. Their answer is incremental delta updates rather than full rewrites.
+
+**Its own stated limits.** The paper concedes that not all applications need rich contexts, that some tasks benefit more from concise high-level instructions, and that its approach is most useful where detailed domain knowledge or complex tool use is required.
+
+**Why this does not simply overturn the module's guidance.** ACE studies automatically generated and maintained agent playbooks, not human-authored repository rule files reviewed in a pull request. Different artifact, different author, different maintenance cost. The module's rules exist partly so a human reviewer can check a diff against them, which is not a constraint ACE operates under.
 
 ### Lifecycle stage mapping
 
@@ -134,11 +149,13 @@ Design & Context Engineering (phase 2). Specifically the second half of the phas
 Carries four of the module's rules of thumb, each for a reason the papers actually support:
 
 - **Only what the agent couldn't infer from the code.** This is the module's strongest rule and now has direct backing. Jiang and Nam identify copying material the agent already has as wasted context budget.
-- **Keep files short, scope with `applyTo`.** Real files are long and getting longer. An average of 462 lines against a maximum of 11,076 shows the failure mode the rule guards against is common, not hypothetical.
+- **Keep files short, scope with `applyTo`.** Real files are long and getting longer. An average of 462 lines against a maximum of 11,076 shows the failure mode the rule guards against is common, not hypothetical. **But the cost half of this rule is now contested:** ACE's KV-cache finding undercuts "short files cost less on every request", so the module should justify short files on reviewability rather than on cost.
 - **No duplicates.** 28.7% duplication across 401 repositories, with some files almost entirely copied.
 - **Change rules with the decision.** Half of all `AGENTS.md` files were never touched after creation, which is the drift the module's instruction freshness metric is designed to catch.
 
-Also supports two module positions outside the rules of thumb. "Context files are code" is Mohsenimofidi et al.'s own conclusion. And the module's open question about evaluating instruction files is confirmed independently by both papers rather than being an admission of incomplete research.
+Also supports two module positions outside the rules of thumb. "Context files are code" is Mohsenimofidi et al.'s own conclusion. And the module's open question about evaluating instruction files is confirmed independently by all three papers rather than being an admission of incomplete research.
+
+**The genuine conflict, and why it helps the module.** Jiang and Nam note that excessive context may degrade performance if it confuses the model. ACE argues the opposite for its setting: that comprehensive contexts outperform concise ones and that brevity bias drops the domain detail that matters. Both are credible, and they were measured on different artifacts. This is the sourced basis for the module's metrics claim that published results point in opposite directions, so only local measurement settles whether a given rule file is worth its cost. The module's key takeaway should be softened from "less context is often better" to something that does not pick a side the evidence has not settled.
 
 **What these papers do NOT support.** Neither reports that constraint-shaped rules outperform positive instructions, and neither reports anything about randomly generated rules. Mohsenimofidi et al. show prohibitive phrasing is a style developers use; they do not show it works better. The module's current wording attributes both findings to a study, and until that study is located the claims should be softened. Suggested replacements are in the module review notes; the module's guidance does not change, only its justification.
 
@@ -152,7 +169,7 @@ Also supports two module positions outside the rules of thumb. "Context files ar
 
 **Date captured:** 2026-09-27
 
-**Reviewed by:** William
+**Reviewed by:** William Lor
 
 ### Key findings
 
@@ -182,7 +199,7 @@ Its practical value has narrowed now that source 3 is captured. The two empirica
 
 **Date captured:** 2026-09-27
 
-**Reviewed by:** William
+**Reviewed by:** William Lor
 
 ### Key findings
 

@@ -124,7 +124,7 @@ applyTo: "frontend/src/features/tasks/**"
 - Only what the agent couldn't infer from the code.
 - Lead with what never to do. A constraint is checkable against a diff in a way a positive instruction is not, so it is easier to review and easier to tell whether it was followed. Whether constraint-shaped rules also perform better is untested.
 - One checkable behaviour per rule, so a reviewer can check a diff against it.
-- Scope it with `applyTo` and keep files short. Short files cost less on every request and are easier to review.
+- Scope it with applyTo and keep files short. Short files are easier to review, and a reviewer has to be able to hold the whole rule set in mind to check a diff against it. Whether shorter files also cost less is contested: token counts suggest yes, but caching may absorb much of the difference.
 - No duplicates or contradictions. Copilot has no precedence order between instruction files.
 - Change rules with the decision. When an ADR is superseded, update its rules in the same PR.
 
@@ -195,7 +195,7 @@ A suggested sequence for adopting this phase. These are recommended defaults rat
 
 - **Decision traceability (our metric):** the share of implementation PRs that link the ADRs and spec they were built against. This checks whether implementation work is actually built against the design.
 - **Design-attributable rework (our metric):** PRs reworked because the design was missing or wrong, tagged in retros. This checks whether bad or missing design is causing problems later.
-- **Context-file cost versus value.** Track tokens, runtime and success per agent task, with and without new rules. No published method exists for evaluating this, so only local measurement settles it. This checks whether your rules are worth what they cost.
+- **Context-file cost versus value.** Track tokens, runtime and success per agent task, with and without new rules. Published results point in opposite directions, so only local measurement settles it. This checks whether your rules are worth what they cost.
 - **Instruction freshness (our metric):** time since each rule was last checked against an accepted ADR. Context files grow through frequent small additions, so they drift unless someone prunes them. This checks whether rules have gone stale.
 
 ## How this differs by experience level
@@ -235,7 +235,7 @@ The design phase produces accepted decisions and the context that prepares the a
 - **Design sets the standard.** Implementation and Testing verify against what this phase decides, which is why the checkpoint here is Human-Decision oriented.
 - **AI can explore, draft and critique, but not decide.** The named human in the ADR owns the choice, and early evidence suggests agents are weakest at exactly these choices.
 - **Design now prepares the AI.** Accepted decisions become short, scoped instruction rules that every later agent session loads. This is where context engineering meets the design phase.
-- **Less context is often better.** Keep only rules the agent couldn't infer from the code, and measure whether they help. More context adds cost without reliably improving results.
+- **Measure whether context helps, don't assume.** Keep rules to what the agent couldn't infer from the code, and test whether adding more improves results. The research disagrees on whether richer context helps or hurts, which is why the with and without comparison matters more than any rule of thumb.
 - **Context files are code.** Review them under `CODEOWNERS`, keep secrets out, and treat third-party skills and MCP servers as supply-chain dependencies.
 
 **Research behind this module:** [research/modules/design-and-context-engineering.md](../../research/modules/design-and-context-engineering.md)
