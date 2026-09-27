@@ -192,31 +192,119 @@ My run compared with Part A, same ticket, same tool.
 
 ## Part C — Verdict on the module
 
-*To be completed with the tester.*
+*Agreed between Ujjawal Mittal (Part A) and Sajad Ali Akbari (Part B).*
 
-| Claim | Supported / Partly / Not supported | Evidence |
+Two independent runs on the same ticket, same tool, different people. Part A ran
+the module blind first and then loaded context. Part B loaded context in the first
+prompt and did not read Part A until the run was finished.
+
+### The claims
+
+| Claim | Verdict | Evidence |
 |---|---|---|
-| C1 The clarification-marker rule stops the AI inventing requirements | Supported (provisional) | A2 rows 1 and 2 — no invented requirements in either draft |
-| C2 Loading context first materially changes the output | Supported | A4 — 8 of 23 assumptions contradicted, 5 mandated requirements missing |
-| C3 A spec is buildable without asking the author | *Needs Part B* | |
-| C4 Cost cannot be measured at this stage | **Not supported** | A3 — $1.86, broken down by stage |
+| C1 The clarification-marker rule stops the AI inventing requirements | **Partly supported** | Neither run produced a requirement nobody asked for while the markers were in place (A2 rows 1–2, B1 prompt 1). But both runs saw invented numbers reappear as soon as the AI was told to assume rather than ask (B2 row 5). The rule works; it just stops working at the next step. |
+| C2 Loading context first materially changes the output | **Supported** | Part A's blind spec contradicted the architecture in 8 places and missed 5 mandated requirements (A4). Part B, with context loaded first, cited real project rules in 11 places and had no architectural clashes (B1 step 3). |
+| C3 A spec is buildable without asking the author | **Partly supported** | Part B judged criteria with a Rule or Resolved source buildable, but 20 additions still need a product owner decision first (B2 row 8). Note this was not tested as the template intended — Part B wrote a second spec rather than reading Part A's, so nobody has yet built from either. |
+| C4 Cost cannot be measured at this stage | **Not supported** | Measured twice: $1.86 (A3) and $12.80 (B1 metrics). |
+| C5 Loading context is the expensive part | **Not supported** | Added after Part B. Part A inferred this from $0.32 blind versus $1.54 with context. Part B's run shows the real driver is repeated rewriting — 685 lines added and 375 removed across eight prompts, with 85% of usage above 150k tokens (B1 metrics). Each testability pass costs more than the one before. |
 
-### Changes needed in the module
+### What both runs found independently
 
-Five, all evidenced above.
+These replicated, which is why we are confident about them rather than just
+reporting them.
 
-**1. Add guidance on too many markers.** The module says a spec with no markers is a warning sign. It says nothing about 22 or 31 markers, which is equally unusable. The practical rule that worked: keep only the questions that block writing the spec, and make the AI decide the rest as stated assumptions.
+| Finding | Part A | Part B |
+|---|---|---|
+| Too many markers in the first pass | 22, then 31 | 25 |
+| Markers surviving the filter | about a fifth | 6 of 25, 24% |
+| The AI invents numbers once told to assume | 5-minute freshness, 2-second timeout | 3-second updates, year 9999, 320–1920px, 1,000-task capacity, 5-second tolerance |
+| The project check finds mandated requirements | 5 | 6, plus 3 delivery requirements |
 
-**2. Add the assumptions table as a pattern.** Numbered assumptions, each listing which criteria depend on it, so a reviewer can correct one and see exactly what to update. This is not in the module and it is the single most useful structure that came out of the run.
+The last row matters most. Part B expected the project check to find nothing,
+because context was loaded in the first prompt. It found more than Part A's blind
+run did. **Loading context early narrows the gap but does not close it**, so the
+check stays as its own step.
 
-**3. Say that telling the AI to assume rather than ask moves the invention.** Prompt 2 produced a 5-minute freshness rule and a 2-second timeout that nobody asked for, presented as reasonable defaults. The marker rule prevents guessing; the assumptions instruction reintroduces it in a more respectable form. The module should say so.
+### Changes to make in the module
 
-**4. Replace the "cost cannot be measured" claim with the real figures.** $0.32 without context, $1.54 with, $0.32 to extend. The module's Metrics section currently says a developer finishes this stage with no idea what it cost. That is no longer true.
+Merged from both runs. Numbers in brackets show which run raised each one.
 
-**5. Strengthen the context-loading step.** The module says to load context. It does not say what happens if you do not — and the answer, measured here, is a spec that contradicts the architecture in eight places and omits five mandatory requirements. It also does not cover the case where no context file exists yet, which is what happens on a new project.
+**Structure**
 
-### Open questions this run did not settle
+1. **Put the prompts inside the steps, in the same order.** A first-time reader
+   currently has to match a prompt list to a step list themselves. [B1]
+2. **Fix the first prompt.** It says "and the current API response format", which
+   is left over from the old service status example and does not fit a general
+   ticket. [B2]
+3. **Add prompts for the steps that have none:** loading context, applying the
+   step 5 findings, and asking which assumptions are weakest. Six of the module's
+   eight steps needed something it did not supply. [B7]
 
-- Whether the clarification-marker rule is worth making mandatory, or whether the assumptions pattern replaces it.
-- Whether the six product decisions I made as BA would survive a real product owner. Two were settled by the team's design mock-up; four were my judgement.
-- The AI stated it had reasoned, not tested, that the Firestore list query fails without a `deletedAt` filter. That is flagged in the spec's testing section for manual verification.
+**Markers and assumptions**
+
+4. **Add guidance on too many markers.** Zero is a warning sign and so is thirty.
+   The rule that worked in both runs: keep only the questions that block writing a
+   testable criterion, and make the AI decide the rest as stated assumptions.
+   [A1, B2]
+5. **Add the assumptions table as a pattern.** Numbered, each listing the criteria
+   that depend on it. Both runs found it the most useful structure. [A2, B4]
+6. **Add source labels to assumptions — Rule, Precedent, Ticket, Decision.** Part
+   B found that several things it had recorded as project conventions were habits
+   from a tutorial rather than rules. The labels make that visible. [B6]
+7. **Warn that "push back on it" and "assume the rest" pull the same way.** Asking
+   for every criterion to be testable makes the AI fill every gap with a number,
+   and those numbers then appear as considered assumptions. The module lists these
+   prompts separately and does not warn about the combination. [A3, B5]
+8. **Say when to stop.** Each testability pass adds more invented numbers: Part
+   B's spec went from 168 to 346 lines and 25 to 38 assumptions across the later
+   prompts. The module has no guidance on when the spec is finished. [B5]
+
+**Process**
+
+9. **Keep the project check as its own step even when context is loaded first**,
+   and say why — it found six mandated requirements in a run that had already
+   loaded context. [A5, B3]
+10. **Say who answers the open questions and who signs off**, especially when
+    there is no separate product owner. In both runs the person writing the spec
+    also answered the product questions, which is not what the module assumes.
+    [B7]
+11. **The checklist prompt covers 4 of the 10 quality characteristics.** Either
+    check all ten or say who checks the rest. "Conforming" cannot be checked at
+    all, because the repo has no spec template. [B8]
+
+**Cost**
+
+12. **Rewrite the cost section.** The current figures stand, but the explanation
+    is wrong. Replace "loading context is the expensive part" with the two runs
+    side by side and the real driver: repeated rewriting at large context.
+    $1.86 for six prompts against $12.80 for eight. [A4, B9]
+
+### What we are not changing, and why
+
+**The clarification-marker rule stays**, even though the assumptions pattern
+covers some of the same ground. Both runs show the rule holds during the first
+pass, which is where a blind guess does the most damage. The open question about
+whether it is still needed is now answered: yes, for the first pass.
+
+**We are not adding a spec template.** Part B flagged that "conforming" cannot be
+checked without one. That belongs to the team rather than this module, and it
+affects every stage.
+
+### Still open after both runs
+
+- **Where a sign-off is recorded.** A spec in Jira has no commit to attach it to.
+  Unchanged from Part A, and the same gap appears in the Plan Approved gate.
+- **Whether a committed `SKILL.md` produces the same behaviour as prompting.**
+  Both runs applied the marker rule by prompting each time. Neither tested it as a
+  skill.
+- **Whether a spec is buildable without asking the author.** Only properly
+  answered when somebody builds from one of these specs.
+- **ISO/IEC/IEEE 29148 remains unverified.** Paywalled, not held by RMIT. The
+  checklist in the module comes from secondary summaries that disagree on the
+  count.
+
+### Sign-off
+
+- [ ] Ujjawal Mittal — Part A
+- [ ] Sajad Ali Akbari — Part B
+- Date: 27/09/2026
