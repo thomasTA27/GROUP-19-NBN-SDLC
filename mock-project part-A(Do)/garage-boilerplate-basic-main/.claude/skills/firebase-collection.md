@@ -57,12 +57,12 @@ export function {model}Doc(id: string) {
 For owner-only pattern:
 ```
 match /{collection_name}/{docId} {
-  allow read:   if isAuthenticated() && isOwner(resource.data.uid);
+  allow read:   if isAuthenticated() && isOwner(resource.data.uid) && notDeleted();
   allow create: if isAuthenticated() && isOwner(request.resource.data.uid)
                 && request.resource.data.keys().hasAll(['uid', ...required_fields]);
   allow update: if isAuthenticated() && isOwner(resource.data.uid)
                 && request.resource.data.uid == resource.data.uid;
-  allow delete: if isAuthenticated() && isOwner(resource.data.uid);
+  allow delete: if false; // soft-delete only — set deletedAt instead
 }
 ```
 
