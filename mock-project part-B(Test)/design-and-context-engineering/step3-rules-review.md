@@ -38,3 +38,7 @@ Reviewed on 2026-09-27 by an AI assistant acting for Sajad Ali Akbari, against t
 | DESIGN.md error state and the Server Action example show library text | Leave as they are for other features. Rule 5 overrides them for tasks only. Raised as a follow-up: the project-wide examples break AC-8.5-style rules for any feature. |
 
 The module's own rule-conflict prompt is still run next, as written, to see what it finds on its own.
+
+## Change after the before-merging checks
+
+- **Rule 4 widened.** The behaviour check with the rule found that rule 4 only banned *formatting* due dates on the server, while its reason (the viewer's timezone) also applies to working out date ranges like "this week". The agent followed the reason, but an agent following only the wording could work the range out on the server. Rule 4 now covers both.

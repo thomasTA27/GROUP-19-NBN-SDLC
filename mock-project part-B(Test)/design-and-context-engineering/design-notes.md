@@ -62,3 +62,7 @@ Written before the AI's step 2 options existed, so the options could not anchor 
 - My view held on 3 of 6 (A, C, E), changed partly on 1 (B) and changed on 2 (D, F). In each change, the options showed a cost or a spec conflict I had missed.
 - Security review needed: ADR-A, ADR-B and ADR-E.
 - The step 2 options file noted it had read this notes file while drafting. So the options could have leaned towards these views, even though the views were written first.
+
+## Final review (checklist a)
+
+Reviewed again on 2026-09-27 by the same AI assistant, acting for Sajad at his request, after the step 3 checks. All six decisions stand. The only changes since step 2 are recorded elsewhere: the erasure window went to 72 hours (SCR-18), and ADR-0004 carries a correction about how `useCollection()` restarts. Because no human reviewed these decisions independently, checklist (a) is recorded as not met.
