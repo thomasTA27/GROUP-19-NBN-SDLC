@@ -223,6 +223,7 @@ The gate is the same for both. Experience changes who decides, not whether the c
 - Test strategy and QA (Testing)
 - Security testing of the built change (Security Gate, after Implementation)
 - Organisation-wide AI policy and tool approval (governance)
+- UX flows and visual design, such as mock-ups (inputs to Planning). This stage handles UI only where it departs from the design system's conventions.
 
 The design phase produces accepted decisions and the context that prepares the agent. It does not produce the spec, the code or the tests.
 
