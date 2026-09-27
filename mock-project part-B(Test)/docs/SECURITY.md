@@ -174,6 +174,7 @@ Rules in `firebase/firestore.rules` are the **last line of defence**. Write rule
 - **Field allowlists** — `request.resource.data.keys().hasOnly([...])` prevents writing unexpected fields (mass assignment)
 - **Immutable fields** — `uid` and `role` cannot be changed by the user after creation
 - **Soft-delete only** — `delete: if false` on all user-owned collections; set `deletedAt` field instead
+  - **Justified exception, `tasks`:** a deleted task is erased automatically no earlier than 720 hours (30 days) and no later than 792 hours after its `deletedAt`. A daily Vercel scheduled job calls the route `/api/cron/erase-deleted-tasks` with the cron secret, and the route uses the Admin SDK (`@/lib/firebase/admin`). The `tasks` rules keep `delete: if false`: no user, including the owner and admins, can erase a task, and a task that isn't deleted is never erased. Justified by the spec's R6 (a deleted task is kept as a record for 30 days, then erased automatically); see `docs/adr/0001-task-erasure-job.md`.
 - **notDeleted() guard** — include `&& notDeleted()` in read rules to filter logically deleted docs
 
 ### Helper functions

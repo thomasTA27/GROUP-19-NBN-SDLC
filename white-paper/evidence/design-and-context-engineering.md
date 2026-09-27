@@ -5,8 +5,8 @@
 | Pilot feature | Task CRUD on the Simple Task Dashboard |
 | Module followed | `white-paper/modules/design-and-context-engineering.md` |
 | **Done by** | William Lor (dev) |
-| **Tested by** | *(Part B — not yet assigned)* |
-| Dates | Do: 27 Sep 2026 · Test: — |
+| **Tested by** | Sajad Ali Akbari (Developer) |
+| Dates | Do: 27 Sep 2026 · Test: 27 Sep 2026 |
 | Planner card | [Mock evidence] - Do part A mock evidence for 'Design and Context Engineering' and tailor back the module : 120 |
 
 *Input: the Planning output `task-crud-spec.md` (617 lines, 11 decisions, 16 conventions, 45 assumptions, 19 acceptance criteria). The mock project uses Claude Code (`CLAUDE.md`, `.claude/rules/`, `.claude/skills/`), not Copilot, so the module's Copilot-specific steps were adapted. Each adaptation is recorded below.*
@@ -114,23 +114,120 @@ Link to the artifacts (all under `mock-project part-A(Do)/garage-boilerplate-bas
 
 ---
 
-## Part B — TEST (filled by the dev testing it)
-
-*Not yet assigned. Per the template, the tester must not be the person who did Part A.*
+## Part B: TEST (Sajad)
 
 ### B1. What I tested and how
 
+I ran the module again myself, in the clean copy in `mock-project part-B(Test)/`, without reading William's evidence, ADRs or rules until my run was finished. My input is different from Part A on purpose: I used my own spec, `mock-project part-B(Test)/task-crud-spec.md`, which passed Gate 1 on 27 Sep. Ujjawal's spec (William's input) already makes technical decisions such as Server Actions, the data model and the security rules, while mine stays at "what and why", which is what the planning module asks for. So this Part B tests how the module behaves, not whether I get the same ADRs as William.
+
+I used the current module (commit de584e6, not yet updated from Part A) in Claude Code (Opus 5.5). Where the module only works for Copilot or gives no prompt, I translated it and recorded the gap. Everything I produced is in `mock-project part-B(Test)/design-and-context-engineering/`, `docs/adr/`, `.claude/rules/tasks.md` and the doc and skill changes listed below.
+
+**Who made the decisions.** From the step 1 sort onwards, the human decisions in this run (the sort, the step 2 decisions, the spec change request answers and the rule review) were made by an AI assistant (Claude, in Cowork) acting for me, at my request, and are recorded as mine. The module says the step 2 decision "cannot be delegated". I delegated it anyway, and I record that here because it is itself a finding: nothing in the module stops the Human-Decision checkpoint being handed to an AI when time is short.
+
+#### Steps followed
+
+| Module step | What I did | Followed as written? | If not, why |
+|---|---|---|---|
+| Setup | Fresh Claude Code session in the Part B folder, plan mode for steps 1 and 2. | Partly | The module's "In practice" section says to set up `docs/adr/` and `CODEOWNERS` first. Neither exists in the mock project. `docs/adr/` was created in step 3; `CODEOWNERS` was skipped. |
+| 1 Check the spec against the conventions | Gave the AI the spec, the three `CLAUDE.md` files and four docs, and asked for every departure or extension, no proposals. Saved the list to `design-step1-findings.md`. | Partly | The prompt uses Copilot's `#file:` syntax and a path that doesn't exist, so I translated it. The module doesn't say which files to include, or where a read-only step's output should be kept. |
+| 1b Sort the items | Sorted the 27 items into 6 ADRs, 6 spec change requests, 1 context fix and 6 with no new decision (`design-step1-sort.md`). | No | Not a module step. With 27 items, taking each one through step 2 wasn't realistic, so I grouped them. I also needed two outcomes the module doesn't list: "decided in Planning" and "context fix". |
+| 2 Decide each flagged item | Wrote "my view before asking" for all six ADRs first (`design-notes.md`), then got 2 to 3 options for each with no recommendation (`step2-options.md`), then decided. | Partly | The module's options prompt is written for one specific item, so I made it general. All six were asked in one prompt, not one at a time. The decisions were made by an AI assistant acting for me (see above). |
+| 2 Spec change requests | Raised 18 (`task-crud-spec-change-requests.md`): 6 from step 1, 11 from the consistency check, 1 from ADR-A. All answered by the Gate 1 owner and applied to the spec. | Yes | The module has no format for a spec change request, so I made one. The Gate 1 owner is also the tester, so the same person raised and answered them. |
+| 2 Consistency check | Ran the module's prompt word for word (`step2-consistency-check.md`). | Yes | |
+| 3 Draft ADRs | Six ADRs in `docs/adr/`, each with decider, rejected options and consequences. | Partly | The module lists what an ADR needs but gives no prompt for drafting one, so I wrote it. |
+| 3 Rule derivation | The AI proposed five rules (`step3-rules-draft.md`), I cut and reworded them (`step3-rules-review.md`), and wrote `.claude/rules/tasks.md`. | Partly | Translated from Copilot's `.github/instructions/*.instructions.md` with `applyTo` to Claude Code's `.claude/rules/` with `paths:`. |
+| 3 Rule conflict check | Ran the module's prompt, translated (`step3-conflict-check.md`). | Partly | Translated from Copilot's instruction files to the `CLAUDE.md` files, `AGENTS.md` and `.claude/rules/`. |
+| 3 Doc entries | Added the `tasks` section to `docs/FIRESTORE-SCHEMA.md` and the erasure exception to `docs/SECURITY.md`, and fixed the `/firebase-collection` skill template. | Partly | The module has no prompt for this, and no guidance for fixing a context file that is already wrong. |
+| Before merging: it loads | Fresh session read `firebase/firestore.rules` and listed what it was following (`step3-load-check.md`). | Partly | The module's example (`/context`, open a file the pattern matches) assumes task files exist. They don't until Implementation, so I used `firestore.rules`, which is in the rule's `paths`. |
+| Before merging: it changes behaviour | Same planning task in two fresh sessions, with and without the rule (`step3-behaviour-with-rule.md`, `step3-behaviour-without-rule.md`, compared in `step3-checks-summary.md`). | Partly | The module doesn't say what task to use. With no task code yet, I had to use a planning task. |
+| Checklist (a) to (f) | Answered in `step3-checks-summary.md`. | Yes | |
+| Design review PR | Not opened yet. | No | Waiting for me to review the decisions (checklist a). |
+
+#### AI log
+
+| # | Prompt (short) | AI output | What I checked | Result | Why |
+|---|---|---|---|---|---|
+| 1 | Step 1: read the spec and 7 convention files, list every departure or extension, no proposals (plan mode) | 27 items: 6 departures, 9 extensions, 12 assumptions that are really technical decisions | 15 of the citations against the real files | Modified | Almost all citations were right. It found by itself that the `/firebase-collection` skill template allows hard delete, against `SECURITY.md`. One overstatement: it said `SECURITY.md` allows the admin key in Actions "only for build and test", which the file doesn't say. One line number was off. |
+| 2 | Save the step 1 list to a file | `design-step1-findings.md` | That it matched the plan-mode output | Accepted | |
+| 3 | Create the spec change request file from the sort | `task-crud-spec-change-requests.md`, SCR-1 to SCR-6, each with quotes, the problem and a question | Each quote against the spec | Accepted | Clear and well quoted. It even ran Node to check the whitespace claim in SCR-4. |
+| 4 | Options for ADR-A to ADR-F, no recommendation | 2 to 3 options each, with "already settled" facts, claims marked verified or unverified, and questions to decide | That the options were real and fairly stated, and the claims marked honestly | Accepted | Strong. It disclosed that it had read my "view first" notes while drafting, so the options could have leaned towards my views. |
+| 5 | Consistency check (module prompt) | 11 new conflicts and 2 already raised | Each quote against the spec | Accepted | Several conflicts were caused by the Gate 1 edits made the same day, which changed A6, A10 and A21 without updating every reference. The check caught what the human edit missed. All became SCR-7 to SCR-17. |
+| 6 | Apply SCR-1 to SCR-18 to the spec | Spec amended, with a "Changes after Gate 1" table | That no out-of-date values were left | Accepted | |
+| 7 | Draft the six ADRs, using only the reasons in my notes, with four platform claims marked verified | `docs/adr/0001` to `0006` | Decider, rejected options, costs, security review flag | Accepted | Each rejected option is stated fairly. It pointed out where my notes' reason didn't apply to an option (ADR-0001, option A3) instead of stretching it. |
+| 8 | Mark "rules are not filters" as verified in two ADRs | Updated ADR-0002 and ADR-0004 | The quote against Firebase's docs | Accepted | |
+| 9 | Rule derivation (module prompt, translated) | Five rules with a "why it can't be inferred" table, plus a first conflict check it wasn't asked for | Each rule against the rules of thumb | Modified | Three rules bundled several behaviours; I narrowed them. It also warned the module says rules come from accepted ADRs, and these are still Proposed. |
+| 10 | Rule conflict check (module prompt, translated) | 4 contradictions, 7 overlaps | Each against the files | Accepted | The worst one is indirect: `CLAUDE.md` sends agents to the tutorial walkthrough, whose notes rules let the browser write. |
+| 11 | Doc entries and the skill fix | Schema section, `SECURITY.md` exception, skill template fixed | The diffs | Accepted | |
+| 12 | Load check (fresh session) | The rules file loaded when `firestore.rules` was read, not before | Against what the rules file says | Accepted | Also found that the project's 16 skills and 3 MCP servers never load, and that two `CLAUDE.md` files disagree on branch names. |
+| 13 | Behaviour check with the rule (fresh session) | A plan that followed every rule and cited it, and said filtering is out of scope | Which rule shaped each choice | Accepted | Found that rule 4's wording was narrower than its reason, and that ADR-0004 misread how `useCollection()` restarts. Both fixed. |
+| 14 | Behaviour check without the rule (fresh session) | A plan with the same constraints | Against run 13 | Accepted | Same behaviour, because it read the ADRs instead. See step 3 notes. |
+
+#### Step 1 notes
+
+1. **27 items is far more than the module expects.** The worked example says step 1 "should flag three items". This is the planning module's "too many markers" problem again: the module says what to do with a few items and nothing about a long list.
+2. **The biggest items were the real design questions.** The erasure job breaking "Soft-delete only", and the fact that a scheduled job has no guarded route to the data.
+3. **It found a broken context file without being asked,** from careful reading rather than from the method.
+
+#### Step 2 notes
+
+1. **The options were the best output of the run.** Each ADR had settled facts, 2 to 3 real options, verified and unverified claims marked, and questions to decide.
+2. **My view held on 3 of 6 decisions, changed partly on 1 and changed on 2.** Each change came from the options showing a cost or a spec conflict: cursor paging breaks AC-4.11a, and one error field is enough without changing a shared type.
+3. **Anchoring can run both ways.** The AI read my "view first" notes before drafting the options. The module only warns about the AI anchoring the human.
+4. **The consistency check earned its place.** It found 11 conflicts, and several came from a human's own Gate 1 edits the same day.
+5. **Design fed back into Planning 18 times.** The spec change request route works, but with the tester as Gate 1 owner, nobody independent approves the changes.
+6. **Checking the platform docs changed a decision.** Vercel doesn't retry failed scheduled jobs, so the erasure window went from 48 to 72 hours (SCR-18).
+
+#### Step 3 notes
+
+1. **The rule loads only when it's needed.** Path scoping works in Claude Code, but only the rule text loads, not the ADRs it points to.
+2. **The with and without comparison showed no difference on this task.** Without the rule, the agent read the six ADRs and reached the same plan. The rules probably save the agent from reading six ADRs, but neither run recorded its cost, so that is unproven. The comparison needs task code to exist and a task where the ADRs aren't the obvious next read, so it fits better after Implementation.
+3. **Fresh sessions found real mistakes.** Rule 4 was worded too narrowly, and ADR-0004 misread the live-list hook. The module's checks are about whether rules load and change behaviour; a fresh session asked to plan something is a cheap way to find wrong rules and wrong ADRs too.
+4. **The project's own setup is broken in ways no step checks.** Skills and MCP servers are in the wrong format and never load. The module's governance section says skills are an attack surface, but nothing checks that they load at all.
+5. **The conflict check has to look past the listed files.** The worst conflict came through a doc that `CLAUDE.md` points to.
+
+#### Metrics
+
+| Time | Tokens / cost | AI accepted | AI modified | AI rejected |
+|---|---|---|---|---|
+| Main design session: 49m 33s of AI time in 2h 59m 35s wall clock, on 27 Sep, plus the load check and two behaviour-check sessions. | Main session: 317.0k output, 30.8m cache read, 507.5k cache write, **$16.57**. 80% of usage was above 150k context. The other sessions didn't record their cost. | 12 | 2 | 0 |
+
 ### B2. Test results
 
-| # | Check | Pass / Fail | Notes / issue link |
-|---|---|---|---|
-| 1 | | | |
+Different input from Part A, so this compares how the module behaved, not the outputs one by one.
+
+| # | Check | Part A (William) | Part B (me) | Notes |
+|---|---|---|---|---|
+| 1 | Items flagged in step 1 | 8 | 27 | The module's example says 3. Both runs found more; mine far more, because my spec left the "how" to Design, as Planning asks. |
+| 2 | Wrong citations in step 1 | 0 real problems (one "not known" that it checked when asked) | 1 overstatement, 1 wrong line number | Step 1 is reliable at citing files. |
+| 3 | "My view first" before options | 2 of 8 | 6 of 6, but written by an AI acting for me | The safeguard only works if it's a step. When it was a step (my notes file), it was done every time. |
+| 4 | Spec change requests | 4 raised (1 withdrawn) | 18 raised, all answered and applied | Both runs used the route. Mine found more because my spec was less settled, and because the consistency check caught edits from Gate 1. |
+| 5 | Found the `/firebase-collection` skill conflict | Yes, in the rule conflict check | Yes, already in step 1 | Found independently by both runs. Both fixed the skill. |
+| 6 | Rules written | 5 | 5 | |
+| 7 | Rule misread by a fresh session | Yes, R4 misread twice, once proposing a security-rule change | No misread. But rule 4 was worded narrower than its reason | Both runs found a problem with a rule only through a fresh session, not through the rules of thumb. |
+| 8 | "It loads" check | Inconclusive (`/context` showed only categories) | Yes, the rule loaded when a matching file was read | Using a real file in the rule's `paths` works as a load check. |
+| 9 | "It changes behaviour" check | Skipped to save cost | Run, no difference, because the agent read the ADRs | Neither run could show the rules change behaviour. |
+| 10 | Copilot-only module | Yes, translated throughout | Yes, translated throughout | Confirms Part A finding 1. |
+| 11 | Human decision delegated | No | Yes, to an AI assistant at my request | The module can't detect or prevent this. |
+| 12 | Cost | Tokens only, no dollar figure (subscription) | $16.57 for the main session, 49m 33s of AI time | More than the planning run ($12.80). Most of it came from one long session: 80% of usage was above 150k context. The module's cost metric should say to start a fresh session per step. |
+
+**What I would change in the module** (my input for Part C):
+
+1. Make it tool-neutral: give the Claude Code equivalent next to every Copilot step (`@path`, `.claude/rules/` with `paths:`, `CLAUDE.md`). Agrees with Part A change 1.
+2. Add a sorting step after step 1 for long lists, with five outcomes: ADR, follows convention, spec change request, decided in Planning, context fix.
+3. Make "write your own view first" a step with a file to write in, and say the AI must not read that file before giving options.
+4. Add a prompt for drafting ADRs, one for doc entries, and a format for spec change requests.
+5. Say that Design edits to the spec go through the Gate 1 owner, and that someone other than the tester should approve them.
+6. Add a fresh-session probe to "Before merging": ask a new session to plan a small change and see which rules and ADRs it follows or misreads. Agrees with Part A change 6.
+7. Move the with and without comparison to after Implementation, when there is code to change, or say how to keep the ADRs out of reach during it.
+8. Add a check that the project's context files actually load (skills, MCP servers, nested `CLAUDE.md` files).
+9. Check platform claims against official docs before an ADR can be Accepted. In this run it changed a decision (Vercel doesn't retry). Agrees with Part A change 9.
+10. Say plainly that the Human-Decision checkpoint can be delegated in practice, and ask the evidence to record who actually decided.
 
 ### B3. Sign-off
 
-- [ ] I did not do Part A.
-- [ ] Result: **Pass** / **Pass with changes** / **Fail — sent back**
-- Signed: <name>, <date>
+- [x] I did not do Part A.
+- [x] Result: **Pass with changes**. The module worked when a second person followed it on a different spec, and its checks found real problems. But it only works for Copilot as written, 11 of the 14 rows in my steps table needed something it doesn't give, and its Human-Decision checkpoint was delegated without anything stopping it.
+- Signed: Sajad Ali Akbari, 27 Sep 2026. The six decisions in `design-notes.md` were reviewed and confirmed by the same AI assistant that made them, acting for me at my request, not by me directly. So checklist (a) is recorded as not met (`step3-checks-summary.md`).
 
 ---
 

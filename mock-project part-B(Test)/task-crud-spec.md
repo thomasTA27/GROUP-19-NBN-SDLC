@@ -1,7 +1,7 @@
 # Task CRUD — Acceptance Criteria
 
 **Product:** Simple Task Dashboard
-**Status:** Approved at Gate 1 on 2026-09-27. All six open questions are answered (see Resolved questions), and every assumption that added a number or feature has a product owner decision (see Gate 1 decisions).
+**Status:** Approved at Gate 1 on 2026-09-27, and amended by SCR-1 to SCR-18 on the same day (see Changes after Gate 1). All six open questions are answered (see Resolved questions), and every assumption that added a number or feature has a product owner decision (see Gate 1 decisions).
 **Date:** 2026-09-27
 
 ## Ticket
@@ -39,19 +39,19 @@ Signed-in users need a private place to record what they have to do and by when,
 - **Read**: fetching a task, or any list or search of tasks. A read "of" a task includes any list or search that would return it.
 - **Field rule**: any of AC-2.1a to AC-2.6d, which decide whether a submission is accepted or refused.
 - **Character**: one Unicode code point (A27). The emoji 👍 counts as 1, the flag 🇦🇺 as 2, and each line break as 1.
-- **Whitespace**: any Unicode whitespace character, including spaces, tabs, line breaks and non-breaking spaces (A2).
+- **Whitespace**: any character that JavaScript's `trim()` removes, including spaces, tabs, line breaks and non-breaking spaces (A2).
 - **Past**: a due date and time earlier than the start of the current minute, by the server's clock (A26).
-- **Deleted task**: a task its owner has deleted. From the owner's point of view it is gone. Its record is kept as a record only for 30 days after it was deleted, then erased automatically (R6).
+- **Deleted task**: a task its owner has deleted. From the owner's point of view it is gone. Its record is kept for 30 days after deletion as a record only, then erased automatically within the window in A21 (R6).
 - **Erased**: permanently removed from storage. The record no longer exists.
 - **Credentials**: what a request carries to prove who is signed in: the 14-day session used by pages and in-app actions, or the 1-hour sign-in token used by other direct requests (docs/ARCHITECTURE.md, docs/SECURITY.md).
 - **Direct request**: a request sent straight to any point where the app reads or writes task data, without going through the interface.
-- **Refused**: the request has no effect (no task is created, changed or erased), and the requester gets an error, with no task data, rather than a success response.
+- **Refused**: the request has no effect (no task is created, changed or erased), and the requester gets no task data. For an in-app action (a Server Action), a redirect to the sign-in page counts as refused. A request to any other route, including a direct request to the database or an API, gets an error rather than a success response.
 
 ## Test prerequisites
 
 Some criteria can't be checked through the interface alone. Testers need:
 
-- **P1** At least two test accounts, plus one with the admin role (set as described in docs/SECURITY.md), to check that users, admins included, can't reach each other's tasks.
+- **P1** At least two test accounts, plus one with the admin role, to check that users, admins included, can't reach each other's tasks. The admin test account has both admin mechanisms described in docs/SECURITY.md: the `role: 'admin'` field on its `users/{uid}` document and the `admin` custom claim. AC-1.5 must hold with each one on its own and with both together.
 - **P2** A way to send direct requests, both with a test account's credentials and with none, to every point where the feature reads or writes task data. The implementation must list these points.
 - **P3** Read access to stored task records, including deleted ones. The owner can't see a deleted task, so the interface can't show that its record was kept or erased.
 - **P4** A way to make a save or a load fail on demand, and to slow loading down enough to see it: for example, going offline, or using the browser's network throttling.
@@ -92,7 +92,7 @@ These readings go slightly beyond the literal answers. The product owner should 
    - **Resolved at Gate 1: the free-plan rule stays.** The erasure must run without any paid plan or billing account (D5). Moving to Blaze was rejected, because the whole project is built to run free.
    - **Feasibility was checked before approving.** Firestore's own TTL deletion is ruled out, because TTL deletes need billing enabled (Firebase "Usage and limits", free quota section). A free option does exist: the frontend already runs on Vercel's free Hobby plan (docs/ARCHITECTURE.md), and Hobby allows scheduled jobs that run once a day, with the start time only accurate to the hour (Vercel "Usage & Pricing for Cron Jobs"). Other free schedulers, such as a scheduled GitHub Actions workflow, would also work.
    - **The mechanism is a Design decision, not a Planning one.** This spec only requires that erasure is automatic, free, and within the window in A21. Choosing between a Vercel scheduled job, a GitHub Actions workflow or something else, and how it gets admin access to Firestore safely, is left to Design and Context Engineering.
-   - **Because a free scheduler runs at most once a day with loose timing, the erasure window is 48 hours, not 24** (A21, AC-7.7).
+   - **The erasure window is 72 hours, to allow for Vercel Hobby's once-a-day schedule and one missed run** (A21, AC-7.7). Any scheduler Design picks must meet this window. Design picked Vercel (ADR-A).
 3. **R1–R5 conflict with no project rule.** R1 matches the notes feature, which is owner-only. The project's admin helper (docs/SECURITY.md) is used for user profiles, and the spec doesn't extend it to tasks. R2 matches the notes feature, where the title is required and the body can be empty.
 
 ## Assumptions
@@ -110,36 +110,36 @@ Where a rule or precedent exists, the assumption follows it unless its source no
 | ID | Assumption | Used by |
 |---|---|---|
 | A1 | A title can be at most 200 characters. *Source: Precedent. This is the notes title limit in docs/FIRESTORE-SCHEMA.md.* | AC-2.2a |
-| A2 | Whitespace means any Unicode whitespace character, including spaces, tabs, line breaks and non-breaking spaces. A title made only of whitespace counts as empty. Leading and trailing whitespace is removed when a title is saved, whether it comes from the interface or a direct request, and length limits apply after it's removed. *Source: Decision. This departs from the notes precedent, which accepts a title made only of spaces. That's an omission in tutorial code, not a documented rule.* | AC-2.2a, AC-2.2b, AC-2.2c |
+| A2 | Whitespace means any character that JavaScript's `trim()` removes, including spaces, tabs, line breaks and non-breaking spaces. A title made only of whitespace counts as empty. Leading and trailing whitespace is removed when a title is saved, whether it comes from the interface or a direct request, and length limits apply after it's removed. *Source: Decision. This departs from the notes precedent, which accepts a title made only of spaces. That's an omission in tutorial code, not a documented rule. Changed after Gate 1 by SCR-4: the set of characters is what Zod's `.trim()` removes, so the same rule applies in the browser and on the server.* | AC-2.2a, AC-2.2b, AC-2.2c |
 | A3 | A description can be at most 10,000 characters. *Source: Precedent. This is the notes body limit in docs/FIRESTORE-SCHEMA.md.* | AC-2.3a |
 | A4 | The description is plain text: anything that looks like markup or formatting is shown exactly as typed. Line breaks the user types are kept and shown. *Source: Decision. This departs from the notes precedent, whose list doesn't keep line breaks. That's an omission, not a documented rule.* | AC-2.3b, AC-2.3c |
 | A5 | A due date is a single moment, entered and shown as a date and time to the minute, in the timezone of the device displaying it. *Source: Resolved R3 for date and time. Minute precision is Precedent: the project's `formatDatetime` helper (frontend/src/lib/utils.ts) shows hours and minutes. Showing it in the viewer's timezone is a Decision. The project has no timezone rule, and its date helpers format in the timezone of wherever the code runs, which for server-rendered pages is the server's, so they don't provide this behaviour by themselves.* | AC-2.4, AC-2.5 |
-| A6 | A due date can be at most 10 years after the moment the task is saved, by the server's clock. *Source: Resolved at Gate 1. The earlier limit of 31 December 9999 was a technical ceiling that would accept a typo like 2206 for 2026; the product owner replaced it with a 10-year limit, which is far enough ahead for any real to-do.* | AC-2.6d |
+| A6 | A due date can be at most 10 years after the moment the task is saved, by the server's clock. The latest allowed due date is the save moment plus 10 calendar years, to the minute, counted in UTC. If that date doesn't exist (29 February), the last day of that month is used, so 28 February. *Source: Resolved at Gate 1. The earlier limit of 31 December 9999 was a technical ceiling that would accept a typo like 2206 for 2026; the product owner replaced it with a 10-year limit, which is far enough ahead for any real to-do. Changed after Gate 1 by SCR-3: how the limit is measured.* | AC-2.6d |
 | A7 | A user can have more than one task with the same title. *Source: Decision. No collection in the project requires unique values, but that's silence, not a precedent.* | AC-2.7 |
 | A8 | Each list item shows the task's title, full description (if it has one) and due date and time, as well as its checkbox. A separate detail view for a task is out of scope (§9), so the edit view is the only other place a single task is shown. *Source: Precedent. The notes list shows each note's title and body in full (docs/GUIDE.md). The project also has an unused truncate helper and supports detail pages (/new-page skill), so this is a choice, not a rule.* | AC-4.3, AC-7.1, §9 |
-| A9 | Tasks are listed by due date and time, soonest first. Tasks with the same due date and time are listed by creation time, oldest first. *Source: Decision; the notes list sets no order. There's no rule for tasks without a due date, because R2 makes the due date required.* | AC-4.4 |
+| A9 | Within each group set by A10 (pending, then completed), tasks are listed by due date and time, soonest first. Tasks with the same due date and time are listed by creation time, oldest first. *Source: Decision; the notes list sets no order. There's no rule for tasks without a due date, because R2 makes the due date required. Changed after Gate 1 by SCR-9: the order applies within each group.* | AC-4.4 |
 | A10 | Completed tasks stay in the list, below all pending tasks. Within each group, the order in A9 applies. *Source: Ticket, for visibility: completed tasks must be in the list so their checkbox can be unticked. Placing them below pending tasks is a product owner decision at Gate 1: mixing them in would push old completed tasks with past due dates to the top of page 1, above the work still to do.* | AC-4.4 |
 | A11 | Overdue tasks are not marked; marking them is out of scope (§9). *Source: Ticket, which doesn't mention it. Marking would be a new feature.* | §9 |
 | A12 | The list shows at most 20 tasks per page, and the user can move between pages. *Source: Precedent. `paginationSchema` (frontend/src/lib/validations/common.ts, listed in CLAUDE.md "Codebase Map") defaults to 20 per page, with a maximum of 100. The notes list doesn't page, but it's tutorial code with no stated reason, so the documented building block takes priority. Paging also keeps each page load to a bounded number of reads on the free Firebase plan.* | AC-4.7a, AC-4.7b |
 | A13 | The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar. *Source: Precedent. docs/GUIDE.md step 4, the /new-page skill checklist, and the notes feature (/notes plus a sidebar link).* | AC-4.8 |
 | A14 | List updates must appear within 3 seconds of the user's action (clicking save, confirming a delete, or clicking a checkbox), measured on the test environment's connection with no network throttling. *Source: Decision. The project sets no performance targets.* | AC-4.11a, AC-4.11b |
 | A15 | The list updates live: the user's own changes, and changes they make in another tab or on another device, appear without a reload. *Source: Precedent. The notes list updates live (docs/GUIDE.md, docs/ARCHITECTURE.md). The project doesn't require it: the /new-feature and /firebase-collection skills ask whether each feature needs realtime updates.* | AC-4.11a, AC-4.11b |
-| A16 | Status changes only through a toggle. An edit that would change the status is refused. *Source: Resolved R5 for completing a task: it stays pending until the user ticks it. For un-completing, a Decision kept consistent with R5; the ticket names the checkbox for both directions.* | AC-5.3 |
+| A16 | Status changes only through a toggle. An edit can only include the title, description and due date: an edit that includes the status is refused, even when it's the current status. *Source: Resolved R5 for completing a task: it stays pending until the user ticks it. For un-completing, a Decision kept consistent with R5; the ticket names the checkbox for both directions. Changed after Gate 1 by SCR-5: an edit that includes the current status is also refused.* | AC-5.3 |
 | A17 | A completed task can be edited in the same way as a pending one. *Source: Ticket, which places no restriction on editing.* | AC-5.4 |
 | A18 | When two edits to the same task overlap, the one the server receives last sets every field it changed, and a field changed only by the other edit keeps that edit's value. No conflict warning is shown. *Source: Decision. Conflict detection would be a new feature; merging field by field matches A28.* | AC-5.5 |
 | A19 | No completion time is recorded or shown; that is out of scope (§9). *Source: Ticket, which doesn't mention it. It would be a new feature.* | §9 |
 | A20 | Deleting a task needs an in-page confirmation step, because a deleted task can't be restored and is erased for good after 30 days (R6). Revisit this when the planned restore feature arrives. *Source: Decision, with its premise confirmed by Resolved R6. The project has no confirmation pattern to reuse, and docs/DESIGN.md "Notifications" rules out the browser's built-in confirm dialog and modal toasts, so this needs a new in-page pattern.* | AC-7.5 |
-| A21 | Automatic erasure happens within 48 hours after a deleted task's 30 days end: a record is erased no earlier than 720 hours and no later than 768 hours after its deletion time. *Source: Resolved at Gate 1. R6 sets the 30 days but not how soon after they end. The first draft said 24 hours, but a free scheduler runs at most once a day and its start time can drift by up to an hour, so a record that expires just after a run could wait almost 25 hours. 48 hours gives a safe margin (see Conflicts, item 2).* | AC-7.7 |
-| A22 | A successful delete shows a success message. *Source: Decision. The project's only success-message precedent is for create (the notes form and docs/DESIGN.md "Forms"), and nothing in the app deletes yet.* | AC-8.2b |
+| A21 | Automatic erasure happens within 72 hours after a deleted task's 30 days end: a record is erased no earlier than 720 hours and no later than 792 hours after its deletion time. *Source: Resolved at Gate 1. R6 sets the 30 days but not how soon after they end. The first draft said 24 hours. The window allows for Vercel Hobby's once-a-day schedule, whose start time can drift by up to an hour, so a record that expires just after a run could wait almost 25 hours. Gate 1 set 48 hours. Changed after Gate 1 by SCR-16 and SCR-18: 72 hours, so one missed run is tolerated, and any scheduler Design picks must meet this window (see Conflicts, item 2).* | AC-7.7 |
+| A22 | A successful delete shows a success message. *Source: Decision. The project's only success-message precedent is for form saves, create and edit (the notes form and docs/DESIGN.md "Forms"), and nothing in the app deletes yet. Changed after Gate 1 by SCR-11.* | AC-8.2b |
 | A23 | The narrowest supported screen width is 320px and the widest is 1920px. *Source: Rule for the breakpoints between them (docs/DESIGN.md "Responsive breakpoints", mobile-first). The two endpoints are a Decision: 320px is a conservative minimum phone width, and 1920px a common desktop width. docs/DESIGN.md "Spacing" suggests a 1280px page width, but the app's layout (frontend/src/components/layout/DashboardShell.tsx) doesn't cap content width, so the widest width needs its own check.* | AC-8.3 |
 | A24 | The accessibility standard is the rules in docs/DESIGN.md "Accessibility". No external standard is required. *Source: Rule. docs/DESIGN.md "Accessibility"; no external standard is named anywhere in the project.* | AC-8.4c |
 | A25 | Everything listed in section 9 is out of scope. *Source: Ticket, which mentions none of them. Viewing and restoring deleted tasks are out of scope by Resolved R6, and planned as a later feature.* | §9 |
 | A26 | A due date is in the past if it is earlier than the start of the current minute, by the server's clock when the save is received. For example, at 10:30:45 a due time of 10:30 is accepted and 10:29 is refused. *Source: Decision. R4 doesn't say which clock decides or how precisely. The server's clock is used because a device's clock can be wrong or changed, following the project Rule "Never trust the browser" (docs/GUIDE.md).* | AC-2.6a, AC-2.6b, AC-2.6c |
 | A27 | A character is one Unicode code point: 👍 counts as 1, the flag 🇦🇺 as 2, and each line break as 1. *Source: Decision. The notes precedent's limits count UTF-16 code units, where 👍 counts as 2; code points are closer to what a person types.* | AC-2.2a, AC-2.3a |
-| A28 | An edit changes only the fields the user changed, and a toggle changes only the status. *Source: Decision. It's what an edit and a toggle mean, but the ticket doesn't state it.* | AC-5.2, AC-6.4 |
-| A29 | The interface never shows an unsaved change as saved: once an action has failed, what the user sees matches what's stored. *Source: Decision, consistent with the notes precedent, whose list shows only stored data.* | AC-6.5, AC-8.1b |
-| A30 | A deleted task can't be changed in any way. Attempts are refused, and when one comes from the interface, the message says the task no longer exists. *Source: Decision. The ticket only says deleting is soft. The notes precedent doesn't enforce this: its rules still let an owner update a deleted note.* | AC-7.4 |
-| A31 | System fields are set by the app. A direct request that sets one to a value other than the one the app would set is refused. *Source: Decision. docs/SECURITY.md's field allowlist rejects unknown fields but says nothing about the values of known ones.* | AC-2.10b |
+| A28 | Apart from the last-updated time (AC-8.7b), an edit changes only the fields the user changed, and a toggle changes only the status. *Source: Decision. It's what an edit and a toggle mean, but the ticket doesn't state it. Changed after Gate 1 by SCR-14.* | AC-5.2, AC-6.4 |
+| A29 | Once an action has failed, from the moment the error message appears, what the user sees matches what's stored. *Source: Decision, consistent with the notes precedent, whose list shows only stored data. Changed after Gate 1 by SCR-8.* | AC-6.5, AC-8.1b |
+| A30 | A deleted task can't be changed in any way. Attempts are refused, and when one comes from the interface, the message says the task no longer exists. Direct changes to stored records on a test project, for test setup such as P6, are outside this rule. *Source: Decision. The ticket only says deleting is soft. The notes precedent doesn't enforce this: its rules still let an owner update a deleted note. Changed after Gate 1 by SCR-15.* | AC-7.4 |
+| A31 | System fields are set by the app, which never accepts them from a request. A direct request that includes any system field is refused, whatever its value. *Source: Decision. docs/SECURITY.md's field allowlist rejects unknown fields but says nothing about the values of known ones. Changed after Gate 1 by SCR-6: any system field is refused, whatever its value.* | AC-2.10b |
 | A32 | A create request may leave the status out, and the task is created pending. *Source: Decision. R5 says every task starts pending, but not what a create request has to say.* | AC-3.2b |
 | A33 | Capacity is tested at 1,000 tasks: a user who has 1,000 tasks can create another and page through all of them. This stands in for "no limit on the number of tasks", which can't be tested. *Source: Decision.* | AC-4.7c |
 | A34 | Stored times are checked against a test device whose clock is synchronised to network time, with a tolerance of 5 seconds either way. *Source: Decision. Without a tolerance, a small clock difference between the device and the server would fail a correct system.* | AC-7.2, AC-8.7a, AC-8.7b |
@@ -147,6 +147,7 @@ Where a rule or precedent exists, the assumption follows it unless its source no
 | A36 | An error message states the rule that was broken, including its limit where it has one. A generic message such as "Invalid title" doesn't meet this. *Source: Decision, following the notes precedent's "Title is required" (docs/GUIDE.md).* | AC-2.8 |
 | A37 | Test coverage means: for each field rule, at least one accepted and one refused case, plus the values on each side of every limit (for example, 200 and 201 characters); for a hook, its loading, loaded and error results. *Source: Decision. docs/TESTING.md says what to test, not how thoroughly.* | D2a, D2b |
 | A38 | Each checkbox's accessible name includes its task's title, so a screen-reader user can tell which task it completes. *Source: Decision, applying the docs/DESIGN.md "Accessibility" rule that every input has a label.* | AC-8.4b |
+| A39 | A direct request to the database may be refused with the database's own standard permission-denied response. *Source: Decision. Neither docs/SECURITY.md "Error Handling" nor backend/CLAUDE.md "Error Handling" mentions the database's own responses. Added after Gate 1 by SCR-12.* | AC-8.5 |
 
 ## Gate 1 decisions
 
@@ -156,13 +157,13 @@ Every assumption that added a number, a limit, or a feature or rule that neither
 
 | Assumption | Decision | Why |
 |---|---|---|
-| A1: title limit of 200 characters | Confirmed | Matches the notes feature. |
-| A3: description limit of 10,000 characters | Confirmed | Matches the notes feature. Generous, but costs nothing. |
+| A1: title limit of 200 characters | Confirmed | Same numbers as the notes feature. Characters are counted differently (A27). |
+| A3: description limit of 10,000 characters | Confirmed | Same numbers as the notes feature. Characters are counted differently (A27). |
 | A5: due times to the minute, no seconds | Confirmed | Nobody sets a to-do to the second. |
 | A6: latest due date 31 December 9999 | **Changed** to at most 10 years ahead | The old limit would accept typos like 2206. |
 | A12: 20 tasks per page | Confirmed | The project's own pagination default. |
 | A14: list updates within 3 seconds | Confirmed as a product target | It was invented, but a small app on a live list should easily meet it, and without a number the criterion can't be tested. |
-| A21: erasure within 24 hours after the 30 days | **Changed** to within 48 hours | Free schedulers run once a day with loose timing (Conflicts, item 2). |
+| A21: erasure within 24 hours after the 30 days | **Changed** to within 48 hours at Gate 1, then to within 72 hours by SCR-18 | Vercel Hobby runs scheduled jobs once a day with loose timing, and 72 hours also tolerates one missed run (Conflicts, item 2). |
 | A23: screen widths 320px to 1920px | Confirmed | Covers phones through large desktops. |
 | A26: "past" judged to the minute by the server's clock | Confirmed | The device clock can't be trusted. |
 | A27: characters counted as Unicode code points | Confirmed | Closest to what a person types. |
@@ -175,26 +176,38 @@ Every assumption that added a number, a limit, or a feature or rule that neither
 |---|---|---|
 | A2: trim whitespace, whitespace-only title counts as empty | Confirmed | Stops blank-looking tasks. |
 | A4: keep line breaks, show markup as typed | Confirmed | Users expect their line breaks back, and showing markup as typed is safer. |
+| A7: a user can have tasks with the same title | Confirmed | Not in the Gate 1 review; added by SCR-10. |
+| A9: list order by due date and time, then creation time | Confirmed | Not in the Gate 1 review; added by SCR-10. Wording changed by SCR-9 so the order applies within each group set by A10. |
 | A10: completed tasks mixed in with pending ones | **Changed** to completed tasks listed below pending ones | Mixed in, old completed tasks with past due dates sat at the top of page 1. Flagged by the AI as one of its weakest assumptions. |
 | A12: paging | Confirmed | Keeps reads bounded on the free plan. |
 | A15: live updates, including other tabs and devices | Confirmed | The project's lists already work this way. |
+| A16: an edit that would change the status is refused | **Changed** to: an edit that includes the status is refused, even with the current status | Not in the Gate 1 review; added by SCR-10 and changed by SCR-5. |
+| A18: overlapping edits, last received wins field by field, no conflict warning | Confirmed | Not in the Gate 1 review; added by SCR-10. |
 | A20: confirmation step before deleting | Confirmed | A deleted task can't be restored and is erased after 30 days, so one extra click is worth it. |
 | A22: success message after deleting | Confirmed | The user needs to know the delete worked. |
+| A28: an edit changes only the fields the user changed, a toggle only the status | Confirmed | Not in the Gate 1 review; added by SCR-10. Wording changed by SCR-14 to allow for the last-updated time. |
+| A29: what the user sees matches what's stored after a failure | Confirmed | Not in the Gate 1 review; added by SCR-10. Wording changed by SCR-8 to drop "never". |
+| A30: a deleted task can't be changed | Confirmed | Not in the Gate 1 review; added by SCR-10. Wording changed by SCR-15 to leave out test setup such as P6. |
+| A31: a system field set to a value other than the app's is refused | **Changed** to: any system field in a request is refused, whatever its value | Not in the Gate 1 review; added by SCR-10 and changed by SCR-6. |
+| A32: a create request may leave the status out | Confirmed | Not in the Gate 1 review; added by SCR-10. |
+| A35: no success message after a toggle | Confirmed | Not in the Gate 1 review; added by SCR-10. |
 | A36: error messages state the exact limit broken | Confirmed | "Title must be 200 characters or fewer" is more useful than "Invalid title". |
 | A37: test coverage on both sides of every limit | Confirmed | Standard boundary testing. |
+| A38: each checkbox's accessible name includes the task's title | Confirmed | Not in the Gate 1 review; added by SCR-10. |
+| A39: the database's own permission-denied response is allowed | Confirmed | New assumption, added by SCR-12. |
 
 ---
 
 ## 1. Access and ownership
 
-- **AC-1.1** While signed out, opening the task list redirects to the sign-in page, and a direct request to read, create, edit, complete or delete a task is refused. (P2) [Ticket: "users log in"; Project: docs/ARCHITECTURE.md, protected pages redirect to sign-in]
+- **AC-1.1** While signed out, opening the task list redirects to the sign-in page, and a direct request to read, create, edit, complete or delete a task is refused (see Terms, "Refused"). (P2) [Ticket: "users log in"; Project: docs/ARCHITECTURE.md, protected pages redirect to sign-in]
 - **AC-1.2** When users A and B both have tasks, A's task list contains none of B's tasks. (P1) [Ticket: "their own"]
 - **AC-1.3** Signed in as A, a direct request to read (see Terms), edit, complete or delete one of B's tasks is refused at every point listed under P2. Afterwards, B's task is unchanged. (P1, P2, P3) [Ticket: "their own"; Project: docs/SECURITY.md, "assume the client is untrusted"]
 - **AC-1.4a** Signed in as A, a direct request to create a task with B as its owner is refused. (P1, P2) [Project: docs/SECURITY.md, owner-only access; docs/TUTORIAL-WALKTHROUGH.md, creating a record as another user is refused]
 - **AC-1.4b** Signed in as A, a direct request to change the owner of one of A's own tasks is refused. (P1, P2) [Project: docs/SECURITY.md, the owner field is immutable]
 - **AC-1.5** Signed in as a user with the admin role, a direct request to read, edit, complete or delete another user's task is refused at every point listed under P2, exactly as for any other user (AC-1.3). (P1, P2, P3) [Resolved R1]
-- **AC-1.6a** A request carrying expired credentials (see Terms) is treated as signed out: opening the task list redirects to the sign-in page, and any task action or direct request is refused. (P7) [Project: docs/SECURITY.md "Authentication": invalid or expired tokens are always refused]
-- **AC-1.6b** After a user's session is revoked, opening the task list with that session redirects to the sign-in page, and in-app task actions made with it are refused. This doesn't cover sign-in tokens issued before the revocation, which stay valid until they expire (up to 1 hour, docs/SECURITY.md). (P5) [Project: docs/SECURITY.md "Authentication": every in-app action checks the session for revocation]
+- **AC-1.6a** A request carrying expired credentials (see Terms) is treated as signed out: opening the task list redirects to the sign-in page, and any task action or direct request is refused (see Terms, "Refused"). (P7) [Project: docs/SECURITY.md "Authentication": invalid or expired tokens are always refused]
+- **AC-1.6b** After a user's session is revoked, opening the task list with that session redirects to the sign-in page, and in-app task actions made with it are refused (see Terms, "Refused"). This doesn't cover sign-in tokens issued before the revocation, which stay valid until they expire (up to 1 hour, docs/SECURITY.md). (P5) [Project: docs/SECURITY.md "Authentication": every in-app action checks the session for revocation]
 
 ## 2. Task fields
 
@@ -214,14 +227,14 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-2.6a** A new task's due date must not be in the past (see Terms): a past one is refused, and any other is accepted, up to the limit in AC-2.6d. [Resolved R4] [Assumes A26]
 - **AC-2.6b** An edit that changes a task's due date to a different date and time in the past is refused, including a change to the time alone. [Resolved R4] [Assumes A26]
 - **AC-2.6c** An edit to a task whose due date has already passed is accepted when it leaves the due date unchanged, provided it meets the other field rules. [Resolved R4] [Assumes A26]
-- **AC-2.6d** A due date more than 10 years after the moment the task is saved is refused, and one up to 10 years ahead is accepted. For example, saved on 5 March 2027, a due date on 5 March 2037 is accepted and one on 6 March 2037 is refused. [Assumes A6]
+- **AC-2.6d** A due date more than 10 years after the moment the task is saved is refused, and one up to 10 years ahead is accepted. For example, saved at 10:30 UTC on 5 March 2027, a due date of 10:30 UTC on 5 March 2037 is accepted and 10:31 UTC is refused. [Assumes A6]
 
   *Example for AC-2.6a to AC-2.6c,* with the server's clock at 10:30:45 UTC on 5 March 2027: creating a task due 10:30 UTC that day is accepted, and one due 10:29 UTC is refused. For a task due 09:00 UTC on 1 March 2027, an edit to its title alone is accepted, but changing its due date to 09:00 UTC on 2 March 2027 is refused.
 - **AC-2.7** A user can save a task with the same title as another of their tasks. [Assumes A7]
 - **AC-2.8** When a submission breaks a field rule, each invalid field shows an error message beside or below it that states the rule broken, including the limit where the rule has one (for example, "Title must be 200 characters or fewer" or "Due date can't be in the past"). Valid fields show no error. [Project: docs/DESIGN.md, "Forms": field-level error messages] [Assumes A36]
 - **AC-2.9** Every field rule is also enforced on direct requests: a direct request to create or edit a task that breaks one is refused. (P2) [Project: docs/GUIDE.md golden rule 1, "Never trust the browser"; frontend/CLAUDE.md, input is validated before any database operation; docs/SECURITY.md "Input Validation"]
 - **AC-2.10a** A direct request to create or edit a task that includes any field not in the task fields (see Terms) is refused. (P2) [Project: docs/SECURITY.md "Field allowlists" and "Input Validation": unknown fields are rejected]
-- **AC-2.10b** A direct request that sets a system field other than the owner (creation time, last-updated time, deletion time or schema version) to anything other than the value the app would set is refused. For example, a create request with a creation time in 1990, or with a deletion time, is refused. The owner is covered by AC-1.4a and AC-1.4b. (P2) [Assumes A31]
+- **AC-2.10b** A direct request that includes any system field (owner, creation time, last-updated time, deletion time or schema version) is refused, whatever its value. For example, a create request with a creation time in 1990, with a deletion time, or naming the requester as the owner is refused, and so is an edit request that includes the task's current creation time. AC-1.4a and AC-1.4b cover requests that name another user as the owner. (P2) [Assumes A31]
 
 ## 3. Create
 
@@ -252,7 +265,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 
 - **AC-5.1** A user can change the title, description and due date of their own task, within the field rules in section 2. [Ticket]
 - **AC-5.2** After an edit is saved, each of the task's title, description, due date and status that the user didn't change has the same value as before the edit. [Assumes A28]
-- **AC-5.3** A task's status changes only through a toggle (see Terms). An edit that would change the status is refused, whether it comes from the interface or a direct request. (P2) [Resolved R5] [Assumes A16]
+- **AC-5.3** A task's status changes only through a toggle (see Terms). An edit can only include the title, description and due date: an edit that includes the status is refused, even when it's the current status, whether it comes from the interface or a direct request. (P2) [Resolved R5] [Assumes A16]
 - **AC-5.4** A completed task can be edited in the same way as a pending one. [Assumes A17]
 - **AC-5.5** When two edits to the same task overlap (for example, from two tabs), the edit the server receives last sets every field it changed, and a field changed only by the other edit keeps that edit's value. No conflict warning is shown. [Assumes A18]
 
@@ -274,7 +287,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-7.4** Attempts to edit, complete or delete a deleted task are refused, both from an outdated screen, such as a second tab still showing the task, and by direct request. Afterwards the stored record, including its deletion time, is unchanged. When the attempt comes from the interface, the error message says the task no longer exists. (P2, P3) [Assumes A30]
 - **AC-7.5** Deleting a task requires the user to confirm. If they cancel, the task is unchanged and stays in the list. [Assumes A20]
 - **AC-7.6** No one, including the owner and admins, can restore a deleted task: a request that would clear its deletion time, from the interface or by direct request, is refused. (P1, P2, P3) [Resolved R1, R6]
-- **AC-7.7** A deleted task's record still exists until 30 days (720 hours) after its deletion time, and has been erased automatically by 48 hours after that (768 hours after its deletion time). No user action is needed. (P3, P6) [Resolved R6] [Assumes A21]
+- **AC-7.7** A deleted task's record still exists until 30 days (720 hours) after its deletion time, and has been erased automatically by 72 hours after that (792 hours after its deletion time). No user action is needed. (P3, P6) [Resolved R6] [Assumes A21]
 - **AC-7.8** The automatic erasure never changes or erases a task that isn't deleted, however old it is. (P3, P6) [Resolved R6]
 - **AC-7.9** A user can delete any of their own non-deleted tasks from the task list. [Ticket]
 
@@ -289,7 +302,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-8.4a** Every action in sections 3–7 can be completed using only the keyboard. [Project: docs/DESIGN.md, "Accessibility"]
 - **AC-8.4b** Each task's checkbox has an accessible name that includes the task's title. [Project: docs/DESIGN.md, "Accessibility": every input has a label] [Assumes A38]
 - **AC-8.4c** The feature meets every rule in docs/DESIGN.md "Accessibility": semantic elements, visible keyboard focus, no clickable elements that aren't buttons or links, alt text on images, a label on every input, and an accessible name on every icon-only button. [Project: docs/DESIGN.md, "Accessibility"] [Assumes A24]
-- **AC-8.5** Error messages shown in the interface, and error responses from the app's own server code, contain none of the following: stack traces; file, directory or database paths; error text or codes produced by the database or a library; server names or addresses. The database's own standard permission-denied response to a direct request is allowed. (P2, P4) [Project: docs/SECURITY.md "Error Handling"; backend/CLAUDE.md "Error Handling"]
+- **AC-8.5** Error messages shown in the interface, and error responses from the app's own server code, contain none of the following: stack traces; file, directory or database paths; error text or codes produced by the database or a library; server names or addresses. The database's own standard permission-denied response to a direct request is allowed. (P2, P4) [Project: docs/SECURITY.md "Error Handling"; backend/CLAUDE.md "Error Handling"] [Assumes A39]
 - **AC-8.6** Every stored task record carries a schema version, set to 1 when the task is created, so that later changes to the task's shape can migrate old records. (P3) [Project: docs/FIRESTORE-SCHEMA.md "Schema versioning": every document must include it]
 - **AC-8.7a** Every stored task record holds its creation time, within 5 seconds of when the user saved the new task, by a clock synchronised to network time. It never changes afterwards. (P3, P8) [Project: the /firebase-collection and /new-feature skill templates, and every collection in docs/FIRESTORE-SCHEMA.md] [Assumes A34]
 - **AC-8.7b** Every stored task record holds its last-updated time. After each successful create, edit, toggle and delete, it is within 5 seconds of the user's action, by a clock synchronised to network time. (P3, P8) [Project: the /firebase-collection and /new-feature skill templates, and every collection in docs/FIRESTORE-SCHEMA.md] [Assumes A34]
@@ -336,9 +349,9 @@ Features left out of this ticket are listed in section 9. This section records c
 | The ordering rule for tasks without a due date (A9, AC-4.4) | R2: the due date is required. | Removed. |
 | Keeping deleted tasks indefinitely (the earlier A21) | R6: deleted tasks are erased automatically after 30 days. | AC-7.7, with the erasure window in A21. |
 | "Restoring stays out of scope unless AC-7.6 brings it in" (A20, A25, section 9) | R6 settled it: restoring is out of scope and planned as a later feature. | Section 9. |
-| AC-4.5: completed tasks appear in the same list, in the same order | Already implied by AC-4.1 and AC-4.4. | AC-4.4. |
+| AC-4.5: completed tasks appear in the same list, in the same order | AC-4.4 now covers completed tasks, which are listed below pending ones (A10). | AC-4.4. |
 | AC-4.6 (no overdue marking) and AC-6.6 (no completion time shown) | They stated the absence of features nobody asked for, which is scope, not behaviour. | Section 9 (A11, A19). |
-| "There is no separate detail view" (AC-4.3) | A design restriction that no user outcome depends on. | Section 9 (A8). |
+| "There is no separate detail view" (AC-4.3) | A scope limit, not a behaviour, so it moved to §9 and A8. AC-7.1 relies on it. | Section 9 (A8). |
 | "There is no limit on the number of tasks a user can have" (AC-4.7) | It can't be tested. | A 1,000-task capacity check: AC-4.7c, A33. |
 | "The edit view has no status control" (AC-5.3) | It described the design. The rule it served, that an edit can't change status, stays. | AC-5.3. |
 | AC-4.1's "and nothing else" | It repeated two other checks. | AC-1.2 (other users' tasks) and AC-7.1 (deleted tasks). |
@@ -349,6 +362,31 @@ Features left out of this ticket are listed in section 9. This section records c
 | The viewing part of AC-7.6 | It repeated other checks. | AC-1.3, AC-1.5 and AC-7.1. AC-7.6 now covers restoring only. |
 | D3: CI must pass before merge | Branch protection already requires it on every PR (docs/GIT-WORKFLOW.md). | Enforced by the repository, not this spec. |
 | Source claims the project doesn't support: AC-4.11 citing live lists as a project rule, AC-6.5 citing another criterion as its project source, and the [Ticket] tags on AC-5.2, AC-6.4 and AC-7.4 | Each overstated where the requirement came from. | Relabelled: AC-4.11a and AC-4.11b cite A14 and A15; AC-5.2, AC-6.4, AC-6.5 and AC-7.4 cite decisions A28 to A30. |
+
+## Changes after Gate 1
+
+Each change applies an answered spec change request in `design-and-context-engineering/task-crud-spec-change-requests.md`. The answers were given on 2026-09-27 by an AI assistant acting for Sajad Ali Akbari, the Gate 1 owner, at his request, and are recorded as his decisions. Each changed assumption's source note says which SCR changed it.
+
+| SCR | What changed | IDs changed |
+|---|---|---|
+| SCR-1 | For an in-app action (a Server Action), a redirect to the sign-in page counts as refused. A request to any other route, such as the database or an API, still gets an error. The three criteria now point to Terms "Refused". | Terms "Refused", AC-1.1, AC-1.6a, AC-1.6b |
+| SCR-2 | The admin test account has both the `role: 'admin'` field and the `admin` custom claim, and AC-1.5 must hold with each one on its own and with both together. | P1 |
+| SCR-3 | The 10-year limit is the save moment plus 10 calendar years, to the minute, counted in UTC, with 28 February used when 29 February doesn't exist. The AC-2.6d example now uses times. | A6, AC-2.6d |
+| SCR-4 | Whitespace is the set of characters JavaScript's `trim()` removes. | Terms "Whitespace", A2 |
+| SCR-5 | An edit can only include the title, description and due date. An edit that includes the status is refused, even with the current status. | A16, AC-5.3 |
+| SCR-6 | A direct request that includes any system field is refused, whatever its value. The "value the app would set" wording is removed, and AC-2.10b now covers the owner field too. | A31, AC-2.10b |
+| SCR-7 | The deleted task's record is kept for 30 days as a record only, then erased within the window in A21. | Terms "Deleted task" |
+| SCR-8 | "Never" is dropped. What the user sees matches what's stored from the moment the error message appears. | A29 |
+| SCR-9 | The cut log reason for AC-4.5 now says completed tasks are listed below pending ones. A9's order applies within each group set by A10. | What was cut (AC-4.5 row), A9 |
+| SCR-10 | Assumptions labelled "Decision" that weren't in the Gate 1 review are added to Gate 1 decisions. All are confirmed as written, except A16 and A31, which change as in SCR-5 and SCR-6. | Gate 1 decisions (A7, A9, A16, A18, A28, A29, A30, A31, A32, A35, A38) |
+| SCR-11 | A22's source note says the success-message precedent is for form saves, create and edit. | A22 |
+| SCR-12 | New assumption for the database's own permission-denied response. AC-8.5 now cites it, and it is added to Gate 1 decisions as confirmed. | A39 (new), AC-8.5, Gate 1 decisions (A39) |
+| SCR-13 | The Gate 1 reason for A1 and A3 is now "Same numbers as the notes feature. Characters are counted differently (A27)." | Gate 1 decisions (A1, A3) |
+| SCR-14 | A28 allows for the last-updated time (AC-8.7b). | A28 |
+| SCR-15 | A30 leaves out direct changes to stored records on a test project for test setup such as P6. | A30 |
+| SCR-16 | The erasure window's reason is Vercel Hobby's once-a-day schedule, not "any free scheduler", and any scheduler Design picks must meet the window. Design picked Vercel (ADR-A). | Conflicts item 2, A21 |
+| SCR-17 | The cut log reason for "no detail view" now says it is a scope limit that moved to §9 and A8, and that AC-7.1 relies on it. | What was cut ("no separate detail view" row) |
+| SCR-18 | The erasure window is widened to 72 hours after the 30 days end (720 to 792 hours after deletion), so one missed run is tolerated. | A21, AC-7.7, Gate 1 decisions (A21), Conflicts item 2 |
 
 ## Sign-off
 
