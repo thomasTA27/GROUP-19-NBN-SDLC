@@ -1,7 +1,7 @@
 # Task CRUD — Acceptance Criteria
 
 **Product:** Simple Task Dashboard
-**Status:** Draft for team review. All six open questions are answered (see Resolved questions). The assumptions still need the product owner's confirmation, starting with "Additions to confirm".
+**Status:** Approved at Gate 1 on 2026-09-27. All six open questions are answered (see Resolved questions), and every assumption that added a number or feature has a product owner decision (see Gate 1 decisions).
 **Date:** 2026-09-27
 
 ## Ticket
@@ -88,7 +88,11 @@ These readings go slightly beyond the literal answers. The product owner should 
    - The only permanent erasure is the automatic one, and only for deleted tasks whose 30 days have passed (AC-7.7, AC-7.8). The spec records it as an explicit, justified exception, which is what the project's security-reviewer agent asks for ("no hard deletes unless explicitly justified"). D4 requires the exception to be written into docs/SECURITY.md and docs/FIRESTORE-SCHEMA.md, so it isn't a silent departure.
    - The product owner wrote the ticket, so R6 is treated as refining "not a hard delete", not overriding it.
    - The owner-only rules template in the /firebase-collection skill allows owners to hard-delete. That contradicts docs/SECURITY.md and would fail AC-7.3, so it must not be used as-is for tasks.
-2. **R6 conflicts with the project's free-plan rule.** CLAUDE.md says "no paid Firebase plan required", and README.md says "free-tier only". Automatic erasure needs something that runs on a schedule. The project's only server-side code, the Cloud Functions backend, needs the paid Blaze plan (docs/ARCHITECTURE.md, docs/CI-CD.md). The spec keeps the free-plan rule as delivery requirement D5 and doesn't choose a mechanism. If the team would rather use the backend, that's a decision to move to the Blaze plan, and D5 changes.
+2. **R6 conflicts with the project's free-plan rule.** CLAUDE.md says "no paid Firebase plan required", and README.md says "free-tier only". Automatic erasure needs something that runs on a schedule, and the project's only server-side code outside the frontend, the Cloud Functions backend, needs the paid Blaze plan (docs/ARCHITECTURE.md, docs/CI-CD.md).
+   - **Resolved at Gate 1: the free-plan rule stays.** The erasure must run without any paid plan or billing account (D5). Moving to Blaze was rejected, because the whole project is built to run free.
+   - **Feasibility was checked before approving.** Firestore's own TTL deletion is ruled out, because TTL deletes need billing enabled (Firebase "Usage and limits", free quota section). A free option does exist: the frontend already runs on Vercel's free Hobby plan (docs/ARCHITECTURE.md), and Hobby allows scheduled jobs that run once a day, with the start time only accurate to the hour (Vercel "Usage & Pricing for Cron Jobs"). Other free schedulers, such as a scheduled GitHub Actions workflow, would also work.
+   - **The mechanism is a Design decision, not a Planning one.** This spec only requires that erasure is automatic, free, and within the window in A21. Choosing between a Vercel scheduled job, a GitHub Actions workflow or something else, and how it gets admin access to Firestore safely, is left to Design and Context Engineering.
+   - **Because a free scheduler runs at most once a day with loose timing, the erasure window is 48 hours, not 24** (A21, AC-7.7).
 3. **R1–R5 conflict with no project rule.** R1 matches the notes feature, which is owner-only. The project's admin helper (docs/SECURITY.md) is used for user profiles, and the spec doesn't extend it to tasks. R2 matches the notes feature, where the title is required and the body can be empty.
 
 ## Assumptions
@@ -110,11 +114,11 @@ Where a rule or precedent exists, the assumption follows it unless its source no
 | A3 | A description can be at most 10,000 characters. *Source: Precedent. This is the notes body limit in docs/FIRESTORE-SCHEMA.md.* | AC-2.3a |
 | A4 | The description is plain text: anything that looks like markup or formatting is shown exactly as typed. Line breaks the user types are kept and shown. *Source: Decision. This departs from the notes precedent, whose list doesn't keep line breaks. That's an omission, not a documented rule.* | AC-2.3b, AC-2.3c |
 | A5 | A due date is a single moment, entered and shown as a date and time to the minute, in the timezone of the device displaying it. *Source: Resolved R3 for date and time. Minute precision is Precedent: the project's `formatDatetime` helper (frontend/src/lib/utils.ts) shows hours and minutes. Showing it in the viewer's timezone is a Decision. The project has no timezone rule, and its date helpers format in the timezone of wherever the code runs, which for server-rendered pages is the server's, so they don't provide this behaviour by themselves.* | AC-2.4, AC-2.5 |
-| A6 | There is no latest allowed due date: any due date and time up to and including 23:59 UTC on 31 December 9999, the last minute with a four-digit year, is accepted. *Source: Decision.* | AC-2.6d |
+| A6 | A due date can be at most 10 years after the moment the task is saved, by the server's clock. *Source: Resolved at Gate 1. The earlier limit of 31 December 9999 was a technical ceiling that would accept a typo like 2206 for 2026; the product owner replaced it with a 10-year limit, which is far enough ahead for any real to-do.* | AC-2.6d |
 | A7 | A user can have more than one task with the same title. *Source: Decision. No collection in the project requires unique values, but that's silence, not a precedent.* | AC-2.7 |
 | A8 | Each list item shows the task's title, full description (if it has one) and due date and time, as well as its checkbox. A separate detail view for a task is out of scope (§9), so the edit view is the only other place a single task is shown. *Source: Precedent. The notes list shows each note's title and body in full (docs/GUIDE.md). The project also has an unused truncate helper and supports detail pages (/new-page skill), so this is a choice, not a rule.* | AC-4.3, AC-7.1, §9 |
 | A9 | Tasks are listed by due date and time, soonest first. Tasks with the same due date and time are listed by creation time, oldest first. *Source: Decision; the notes list sets no order. There's no rule for tasks without a due date, because R2 makes the due date required.* | AC-4.4 |
-| A10 | Completed tasks appear in the same list as pending ones, in the same order. *Source: Ticket, for visibility: completed tasks must be in the list so their checkbox can be unticked. Mixing them in rather than grouping them separately is a Decision; grouping would also meet the ticket.* | AC-4.4 |
+| A10 | Completed tasks stay in the list, below all pending tasks. Within each group, the order in A9 applies. *Source: Ticket, for visibility: completed tasks must be in the list so their checkbox can be unticked. Placing them below pending tasks is a product owner decision at Gate 1: mixing them in would push old completed tasks with past due dates to the top of page 1, above the work still to do.* | AC-4.4 |
 | A11 | Overdue tasks are not marked; marking them is out of scope (§9). *Source: Ticket, which doesn't mention it. Marking would be a new feature.* | §9 |
 | A12 | The list shows at most 20 tasks per page, and the user can move between pages. *Source: Precedent. `paginationSchema` (frontend/src/lib/validations/common.ts, listed in CLAUDE.md "Codebase Map") defaults to 20 per page, with a maximum of 100. The notes list doesn't page, but it's tutorial code with no stated reason, so the documented building block takes priority. Paging also keeps each page load to a bounded number of reads on the free Firebase plan.* | AC-4.7a, AC-4.7b |
 | A13 | The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar. *Source: Precedent. docs/GUIDE.md step 4, the /new-page skill checklist, and the notes feature (/notes plus a sidebar link).* | AC-4.8 |
@@ -125,7 +129,7 @@ Where a rule or precedent exists, the assumption follows it unless its source no
 | A18 | When two edits to the same task overlap, the one the server receives last sets every field it changed, and a field changed only by the other edit keeps that edit's value. No conflict warning is shown. *Source: Decision. Conflict detection would be a new feature; merging field by field matches A28.* | AC-5.5 |
 | A19 | No completion time is recorded or shown; that is out of scope (§9). *Source: Ticket, which doesn't mention it. It would be a new feature.* | §9 |
 | A20 | Deleting a task needs an in-page confirmation step, because a deleted task can't be restored and is erased for good after 30 days (R6). Revisit this when the planned restore feature arrives. *Source: Decision, with its premise confirmed by Resolved R6. The project has no confirmation pattern to reuse, and docs/DESIGN.md "Notifications" rules out the browser's built-in confirm dialog and modal toasts, so this needs a new in-page pattern.* | AC-7.5 |
-| A21 | Automatic erasure happens within 24 hours after a deleted task's 30 days end: a record is erased no earlier than 720 hours and no later than 744 hours after its deletion time. *Source: Decision. R6 sets the 30 days but not how soon after they end. 24 hours allows the erasure to run once a day.* | AC-7.7 |
+| A21 | Automatic erasure happens within 48 hours after a deleted task's 30 days end: a record is erased no earlier than 720 hours and no later than 768 hours after its deletion time. *Source: Resolved at Gate 1. R6 sets the 30 days but not how soon after they end. The first draft said 24 hours, but a free scheduler runs at most once a day and its start time can drift by up to an hour, so a record that expires just after a run could wait almost 25 hours. 48 hours gives a safe margin (see Conflicts, item 2).* | AC-7.7 |
 | A22 | A successful delete shows a success message. *Source: Decision. The project's only success-message precedent is for create (the notes form and docs/DESIGN.md "Forms"), and nothing in the app deletes yet.* | AC-8.2b |
 | A23 | The narrowest supported screen width is 320px and the widest is 1920px. *Source: Rule for the breakpoints between them (docs/DESIGN.md "Responsive breakpoints", mobile-first). The two endpoints are a Decision: 320px is a conservative minimum phone width, and 1920px a common desktop width. docs/DESIGN.md "Spacing" suggests a 1280px page width, but the app's layout (frontend/src/components/layout/DashboardShell.tsx) doesn't cap content width, so the widest width needs its own check.* | AC-8.3 |
 | A24 | The accessibility standard is the rules in docs/DESIGN.md "Accessibility". No external standard is required. *Source: Rule. docs/DESIGN.md "Accessibility"; no external standard is named anywhere in the project.* | AC-8.4c |
@@ -144,35 +148,40 @@ Where a rule or precedent exists, the assumption follows it unless its source no
 | A37 | Test coverage means: for each field rule, at least one accepted and one refused case, plus the values on each side of every limit (for example, 200 and 201 characters); for a hook, its loading, loaded and error results. *Source: Decision. docs/TESTING.md says what to test, not how thoroughly.* | D2a, D2b |
 | A38 | Each checkbox's accessible name includes its task's title, so a screen-reader user can tell which task it completes. *Source: Decision, applying the docs/DESIGN.md "Accessibility" rule that every input has a label.* | AC-8.4b |
 
-## Additions to confirm
+## Gate 1 decisions
 
-These assumptions add a number, a limit, or a feature or rule that neither the ticket nor the product owner asked for. The product owner should confirm or remove each one. Removing one means revising the criteria in its "Used by" column.
+Every assumption that added a number, a limit, or a feature or rule that neither the ticket nor the product owner had asked for was reviewed at Gate 1. Each is now either confirmed or changed. The readings in "How the answers are applied" (R4, R5, R6) are also confirmed.
 
 **Numbers and limits**
 
-- **A1**: a title limit of 200 characters.
-- **A3**: a description limit of 10,000 characters.
-- **A5**: due times to the minute, with no seconds.
-- **A6**: a latest due date of 23:59 UTC on 31 December 9999.
-- **A12**: 20 tasks per page.
-- **A14**: list updates within 3 seconds.
-- **A21**: erasure within 24 hours after the 30 days end.
-- **A23**: supported screen widths of 320px to 1920px.
-- **A26**: "past" judged to the minute, by the server's clock.
-- **A27**: characters counted as Unicode code points, which sets what the title and description limits mean.
-- **A33**: capacity tested at 1,000 tasks.
-- **A34**: a 5-second tolerance when checking stored times.
+| Assumption | Decision | Why |
+|---|---|---|
+| A1: title limit of 200 characters | Confirmed | Matches the notes feature. |
+| A3: description limit of 10,000 characters | Confirmed | Matches the notes feature. Generous, but costs nothing. |
+| A5: due times to the minute, no seconds | Confirmed | Nobody sets a to-do to the second. |
+| A6: latest due date 31 December 9999 | **Changed** to at most 10 years ahead | The old limit would accept typos like 2206. |
+| A12: 20 tasks per page | Confirmed | The project's own pagination default. |
+| A14: list updates within 3 seconds | Confirmed as a product target | It was invented, but a small app on a live list should easily meet it, and without a number the criterion can't be tested. |
+| A21: erasure within 24 hours after the 30 days | **Changed** to within 48 hours | Free schedulers run once a day with loose timing (Conflicts, item 2). |
+| A23: screen widths 320px to 1920px | Confirmed | Covers phones through large desktops. |
+| A26: "past" judged to the minute by the server's clock | Confirmed | The device clock can't be trusted. |
+| A27: characters counted as Unicode code points | Confirmed | Closest to what a person types. |
+| A33: capacity tested at 1,000 tasks | Confirmed | A test stand-in, not a product limit. |
+| A34: 5-second tolerance when checking stored times | Confirmed | A test detail only. |
 
 **Features and rules**
 
-- **A2**: trimming whitespace from titles, and treating a whitespace-only title as empty.
-- **A4**: keeping line breaks in descriptions, and showing markup as typed.
-- **A12**: paging itself.
-- **A15**: live updates, including across the user's other tabs and devices.
-- **A20**: a confirmation step before deleting.
-- **A22**: a success message after deleting.
-- **A36**: error messages that state the exact limit broken.
-- **A37**: a test-coverage bar (both sides of every limit).
+| Assumption | Decision | Why |
+|---|---|---|
+| A2: trim whitespace, whitespace-only title counts as empty | Confirmed | Stops blank-looking tasks. |
+| A4: keep line breaks, show markup as typed | Confirmed | Users expect their line breaks back, and showing markup as typed is safer. |
+| A10: completed tasks mixed in with pending ones | **Changed** to completed tasks listed below pending ones | Mixed in, old completed tasks with past due dates sat at the top of page 1. Flagged by the AI as one of its weakest assumptions. |
+| A12: paging | Confirmed | Keeps reads bounded on the free plan. |
+| A15: live updates, including other tabs and devices | Confirmed | The project's lists already work this way. |
+| A20: confirmation step before deleting | Confirmed | A deleted task can't be restored and is erased after 30 days, so one extra click is worth it. |
+| A22: success message after deleting | Confirmed | The user needs to know the delete worked. |
+| A36: error messages state the exact limit broken | Confirmed | "Title must be 200 characters or fewer" is more useful than "Invalid title". |
+| A37: test coverage on both sides of every limit | Confirmed | Standard boundary testing. |
 
 ---
 
@@ -205,7 +214,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-2.6a** A new task's due date must not be in the past (see Terms): a past one is refused, and any other is accepted, up to the limit in AC-2.6d. [Resolved R4] [Assumes A26]
 - **AC-2.6b** An edit that changes a task's due date to a different date and time in the past is refused, including a change to the time alone. [Resolved R4] [Assumes A26]
 - **AC-2.6c** An edit to a task whose due date has already passed is accepted when it leaves the due date unchanged, provided it meets the other field rules. [Resolved R4] [Assumes A26]
-- **AC-2.6d** The latest accepted due date is 23:59 UTC on 31 December 9999; any later one is refused. [Assumes A6]
+- **AC-2.6d** A due date more than 10 years after the moment the task is saved is refused, and one up to 10 years ahead is accepted. For example, saved on 5 March 2027, a due date on 5 March 2037 is accepted and one on 6 March 2037 is refused. [Assumes A6]
 
   *Example for AC-2.6a to AC-2.6c,* with the server's clock at 10:30:45 UTC on 5 March 2027: creating a task due 10:30 UTC that day is accepted, and one due 10:29 UTC is refused. For a task due 09:00 UTC on 1 March 2027, an edit to its title alone is accepted, but changing its due date to 09:00 UTC on 2 March 2027 is refused.
 - **AC-2.7** A user can save a task with the same title as another of their tasks. [Assumes A7]
@@ -226,7 +235,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-4.1** The task list contains every non-deleted task the user owns. [Ticket]
 - **AC-4.2** Each list item shows the task's title and a checkbox. The checkbox is ticked if the task is completed and unticked if it is pending. [Ticket: "the checkbox in the task list"]
 - **AC-4.3** Each list item also shows the task's full description, if it has one, and its due date and time. [Resolved R2, R3] [Assumes A8]
-- **AC-4.4** All tasks, pending and completed alike, are listed by due date and time, soonest first. Tasks with the same due date and time are listed by creation time, oldest first. [Assumes A9, A10]
+- **AC-4.4** All pending tasks are listed before all completed tasks. Within each group, tasks are listed by due date and time, soonest first, and tasks with the same due date and time by creation time, oldest first. For example, a completed task due yesterday appears after a pending task due next year. [Assumes A9, A10]
 - **AC-4.5** *Removed: AC-4.4 now covers completed tasks.*
 - **AC-4.6** *Moved to section 9: marking overdue tasks is out of scope.*
 - **AC-4.7a** Each page of the list shows at most 20 tasks, in the order set by AC-4.4. For example, with 21 tasks, the first page shows 20 and the second shows 1. [Assumes A12]
@@ -265,7 +274,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-7.4** Attempts to edit, complete or delete a deleted task are refused, both from an outdated screen, such as a second tab still showing the task, and by direct request. Afterwards the stored record, including its deletion time, is unchanged. When the attempt comes from the interface, the error message says the task no longer exists. (P2, P3) [Assumes A30]
 - **AC-7.5** Deleting a task requires the user to confirm. If they cancel, the task is unchanged and stays in the list. [Assumes A20]
 - **AC-7.6** No one, including the owner and admins, can restore a deleted task: a request that would clear its deletion time, from the interface or by direct request, is refused. (P1, P2, P3) [Resolved R1, R6]
-- **AC-7.7** A deleted task's record still exists until 30 days (720 hours) after its deletion time, and has been erased automatically by 24 hours after that (744 hours after its deletion time). No user action is needed. (P3, P6) [Resolved R6] [Assumes A21]
+- **AC-7.7** A deleted task's record still exists until 30 days (720 hours) after its deletion time, and has been erased automatically by 48 hours after that (768 hours after its deletion time). No user action is needed. (P3, P6) [Resolved R6] [Assumes A21]
 - **AC-7.8** The automatic erasure never changes or erases a task that isn't deleted, however old it is. (P3, P6) [Resolved R6]
 - **AC-7.9** A user can delete any of their own non-deleted tasks from the task list. [Ticket]
 
@@ -319,7 +328,7 @@ Features left out of this ticket are listed in section 9. This section records c
 
 | What was cut | Why | Where it is now |
 |---|---|---|
-| 23 of the 29 open questions raised when the criteria were made testable | On instruction, only the six questions that needed the product owner were kept. The rest became decisions, so every criterion could be tested. | Assumptions A1–A25. The six kept questions are R1–R6. |
+| 19 of the 25 open questions raised in the first draft | On instruction, only the six questions that needed the product owner were kept. The rest became decisions, so every criterion could be tested. | Assumptions A1–A25. The six kept questions are R1–R6. |
 | Wording with no agreed pass/fail result, such as "never", "anywhere", "works", "phone-sized" and "looks like a success". This included "the checkbox never shows a status that hasn't been saved", which contradicted its own criterion. | Two testers couldn't agree on a result. | Rewritten as pass/fail checks, for example AC-6.5, AC-7.1 and AC-8.3. |
 | The WCAG reference in A23 | It contradicted A24, which requires no external accessibility standard. | A23 now gives its own reason for 320px. |
 | "No paging" (the earlier A12) | It contradicted the project's `paginationSchema` building block. | Paging at 20 per page: A12, AC-4.7a and AC-4.7b. |
@@ -343,4 +352,6 @@ Features left out of this ticket are listed in section 9. This section records c
 
 ## Sign-off
 
-Approved at Gate 1 by Sajad Ali Akbari (product owner), [date]
+Approved at Gate 1 by Sajad Ali Akbari (product owner), 2026-09-27.
+
+The product owner is also the author of the ticket and the tester for this module's evidence, so this sign-off is a team decision, not an independent review. The Gate 1 decisions were drafted with an AI assistant and then reviewed and agreed by the product owner.
