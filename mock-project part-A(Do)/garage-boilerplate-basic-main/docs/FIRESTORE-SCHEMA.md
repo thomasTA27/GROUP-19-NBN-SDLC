@@ -62,3 +62,24 @@ This enables **lazy migration** — when a document is read, check `_schemaVersi
 ---
 
 <!-- Add new collection schemas below -->
+
+## `tasks` collection
+
+**Path:** `/tasks/{taskId}`
+**Access:** Owner-only read of tasks that are not deleted. **All writes go through Server Actions** (`createTask`, `updateTask`, `setTaskStatus`, `deleteTask`). Security rules deny every client-SDK create, update and delete. See `docs/adr/0001-task-writes-via-server-actions.md`.
+
+| Field            | Type                         | Required | Description                                                                 |
+| ---------------- | ---------------------------- | -------- | --------------------------------------------------------------------------- |
+| `uid`            | `string`                     | Yes      | Owner's Firebase Auth UID, taken from the session. Immutable                |
+| `title`          | `string`                     | Yes      | Trimmed, 1–100 chars, single line                                           |
+| `description`    | `string`                     | Yes      | Trimmed, ≤2 000 chars, `''` when empty                                      |
+| `dueDate`        | `string \| null`             | Yes      | Calendar date `YYYY-MM-DD`, or `null` when not set. **Not a `Timestamp`**, see below |
+| `status`         | `'pending' \| 'completed'`   | Yes      | `'pending'` on create. Changed only by `setTaskStatus`                      |
+| `createdAt`      | `Timestamp`                  | Yes      | Creation time (server)                                                      |
+| `updatedAt`      | `Timestamp`                  | Yes      | Last update, status change or delete (server)                               |
+| `deletedAt`      | `Timestamp \| null`          | Yes      | `null` until soft-deleted, then set once. See `docs/adr/0004-deleted-at-required-null.md` |
+| `_schemaVersion` | `1`                          | Yes      | Schema version for lazy migration                                           |
+
+**Why `dueDate` is a string:** this is a deliberate exception to the `Timestamp` convention. The due date is date-only (spec D5), and Firestore has no date-only type. A `Timestamp` would move the date across midnight for users in other time zones.
+
+**Deletion:** Soft delete only. `deleteTask` sets `deletedAt` and `updatedAt`. The list query must filter `where('uid', '==', uid)` and `where('deletedAt', '==', null)`, or the security rules deny it.
