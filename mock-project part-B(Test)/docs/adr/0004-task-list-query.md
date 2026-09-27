@@ -29,7 +29,7 @@ This ADR depends on ADR-0002, which keeps a live connection in the browser for r
 - **Indexes are deployed by hand.** No indexes exist yet (verified: `firestore.indexes.json`). `deploy.yml` deploys rules only, and indexes are deployed by hand (verified: `docs/CI-CD.md`). `firebase deploy` needs explicit approval (verified: CLAUDE.md "Agent Permissions").
 - **Every task needs `deletedAt: null` from the start.**
   - Filtering on `deletedAt == null` doesn't match records that have no `deletedAt` at all (unverified).
-  - Firestore refuses a whole list query if any record it could return is one the read rule would block (unverified).
+  - Firestore refuses a whole list query if any record it could return is one the read rule would block (verified: Firebase "Writing conditions for security rules" says "security rules are not filters—queries are all or nothing" and "If a query could potentially return documents that the client does not have permission to read, the entire request fails"; checked 2026-09-27).
 - **Sorting by status.** "pending" sorts after "completed" (checked in local Node 22.23.2). Firestore's text order is unverified.
 
 ## Decision
@@ -87,6 +87,6 @@ Option D2:
 - It is deployed by hand by Thomas, with approval (verified that deployment is manual and needs approval).
 - The query won't run until the index exists (unverified).
 
-**The `deletedAt` filter:** Every new task has to store `deletedAt: null`, a system field set by the app (A31). This relies on the unverified query behaviour described in Context.
+**The `deletedAt` filter:** Every new task has to store `deletedAt: null`, a system field set by the app (A31). This relies on the unverified query behaviour described in Context. Testing must check it: a query that filters on `deletedAt == null` must not return a task stored without a `deletedAt` field.
 
 **Status order:** Storing status as text relies on Firestore's text order putting "pending" after "completed" (unverified).
