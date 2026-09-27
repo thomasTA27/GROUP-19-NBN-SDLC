@@ -4,7 +4,7 @@ Raised from: `design-step1-sort.md` (status: proposed), 2026-09-27.
 For: Sajad Ali Akbari, Gate 1 owner of `task-crud-spec.md`.
 Drafted with an AI assistant. To be checked by Sajad Ali Akbari.
 
-Design does not edit the spec. Each request below needs a decision from the Gate 1 owner, and none of the questions is answered here.
+Design does not edit the spec. Each request below needed a decision from the Gate 1 owner. SCR-1 to SCR-6 were answered on 2026-09-27 by an AI assistant acting for Sajad Ali Akbari at his request, and are recorded as his decisions.
 
 Note: the Gate 1 owner is also the tester, so these requests are approved by the same person who raised them (see `design-step1-sort.md`).
 
@@ -33,7 +33,9 @@ That meets the first half of "Refused" (no effect, no task data) but not "gets a
 
 For a Server Action called without valid credentials (signed out, or with an expired or revoked session), does a redirect to the sign-in page, with no effect and no task data, count as "refused" under AC-1.1, AC-1.6a and AC-1.6b? Or must the requester get an error response?
 
-**Status:** Open
+**Answer (Gate 1 owner, 2026-09-27):** Yes, a redirect counts as refused for in-app Server Actions, as long as nothing changes and no task data is returned. Direct requests to any other route (the database or an API) must still get an error. Update Terms "Refused" to say this, and AC-1.1, AC-1.6a and AC-1.6b to point to it.
+
+**Status:** Answered
 
 ---
 
@@ -59,7 +61,9 @@ A test account can have either one, or both. P1 doesn't say which, so AC-1.5 cou
 
 Which admin mechanism does "the admin role" in P1 and AC-1.5 mean: the `role` field on `users/{uid}`, the `admin` custom claim, or both?
 
-**Status:** Open
+**Answer (Gate 1 owner, 2026-09-27):** Both. The admin test account has the `role: 'admin'` field and the `admin` custom claim, and AC-1.5 must hold with each one on its own and with both together. Update P1 to say this.
+
+**Status:** Answered
 
 ---
 
@@ -91,7 +95,14 @@ How is the 10-year limit measured?
 - (b) In which timezone's calendar?
 - (c) For a task saved on 29 February, is the last allowed date 28 February or 1 March ten years later?
 
-**Status:** Open
+**Answer (Gate 1 owner, 2026-09-27):**
+- (a) To the same minute as the save. The latest allowed due date is the save moment plus 10 calendar years.
+- (b) Counted in UTC.
+- (c) If that date doesn't exist (29 February), use the last day of that month, so 28 February.
+
+Update A6 and rewrite the AC-2.6d example with times, for example: saved at 10:30 UTC on 5 March 2027, a due date of 10:30 UTC on 5 March 2037 is accepted and 10:31 UTC is refused.
+
+**Status:** Answered
 
 ---
 
@@ -121,7 +132,9 @@ So a title made only of U+FEFF is empty under one reading and 1 character long u
 
 Which set does "any Unicode whitespace character" mean: the characters JavaScript's `trim()` removes, or Unicode's `White_Space` property?
 
-**Status:** Open
+**Answer (Gate 1 owner, 2026-09-27):** The characters JavaScript's `trim()` removes. That is what Zod's `.trim()` does, so the same rule applies in the browser and on the server with the project's normal validation. Update Terms "Whitespace" and A2 to say this.
+
+**Status:** Answered
 
 ---
 
@@ -144,7 +157,9 @@ The project's documented validation refuses any field its schema doesn't list (`
 
 Is an edit that includes the task's current status, unchanged, accepted (with its other changes saved) or refused?
 
-**Status:** Open
+**Answer (Gate 1 owner, 2026-09-27):** Refused. An edit can only include title, description and due date. Any edit that includes status is refused, even with the current value, because status only changes through a toggle. Update AC-5.3 and A16.
+
+**Status:** Answered
 
 ---
 
@@ -170,4 +185,27 @@ Which routes tasks use is still open in Design (ADR-B, step 1 item 16), so teste
 
 Should A31 and AC-2.10b refuse any direct request that includes a system field, whatever its value? Or only one whose value differs from what the app would set?
 
-**Status:** Open
+**Answer (Gate 1 owner, 2026-09-27):** Refuse any direct request that includes a system field, whatever its value. The app sets system fields itself and never accepts them from a request. Update A31 and AC-2.10b, and remove the "value the app would set" wording.
+
+**Status:** Answered
+
+---
+
+# Raised by the step 2 consistency check
+
+These come from `step2-consistency-check.md` (conflicts 1 to 11) and from ADR-A in `design-notes.md` (SCR-18). Several of them were introduced by the Gate 1 edits, which changed A6, A10 and A21 without updating every place that referred to them. Each was answered on 2026-09-27 by an AI assistant acting for Sajad Ali Akbari, the Gate 1 owner, at his request.
+
+| SCR | Conflict | Answer | Status |
+|---|---|---|---|
+| SCR-7 | Terms "Deleted task" says the record is kept "only for 30 days", but A21 and AC-7.7 allow up to 32 days (conflict 1) | Reword Terms: the record is kept for 30 days after deletion as a record only, then erased automatically within the window in A21. | Answered |
+| SCR-8 | A29 says the interface "never" shows an unsaved change, but AC-6.5 and AC-8.1b only apply from the moment an error appears (conflict 2) | Drop "never". A29 becomes: once an action has failed, from the moment the error message appears, what the user sees matches what's stored. | Answered |
+| SCR-9 | The cut log says the removed AC-4.5 ("same list, same order") is implied by AC-4.4, and A9's first sentence still describes one order for the whole list, but Gate 1 put completed tasks below pending ones (conflict 3) | Update the cut log reason to "AC-4.4 now covers completed tasks, which are listed below pending ones (A10)". Reword A9 so its order applies within each group set by A10. | Answered |
+| SCR-10 | The Gate 1 record says every assumption that adds a rule was reviewed, but A7, A9, A16, A18, A28 to A32, A35 and A38 are labelled "Decision" and aren't in either Gate 1 table (conflict 4) | Add them to Gate 1 decisions as reviewed. All confirmed as written, except A16 and A31, which change as answered in SCR-5 and SCR-6. | Answered |
+| SCR-11 | A22 says the only success-message precedent is for create, but AC-8.2a cites DESIGN.md "Forms" as a project rule for create and edit (conflict 5) | DESIGN.md "Forms" is a general form pattern ending in `toast.success('Saved!')`, so it covers edits too. Fix A22's source note to say the precedent is for form saves (create and edit). | Answered |
+| SCR-12 | "How to read this spec" says every spec decision is in the Assumptions table, but AC-8.5's allowance for the database's own permission-denied response has no assumption (conflict 6) | Add a new assumption A39 for that allowance (Source: Decision), point AC-8.5 to it, and add it to Gate 1 decisions as confirmed. | Answered |
+| SCR-13 | Gate 1 confirms A1 and A3 because they "match the notes feature", but A27 counts characters differently from notes (conflict 7) | Change the Gate 1 reason for A1 and A3 to: "Same numbers as the notes feature. Characters are counted differently (A27)." | Answered |
+| SCR-14 | A28 says a toggle changes only the status, but AC-8.7b says every toggle and edit also updates the last-updated time (conflict 8) | Add to A28: "apart from the last-updated time (AC-8.7b)". | Answered |
+| SCR-15 | A30 says a deleted task can't be changed "in any way", but P6 asks testers to move a deleted record's deletion time (conflict 9) | Add to A30: direct changes to stored records on a test project, for test setup such as P6, are outside this rule. | Answered |
+| SCR-16 | Conflicts item 2 and A21 say "a free scheduler runs at most once a day", but the only source is Vercel's Hobby limit, and GitHub Actions is named as another free option (conflict 10) | Reword both to say the window allows for Vercel Hobby's once-a-day schedule, and that any scheduler Design picks must meet it. Design picked Vercel (ADR-A). | Answered |
+| SCR-17 | The cut log says no user outcome depends on "no detail view", but AC-7.1's check depends on it (conflict 11) | Change the cut log reason to: "A scope limit, not a behaviour, so it moved to §9 and A8. AC-7.1 relies on it." | Answered |
+| SCR-18 | A21's 48-hour window can be broken by one failed daily run under ADR-A (Vercel Hobby, once a day, no retry) | Widen A21 and AC-7.7 to 72 hours after the 30 days end (720 to 792 hours after deletion), so one missed run is tolerated. Update Gate 1 decisions and Conflicts item 2 to match. | Answered |
