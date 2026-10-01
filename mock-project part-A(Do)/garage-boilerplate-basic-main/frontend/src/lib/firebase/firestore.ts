@@ -1,6 +1,6 @@
 import { collection, doc, type CollectionReference, type DocumentData } from 'firebase/firestore'
 import { getClientDb } from './client'
-import type { Note, UserProfile } from '@/types/firestore'
+import type { Note, Task, UserProfile } from '@/types/firestore'
 
 /**
  * Creates a typed Firestore collection reference.
@@ -30,4 +30,13 @@ export function getNotesCollection() {
 
 export function noteDoc(id: string) {
   return doc(getNotesCollection(), id)
+}
+
+// Read-only from the client: all task writes go through Server Actions (ADR-0001).
+export function getTasksCollection() {
+  return typedCollection<Task>('tasks')
+}
+
+export function taskDoc(id: string) {
+  return doc(getTasksCollection(), id)
 }
