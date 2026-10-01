@@ -120,7 +120,10 @@ export function TaskRow({ task, isEditing, editDisabled, onEdit, onEditClose, on
   const checkboxId = `task-status-${task.id}`
 
   return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 border-b border-zinc-200 px-5 py-3.5">
+    <li
+      data-task-id={task.id}
+      className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 border-b border-zinc-200 px-5 py-3.5"
+    >
       <input
         id={checkboxId}
         type="checkbox"
