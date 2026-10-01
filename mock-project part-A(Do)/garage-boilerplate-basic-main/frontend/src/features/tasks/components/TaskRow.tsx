@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { toast } from 'sonner'
+import { Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { deleteTask, setTaskStatus } from '@/features/tasks/actions/tasks.actions'
 import { formatDueDate } from '@/features/tasks/format'
@@ -167,10 +168,7 @@ export function TaskRow({ task, isEditing, editDisabled, onEdit, onEditClose, on
           onClick={onEdit}
           className={iconButtonClass}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-          </svg>
+          <Pencil className="size-4" aria-hidden="true" />
         </button>
         <button
           ref={deleteButton}
@@ -180,11 +178,7 @@ export function TaskRow({ task, isEditing, editDisabled, onEdit, onEditClose, on
           onClick={() => setConfirmingDelete(true)}
           className={cn(iconButtonClass, 'hover:bg-red-50 hover:text-red-600')}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
-            <path d="M3 6h18" />
-            <path d="M8 6V4h8v2" />
-            <path d="M19 6l-1 14H6L5 6" />
-          </svg>
+          <Trash2 className="size-4" aria-hidden="true" />
         </button>
       </div>
 
