@@ -61,12 +61,12 @@ Everything a feature build needs already exists below. **Do not survey the codeb
 | `frontend/src/actions/auth.actions.ts` | `requireAuth()` (redirects if unauthed, returns session with `.uid`), `getServerSession()`, `serverSignOut()` | First line of every Server Action / protected page |
 | `frontend/src/lib/firebase/admin.ts` | `adminAuth`, `adminDb` (lazy, `server-only`) | All server-side Firebase |
 | `frontend/src/lib/firebase/client.ts` | `getClientApp/Auth/Db()` | Browser SDK (Client Components only) |
-| `frontend/src/lib/firebase/firestore.ts` | `getUsersCollection()`, `userDoc(uid)` — add new collections here as `get{X}Collection()` functions (`typedCollection` is module-private) | Typed collection access |
+| `frontend/src/lib/firebase/firestore.ts` | `getUsersCollection()`, `userDoc(uid)`, `getTasksCollection()` (read-only in the browser: task writes are Server Actions, ADR-0002) — add new collections here as `get{X}Collection()` functions (`typedCollection` is module-private) | Typed collection access |
 | `frontend/src/lib/firebase/auth.ts` | `signInWithEmail`, `signUpWithEmail`, `signInWithGoogle`, `signOut`, `resetPassword`, `getIdToken` | Client sign-in flows |
 | `frontend/src/hooks/useFirestore.ts` | `useCollection(ref, ...constraints)` → `{ data, loading, error }` (onSnapshot) | Realtime lists in Client Components |
 | `frontend/src/hooks/useAuth.ts` | `useAuth()` → `{ user, profile, ... }` (AuthContext) | Current user in Client Components |
 | `frontend/src/types/index.ts` | `ActionResult<T>` `{ success, error?, data? }` + re-exports of `types/auth.ts`, `types/firestore.ts` | Return type of every Server Action |
-| `frontend/src/types/firestore.ts` | `UserProfile` — add new collection interfaces here (always with `_schemaVersion: 1`) | Collection types |
+| `frontend/src/types/firestore.ts` | `UserProfile`, `Task` (`status: 'pending' \| 'completed'`, `deletedAt: Timestamp \| null`) — add new collection interfaces here (always with `_schemaVersion: 1`) | Collection types |
 | `frontend/src/lib/validations/` | `loginSchema`, `signupSchema`, `registerSchema`, `resetPasswordSchema` (`auth.ts`) · `idSchema`, `paginationSchema` (`common.ts`) | Zod schemas — add feature schemas here or in the feature folder |
 | `frontend/src/lib/utils.ts` | `cn()`, `formatDate`, `formatDatetime`, `truncate` | Class merging, formatting |
 | `frontend/src/components/layout/` | `DashboardShell`, `Sidebar` (navItems array — add links here), `Navbar`, `PageHeader` | App shell |

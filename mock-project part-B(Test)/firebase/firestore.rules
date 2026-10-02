@@ -72,6 +72,17 @@ service cloud.firestore {
       allow delete: if false; // soft-delete only — set deletedAt instead
     }
 
+    // tasks/{taskId}
+    // The owner reads their own non-deleted tasks (the live task list).
+    // Every write goes through Server Actions, so the browser can't create,
+    // update or delete. Admins get no access (spec R1, docs/adr/0002-task-data-routes.md).
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.uid) && notDeleted();
+
+      allow create, update: if false; // Server Actions only
+      allow delete: if false;         // soft-delete only; erasure is the scheduled job (docs/adr/0001-task-erasure-job.md)
+    }
+
     // ── Default deny ───────────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
