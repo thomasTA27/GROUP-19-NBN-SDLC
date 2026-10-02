@@ -31,3 +31,16 @@ export interface Note {
   updatedAt: Timestamp
   _schemaVersion: 1
 }
+
+export interface Task {
+  id: string
+  uid: string // owner's user id — set from the session, never from client input
+  title: string
+  description: string // '' when empty
+  dueDate: string | null // 'YYYY-MM-DD', not a Timestamp (spec D5)
+  status: 'pending' | 'completed'
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp | null // null until soft-deleted (ADR-0004)
+  _schemaVersion: 1
+}

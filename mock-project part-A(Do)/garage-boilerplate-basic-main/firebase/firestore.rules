@@ -72,6 +72,15 @@ service cloud.firestore {
       allow delete: if false; // soft-delete only — set deletedAt instead
     }
 
+    // tasks/{taskId}
+    // Owners can read their own tasks that are not deleted.
+    // All writes go through Server Actions (Admin SDK), which bypass these rules
+    // and check ownership themselves — see docs/adr/0001 and 0002.
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.uid) && notDeleted();
+      allow create, update, delete: if false;  // all writes go through Server Actions (Admin SDK); soft-delete only
+    }
+
     // ── Default deny ───────────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
