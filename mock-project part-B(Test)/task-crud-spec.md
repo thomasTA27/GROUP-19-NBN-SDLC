@@ -1,7 +1,7 @@
 # Task CRUD — Acceptance Criteria
 
 **Product:** Simple Task Dashboard
-**Status:** Approved at Gate 1 on 2026-09-27, and amended by SCR-1 to SCR-18 on the same day (see Changes after Gate 1). All six open questions are answered (see Resolved questions), and every assumption that added a number or feature has a product owner decision (see Gate 1 decisions).
+**Status:** Approved at Gate 1 on 2026-09-27, and amended by SCR-1 to SCR-18 on the same day and by SCR-19 on 2026-10-02 (see Changes after Gate 1). All six open questions are answered (see Resolved questions), and every assumption that added a number or feature has a product owner decision (see Gate 1 decisions).
 **Date:** 2026-09-27
 
 ## Ticket
@@ -121,7 +121,7 @@ Where a rule or precedent exists, the assumption follows it unless its source no
 | A10 | Completed tasks stay in the list, below all pending tasks. Within each group, the order in A9 applies. *Source: Ticket, for visibility: completed tasks must be in the list so their checkbox can be unticked. Placing them below pending tasks is a product owner decision at Gate 1: mixing them in would push old completed tasks with past due dates to the top of page 1, above the work still to do.* | AC-4.4 |
 | A11 | Overdue tasks are not marked; marking them is out of scope (§9). *Source: Ticket, which doesn't mention it. Marking would be a new feature.* | §9 |
 | A12 | The list shows at most 20 tasks per page, and the user can move between pages. *Source: Precedent. `paginationSchema` (frontend/src/lib/validations/common.ts, listed in CLAUDE.md "Codebase Map") defaults to 20 per page, with a maximum of 100. The notes list doesn't page, but it's tutorial code with no stated reason, so the documented building block takes priority. Paging also keeps each page load to a bounded number of reads on the free Firebase plan.* | AC-4.7a, AC-4.7b |
-| A13 | The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar. *Source: Precedent. docs/GUIDE.md step 4, the /new-page skill checklist, and the notes feature (/notes plus a sidebar link).* | AC-4.8 |
+| A13 | The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar. *Source: Precedent. docs/GUIDE.md step 4, the /new-page skill checklist, and the notes feature (/notes plus a sidebar link). Changed after Gate 1 by SCR-19: the sidebar is hidden below 1024px and the app has no mobile menu, so the link is reached where the sidebar is shown (1024px and wider).* | AC-4.8 |
 | A14 | List updates must appear within 3 seconds of the user's action (clicking save, confirming a delete, or clicking a checkbox), measured on the test environment's connection with no network throttling. *Source: Decision. The project sets no performance targets.* | AC-4.11a, AC-4.11b |
 | A15 | The list updates live: the user's own changes, and changes they make in another tab or on another device, appear without a reload. *Source: Precedent. The notes list updates live (docs/GUIDE.md, docs/ARCHITECTURE.md). The project doesn't require it: the /new-feature and /firebase-collection skills ask whether each feature needs realtime updates.* | AC-4.11a, AC-4.11b |
 | A16 | Status changes only through a toggle. An edit can only include the title, description and due date: an edit that includes the status is refused, even when it's the current status. *Source: Resolved R5 for completing a task: it stays pending until the user ticks it. For un-completing, a Decision kept consistent with R5; the ticket names the checkbox for both directions. Changed after Gate 1 by SCR-5: an edit that includes the current status is also refused.* | AC-5.3 |
@@ -254,7 +254,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-4.7a** Each page of the list shows at most 20 tasks, in the order set by AC-4.4. For example, with 21 tasks, the first page shows 20 and the second shows 1. [Assumes A12]
 - **AC-4.7b** When the user has more than 20 tasks, they can move to the next and previous pages. [Assumes A12]
 - **AC-4.7c** A user who has 1,000 tasks can create another and page through all of them. [Assumes A33]
-- **AC-4.8** The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar. [Assumes A13]
+- **AC-4.8** The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar wherever the sidebar is shown (1024px and wider). [Assumes A13]
 - **AC-4.9** When the user has no non-deleted tasks, the list area shows an empty-state message (for example, "No tasks yet") and no task items. [Project: docs/DESIGN.md, "State Patterns"]
 - **AC-4.10a** While tasks are loading, a loading indicator is shown. (P4) [Project: docs/DESIGN.md, "State Patterns"]
 - **AC-4.10b** If tasks fail to load, an error message is shown, and the empty-state message from AC-4.9 is not. (P4) [Project: docs/DESIGN.md, "State Patterns"]
@@ -298,7 +298,7 @@ These rules apply both when creating and when editing a task. AC-2.1a to AC-2.6d
 - **AC-8.2a** When a create or an edit succeeds, a success message is shown. [Project: docs/DESIGN.md, "Forms"]
 - **AC-8.2b** When a delete succeeds, a success message is shown. [Assumes A22]
 - **AC-8.2c** When a toggle succeeds, no success message is shown; the checkbox change is the confirmation. [Assumes A35]
-- **AC-8.3** At 320px and 1920px wide, and at each layout breakpoint in docs/DESIGN.md between them (640, 768, 1024 and 1280px), every action in sections 3–7 can be completed without scrolling the page sideways. [Project: docs/DESIGN.md, mobile-first layout] [Assumes A23]
+- **AC-8.3** At 320px and 1920px wide, and at each layout breakpoint in docs/DESIGN.md between them (640, 768, 1024 and 1280px), every action in sections 3–7 can be completed on the tasks page without scrolling the page sideways. Below 1024px the page is opened by its address, because the sidebar isn't shown (AC-4.8). [Project: docs/DESIGN.md, mobile-first layout] [Assumes A23]
 - **AC-8.4a** Every action in sections 3–7 can be completed using only the keyboard. [Project: docs/DESIGN.md, "Accessibility"]
 - **AC-8.4b** Each task's checkbox has an accessible name that includes the task's title. [Project: docs/DESIGN.md, "Accessibility": every input has a label] [Assumes A38]
 - **AC-8.4c** The feature meets every rule in docs/DESIGN.md "Accessibility": semantic elements, visible keyboard focus, no clickable elements that aren't buttons or links, alt text on images, a label on every input, and an accessible name on every icon-only button. [Project: docs/DESIGN.md, "Accessibility"] [Assumes A24]
@@ -387,6 +387,7 @@ Each change applies an answered spec change request in `design-and-context-engin
 | SCR-16 | The erasure window's reason is Vercel Hobby's once-a-day schedule, not "any free scheduler", and any scheduler Design picks must meet the window. Design picked Vercel (ADR-A). | Conflicts item 2, A21 |
 | SCR-17 | The cut log reason for "no detail view" now says it is a scope limit that moved to §9 and A8, and that AC-7.1 relies on it. | What was cut ("no separate detail view" row) |
 | SCR-18 | The erasure window is widened to 72 hours after the 30 days end (720 to 792 hours after deletion), so one missed run is tolerated. | A21, AC-7.7, Gate 1 decisions (A21), Conflicts item 2 |
+| SCR-19 | Raised from Implementation and answered by Sajad Ali Akbari on 2026-10-02. The shared sidebar is hidden below 1024px and the app has no mobile menu, so AC-4.8 holds where the sidebar is shown (1024px and wider), and AC-8.3 covers the actions on the tasks page itself, which is opened by its address below 1024px. A mobile menu is a separate ticket. | A13, AC-4.8, AC-8.3 |
 
 ## Sign-off
 

@@ -191,6 +191,40 @@ Use the default Tailwind spacing scale. Do not define custom spacing tokens unle
 </span>
 ```
 
+### Inline confirmation
+
+Use this for a destructive action that the user cannot undo, such as deleting a record that cannot be restored. It asks "are you sure" in the page itself, in the place where the button was. Do not use `confirm()`, `alert()` or a modal.
+
+It has three controls:
+- **Trigger button:** the secondary button that starts the action. Its accessible name says what it acts on, for example `Delete "Weekly report"`.
+- **Confirm button:** the destructive button, labelled with the action name, for example "Delete task".
+- **Cancel button:** the secondary button that closes the confirmation and changes nothing.
+
+When the trigger is clicked, the trigger is replaced by a `role="group"` holding the confirm and Cancel buttons. The group has an accessible name that includes what it acts on.
+
+Rules:
+- **Focus:** when the confirmation opens, move focus to Cancel, the safe choice. When it closes through Cancel, Escape or a failed action, move focus back to the trigger button.
+- **Escape:** pressing Escape inside the group does the same as Cancel.
+- **Saving:** while the action runs, disable both buttons and set `aria-busy="true"` on the group, so a second click cannot start a second call. If the action succeeds and the item is removed by a live update, keep the buttons disabled until it goes.
+- **Messages:** follow the Notifications section. Success shows `toast.success` with a short fixed text. Failure shows `toast.error` with the action's own message, and the item stays as it was.
+
+```tsx
+{confirming ? (
+  <div role="group" aria-label={`Confirm deleting "${title}"`} aria-busy={saving || undefined}>
+    <button type="button" onClick={onConfirm} disabled={saving} className="...destructive">
+      Delete task
+    </button>
+    <button ref={cancelRef} type="button" onClick={onCancel} disabled={saving} className="...secondary">
+      Cancel
+    </button>
+  </div>
+) : (
+  <button type="button" onClick={() => setConfirming(true)} aria-label={`Delete "${title}"`} className="...secondary">
+    Delete
+  </button>
+)}
+```
+
 ---
 
 ## State Patterns
@@ -214,18 +248,22 @@ For inline errors, show a plain message:
 
 ```tsx
 if (error) return (
-  <p className="text-sm text-red-600">{error.message ?? 'Something went wrong.'}</p>
+  <p className="text-sm text-red-600">Something went wrong. Try again.</p>
 )
 ```
+
+The raw error is never shown to the user: not `error.message`, and not any library text (the project rule in `.claude/rules/tasks.md`, rule 5).
 
 ### Empty
 
 Use `<EmptyState>` from `@/components/shared/EmptyState`:
 
 ```tsx
+import { UsersIcon } from 'lucide-react'
+
 if (!data.length) return (
   <EmptyState
-    icon={<UsersIcon className="size-8 text-zinc-400" />}
+    icon={UsersIcon} // the icon component itself (a LucideIcon), not an element; EmptyState sizes it
     title="No users yet"
     description="Users will appear here once they sign up."
   />

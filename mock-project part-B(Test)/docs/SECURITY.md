@@ -222,6 +222,24 @@ Document this as a per-client hardening step in the forking guide.
 
 ---
 
+## Scheduled Erasure Secret
+
+`CRON_SECRET` protects the route (`/api/cron/erase-deleted-tasks`) that permanently erases tasks deleted more than 30 days ago. See `docs/adr/0001-task-erasure-job.md`.
+
+**Rules:**
+- Server-only: never use a `NEXT_PUBLIC_` prefix (exposes it to the browser)
+- Never commit this value to version control
+- Never put it in a URL or query string, and never log it
+- Use at least 16 characters, only ASCII letters (A-Z, a-z), digits and - _ . ~ (for example the output of `openssl rand -hex 32`); the route refuses any other secret
+- The route refuses every request while the secret is unset or invalid, and logs one fixed line that contains no value
+- Store it as a Vercel environment variable (the root `.env` is for local development only)
+- To rotate it, change it in Vercel and redeploy, then update the root `.env` for local use
+- If it leaks, rotate it
+
+**What a leak can and cannot do:** anyone holding the secret can trigger extra erasure runs, which use up Firestore read quota. A run only ever erases tasks that were already deleted more than 30 days ago, because the route re-checks every document before deleting it. A leak therefore cannot cause early erasure or touch a task that is not deleted.
+
+---
+
 ## Environment Variables
 
 | Classification | Rule |

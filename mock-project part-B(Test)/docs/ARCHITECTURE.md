@@ -36,13 +36,14 @@ flowchart TB
     API -->|"Admin SDK"| FS
 ```
 
-Three paths to the data, each with its own guard:
+Four paths to the data, each with its own guard:
 
 | Path | Used for | Guarded by |
 |------|----------|-----------|
 | Browser → Firestore (client SDK) | Real-time subscriptions in Client Components | **Firestore security rules** |
 | Browser → Server Component / Server Action | SSR pages, mutations | **`requireAuth()`** (verifies session cookie) |
 | Browser → Express API | Business logic endpoints, heavy operations | **auth middleware** (verifies ID token) |
+| Vercel scheduler → route handler | Daily erasure of tasks deleted more than 30 days ago | **`CRON_SECRET`** in the `Authorization` header (fails closed when unset or invalid) |
 
 ## Authentication Flow
 
@@ -71,7 +72,7 @@ sequenceDiagram
     A-->>B: JSON response
 ```
 
-**Critical:** the cookie check in `proxy.ts` is optimistic (presence only) — it exists to redirect signed-out users, not to enforce security. Cryptographic verification always happens server-side near the data: `requireAuth()` in Server Actions/Components, the auth middleware in the API.
+**Critical:** the cookie check in `proxy.ts` is optimistic (presence only) — it exists to redirect signed-out users, not to enforce security. Cryptographic verification always happens server-side near the data: `requireAuth()` in Server Actions/Components, the auth middleware in the API, and the secret check in the scheduled erasure route.
 
 ## Request Patterns
 
@@ -97,6 +98,12 @@ sequenceDiagram
 3. Auth middleware verifies the token and attaches `req.user`
 4. Route handler validates input with Zod, queries Firestore, responds
 
+### Scheduled job (Vercel cron)
+1. Vercel calls `GET /api/cron/erase-deleted-tasks` on the schedule in `frontend/vercel.json` (daily, 16:00 UTC) with `Authorization: Bearer <CRON_SECRET>` (per ADR-0001)
+2. The route returns 401 unless the secret is set, valid and matches (constant-time comparison)
+3. It reads tasks deleted more than 720 hours ago, plus a 5 minute clock skew margin, re-checks each document, and deletes them in batches through the Admin SDK with no user involved
+4. It returns counts only, and any failure gives a fixed 500 with the detail only in the server log
+
 ## Backend Structure
 
 The backend is deliberately flat — a single Express app in one Cloud Function:
@@ -117,6 +124,7 @@ Two conventions are enforced by a CI test (`backend/tests/unit/conventions.test.
 - **Firestore rules** — last line of defence; always assume clients are untrusted
 - **Cloud Functions** — verify ID tokens in the auth middleware for every protected route
 - **Next.js Server Actions** — call `requireAuth()` (verifies session cookie via Admin SDK) before any data operation
+- **Scheduled route handler**: checks `CRON_SECRET` in constant time and refuses every request while it is unset or invalid (no user is involved)
 - **proxy.ts** — optimistic cookie check only; used for redirects, never for security
 
 See `docs/SECURITY.md` for the full layered security reference.

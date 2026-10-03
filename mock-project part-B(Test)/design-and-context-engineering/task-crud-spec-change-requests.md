@@ -209,3 +209,41 @@ These come from `step2-consistency-check.md` (conflicts 1 to 11) and from ADR-A 
 | SCR-16 | Conflicts item 2 and A21 say "a free scheduler runs at most once a day", but the only source is Vercel's Hobby limit, and GitHub Actions is named as another free option (conflict 10) | Reword both to say the window allows for Vercel Hobby's once-a-day schedule, and that any scheduler Design picks must meet it. Design picked Vercel (ADR-A). | Answered |
 | SCR-17 | The cut log says no user outcome depends on "no detail view", but AC-7.1's check depends on it (conflict 11) | Change the cut log reason to: "A scope limit, not a behaviour, so it moved to §9 and A8. AC-7.1 relies on it." | Answered |
 | SCR-18 | A21's 48-hour window can be broken by one failed daily run under ADR-A (Vercel Hobby, once a day, no retry) | Widen A21 and AC-7.7 to 72 hours after the 30 days end (720 to 792 hours after deletion), so one missed run is tolerated. Update Gate 1 decisions and Conflicts item 2 to match. | Answered |
+
+---
+
+## Raised from Implementation (Part B)
+
+Raised by Implementation (Part B), 2026-10-02, for Sajad Ali Akbari, Gate 1 owner. Drafted by Claude (Cowork) acting for Sajad from a question the Claude Code planning session raised (`implementation/plan.md`). Answered by Sajad Ali Akbari himself in chat on 2026-10-02 (SCR-19).
+
+---
+
+## SCR-19: Can a phone-width user reach the Tasks link?
+
+**From:** Implementation, plan review, work package 7 (tasks page and sidebar link)
+
+**What the spec says**
+
+- **A13:** "The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar."
+- **AC-4.8:** "The task list is on its own page in the signed-in area, reached from a "Tasks" link in the sidebar."
+- **AC-8.3:** "At 320px and 1920px wide, and at each layout breakpoint in docs/DESIGN.md between them (640, 768, 1024 and 1280px), every action in sections 3–7 can be completed without scrolling the page sideways."
+- **A23:** "The narrowest supported screen width is 320px and the widest is 1920px."
+
+**Problem**
+
+The shared sidebar is hidden below 1024px: `frontend/src/components/layout/Sidebar.tsx` uses `hidden ... lg:flex`, and the app has no mobile menu. Between 320px and 1023px the sidebar, and so the "Tasks" link AC-4.8 requires, can't be reached. AC-8.3 says "every action in sections 3–7" can be completed at 320px, and AC-4.8 is in section 4. Two testers could disagree on whether opening the task list counts as an action in AC-8.3, and so whether AC-4.8 or AC-8.3 fails below 1024px for every page in the app, not only tasks.
+
+**Question for the Gate 1 owner**
+
+Is the missing mobile navigation a defect of this feature, to be fixed in this ticket, or does AC-4.8 only have to hold where the sidebar is shown (1024px and wider)?
+
+**Options**
+
+1. Narrow the criteria. AC-4.8 holds where the sidebar is shown (1024px and wider). AC-8.3 covers the actions on the tasks page itself, reached by its URL. A mobile menu becomes a separate ticket. Nothing in the shared layout changes.
+2. Keep the criteria as written. This ticket adds a small mobile menu to the shared layout (`DashboardShell` / `Navbar` / `Sidebar`), which changes files every page uses and goes beyond the files the design notes list.
+
+**Recommended by the planning session:** option 1.
+
+**Answer (Gate 1 owner, Sajad Ali Akbari, in chat, 2026-10-02):** Option 1. AC-4.8 holds where the sidebar is shown (1024px and wider). AC-8.3 covers the actions on the tasks page itself, opened by its address below 1024px. A mobile menu is a separate ticket. Update A13, AC-4.8 and AC-8.3.
+
+**Status:** Answered

@@ -61,17 +61,18 @@ Everything a feature build needs already exists below. **Do not survey the codeb
 | `frontend/src/actions/auth.actions.ts` | `requireAuth()` (redirects if unauthed, returns session with `.uid`), `getServerSession()`, `serverSignOut()` | First line of every Server Action / protected page |
 | `frontend/src/lib/firebase/admin.ts` | `adminAuth`, `adminDb` (lazy, `server-only`) | All server-side Firebase |
 | `frontend/src/lib/firebase/client.ts` | `getClientApp/Auth/Db()` | Browser SDK (Client Components only) |
-| `frontend/src/lib/firebase/firestore.ts` | `getUsersCollection()`, `userDoc(uid)` — add new collections here as `get{X}Collection()` functions (`typedCollection` is module-private) | Typed collection access |
+| `frontend/src/lib/firebase/firestore.ts` | `getUsersCollection()`, `userDoc(uid)`, `getTasksCollection()` (read-only in the browser: task writes are Server Actions, ADR-0002) — add new collections here as `get{X}Collection()` functions (`typedCollection` is module-private) | Typed collection access |
 | `frontend/src/lib/firebase/auth.ts` | `signInWithEmail`, `signUpWithEmail`, `signInWithGoogle`, `signOut`, `resetPassword`, `getIdToken` | Client sign-in flows |
-| `frontend/src/hooks/useFirestore.ts` | `useCollection(ref, ...constraints)` → `{ data, loading, error }` (onSnapshot) | Realtime lists in Client Components |
+| `frontend/src/hooks/useFirestore.ts` | `useCollection(ref, ...constraints)` → `{ data, loading, error }` (onSnapshot); restarts when the query changes (`queryEqual`), not when the reference object changes | Realtime lists in Client Components |
 | `frontend/src/hooks/useAuth.ts` | `useAuth()` → `{ user, profile, ... }` (AuthContext) | Current user in Client Components |
 | `frontend/src/types/index.ts` | `ActionResult<T>` `{ success, error?, data? }` + re-exports of `types/auth.ts`, `types/firestore.ts` | Return type of every Server Action |
-| `frontend/src/types/firestore.ts` | `UserProfile` — add new collection interfaces here (always with `_schemaVersion: 1`) | Collection types |
+| `frontend/src/types/firestore.ts` | `UserProfile`, `Task` (`status: 'pending' \| 'completed'`, `deletedAt: Timestamp \| null`) — add new collection interfaces here (always with `_schemaVersion: 1`) | Collection types |
 | `frontend/src/lib/validations/` | `loginSchema`, `signupSchema`, `registerSchema`, `resetPasswordSchema` (`auth.ts`) · `idSchema`, `paginationSchema` (`common.ts`) | Zod schemas — add feature schemas here or in the feature folder |
 | `frontend/src/lib/utils.ts` | `cn()`, `formatDate`, `formatDatetime`, `truncate` | Class merging, formatting |
 | `frontend/src/components/layout/` | `DashboardShell`, `Sidebar` (navItems array — add links here), `Navbar`, `PageHeader` | App shell |
 | `frontend/src/components/shared/` | `ErrorBoundary`, `LoadingSpinner`, `FullPageSpinner`, `EmptyState { title, description?, icon?, action? }` | Loading/empty/error states |
 | `frontend/src/app/api/auth/session/route.ts` | POST (token → `__session` cookie), DELETE | Already wired — don't touch for features |
+| `frontend/src/app/api/cron/erase-deleted-tasks/route.ts` | GET (daily Vercel cron, guarded by `CRON_SECRET`; hard-deletes tasks deleted more than 30 days ago) | Scheduled erasure per ADR-0001 (schedule in `frontend/vercel.json`). Departs from `tasks.md` rules 2 and 3, and from the last sentence of rule 1 (no task writes outside Server Actions), on purpose because it hard-deletes, so don't copy its pattern for features |
 
 ### Backend building blocks
 
@@ -91,7 +92,7 @@ Everything a feature build needs already exists below. **Do not survey the codeb
 
 ### Existing routes/pages
 
-Pages: `/` · `/auth/signin` · `/auth/signup` · `/dashboard` · `/profile` · `/settings` (route groups `(auth)`, `(dashboard)`). Backend: `GET /api/health` (public); everything else under `/api` requires `Authorization: Bearer <ID token>`.
+Pages: `/` · `/auth/signin` · `/auth/signup` · `/dashboard` · `/tasks` · `/profile` · `/settings` (route groups `(auth)`, `(dashboard)`). Backend: `GET /api/health` (public); everything else under `/api` requires `Authorization: Bearer <ID token>`. Frontend route handlers (Next.js, not the backend): `POST` and `DELETE /api/auth/session` (session cookie), and `GET /api/cron/erase-deleted-tasks` (scheduled, guarded by `CRON_SECRET`, not an ID token).
 
 ---
 
@@ -220,7 +221,7 @@ Always use `pnpm`. Run commands as:
 - Use the soft-delete pattern (add `deletedAt: Timestamp`) instead of hard deletes.
 
 ### Backend (Cloud Functions)
-- All routes under `/api/` (except `/api/health`) are protected by the auth middleware — it verifies the Firebase ID token.
+- All Cloud Functions routes under `/api/` (except `/api/health`) are protected by the auth middleware — it verifies the Firebase ID token.
 - Access the authenticated user via `(req as AuthenticatedRequest).user` — `{ uid, email, claims }`.
 - Error handling: pass `HttpError` (from `src/lib/errors.ts`) to `next()` — never inline `res.status(500)`.
 - Import Firebase Admin only from `src/lib/firebase.ts` — enforced by the conventions test.

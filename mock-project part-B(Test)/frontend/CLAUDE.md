@@ -46,6 +46,7 @@ src/
 │   ├── (auth)/           # Login, register — no auth required
 │   ├── (dashboard)/      # Protected pages — requireAuth() in layout
 │   ├── api/auth/session/ # Session cookie route handler
+│   ├── api/cron/erase-deleted-tasks/ # Scheduled erasure route (CRON_SECRET, no user)
 │   ├── layout.tsx        # Root layout — Server Component
 │   └── page.tsx          # Landing page — Server Component
 ├── components/
@@ -120,7 +121,7 @@ export async function updateProfile(input: UpdateProfileInput): Promise<ActionRe
 3. Server creates an HttpOnly `__session` cookie (Firebase session cookie)
 4. `proxy.ts` checks for the `__session` cookie to gate protected routes
 5. Server Actions call `requireAuth()` which calls `adminAuth.verifySessionCookie()`
-6. **Critical:** The cookie check in proxy.ts is optimistic (presence only). Real verification always happens in Server Actions near the data.
+6. **Critical:** The cookie check in proxy.ts is optimistic (presence only). Real verification always happens in Server Actions near the data (and, for the scheduled erasure route, in its `CRON_SECRET` check).
 
 ---
 

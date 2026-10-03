@@ -31,3 +31,17 @@ export interface Note {
   updatedAt: Timestamp
   _schemaVersion: 1
 }
+
+// Every field is stored (docs/FIRESTORE-SCHEMA.md "tasks"). The server sets uid,
+// createdAt, updatedAt, deletedAt and _schemaVersion; the browser only reads (ADR-0002).
+export interface Task {
+  uid: string // owner's user id — used by security rules; never changes
+  title: string
+  description: string
+  dueDate: Timestamp
+  status: 'pending' | 'completed'
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp | null // null from creation, so the list query can filter on it (ADR-0004)
+  _schemaVersion: 1
+}
