@@ -49,6 +49,36 @@ vi.mock('@/lib/firebase/client', () => ({ auth: ..., db: {} }))
 vi.mock('@/lib/firebase/admin', () => ({ adminAuth: { verifySessionCookie: vi.fn() }, ... }))
 ```
 
+### Mocking `adminDb` and `runTransaction` (Server Actions)
+
+Server Actions that write inside a transaction (the tasks `updateTask`, `setTaskStatus` and `deleteTask`) need a mock of `adminDb.runTransaction`. It must provide:
+
+- `adminDb.collection(name)` returning an object with `doc(id)`, which returns a reference. The real Admin SDK's `doc()` does not throw for `.`, `..`, `__name__` or over-long IDs (checked against `firebase-admin`), so the mock doesn't either. The tasks request schemas refuse the IDs Firestore reserves (`.`, `..`, `__x__`, over 1,500 bytes) before the database is called, so test those at the schema or action level and assert `collection` and `runTransaction` are never called. A live Firestore rejection of an ID has not been checked; to cover an unexpected read failure, make `tx.get` reject and expect the fixed failure result.
+- `adminDb.runTransaction(callback)`, which calls `callback(tx)` and returns its result. Reject or run the callback twice to test failures and SDK retries.
+- `tx.get(ref)` resolving `{ exists, data: () => ... }`, and `tx.update(ref, fields)`. Assert `tx.get` is called before `tx.update` with `mock.invocationCallOrder`.
+
+Create the mocks with `vi.hoisted` so they exist when `vi.mock` runs, and mock `requireAuth` the same way:
+
+```typescript
+const { collection, doc, requireAuth, runTransaction, tx } = vi.hoisted(() => {
+  const doc = vi.fn(() => ({ path: 'tasks/ref' }))
+  const tx = { get: vi.fn(), update: vi.fn() }
+  return {
+    collection: vi.fn(() => ({ doc })),
+    doc,
+    requireAuth: vi.fn(),
+    runTransaction: vi.fn(async (callback: (t: typeof tx) => Promise<unknown>) => callback(tx)),
+    tx,
+  }
+})
+vi.mock('@/lib/firebase/admin', () => ({ adminDb: { collection, runTransaction }, adminAuth: {} }))
+vi.mock('@/actions/auth.actions', () => ({ requireAuth }))
+
+tx.get.mockResolvedValue({ exists: true, data: () => ({ uid: 'user-1', deletedAt: null }) })
+```
+
+See `frontend/tests/unit/features/tasks/actions/tasks.actions.test.ts` for the full version. The `Timestamp` from `firebase-admin/firestore` needs no mock; use fake timers to fix `Timestamp.now()`.
+
 **Backend** (`backend/tests/setup.ts`) mocks `src/lib/firebase` so the Admin SDK never initializes, and exports reusable auth mocks. Auth is injected per-app, not patched globally:
 
 ```typescript
