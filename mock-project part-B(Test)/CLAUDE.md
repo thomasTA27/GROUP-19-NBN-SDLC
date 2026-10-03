@@ -221,7 +221,7 @@ Always use `pnpm`. Run commands as:
 - Use the soft-delete pattern (add `deletedAt: Timestamp`) instead of hard deletes.
 
 ### Backend (Cloud Functions)
-- All routes under `/api/` (except `/api/health`) are protected by the auth middleware — it verifies the Firebase ID token.
+- All Cloud Functions routes under `/api/` (except `/api/health`) are protected by the auth middleware — it verifies the Firebase ID token.
 - Access the authenticated user via `(req as AuthenticatedRequest).user` — `{ uid, email, claims }`.
 - Error handling: pass `HttpError` (from `src/lib/errors.ts`) to `next()` — never inline `res.status(500)`.
 - Import Firebase Admin only from `src/lib/firebase.ts` — enforced by the conventions test.

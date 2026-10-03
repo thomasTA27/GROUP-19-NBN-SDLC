@@ -79,6 +79,17 @@ tx.get.mockResolvedValue({ exists: true, data: () => ({ uid: 'user-1', deletedAt
 
 See `frontend/tests/unit/features/tasks/actions/tasks.actions.test.ts` for the full version. The `Timestamp` from `firebase-admin/firestore` needs no mock; use fake timers to fix `Timestamp.now()`.
 
+### Testing a route handler (the erasure route)
+
+A Next.js route handler such as `frontend/src/app/api/cron/erase-deleted-tasks/route.ts` is tested like a function: import `GET`, call it with a `Request` and read the `Response`. Four things differ from a component test:
+
+1. The frontend default test environment is `jsdom` (`frontend/vitest.config.ts`), so a route test needs the docblock `/** @vitest-environment node */` at the top of the file.
+2. `frontend/tests/setup.ts` mocks `@/lib/firebase/admin` with an empty `adminDb`, so a route test mocks that module again in its own file with the calls it needs (the `vi.hoisted` pattern above).
+3. Set the secret with `vi.stubEnv('CRON_SECRET', '<fake value>')` using an obviously fake value, and fix the clock with fake timers (`vi.useFakeTimers()` and `vi.setSystemTime(...)`) so the cutoff is exact.
+4. `pnpm run test:component` runs the frontend tests, route tests included. `pnpm run test` runs the backend suite only.
+
+See `frontend/tests/unit/app/api/cron/erase-deleted-tasks/route.test.ts` for a worked example. For the direct-request access points (P2) and the erasure schedule (P6), see the `tasks` collection in `docs/FIRESTORE-SCHEMA.md`.
+
 **Backend** (`backend/tests/setup.ts`) mocks `src/lib/firebase` so the Admin SDK never initializes, and exports reusable auth mocks. Auth is injected per-app, not patched globally:
 
 ```typescript

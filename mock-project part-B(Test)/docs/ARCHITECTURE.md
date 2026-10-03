@@ -72,7 +72,7 @@ sequenceDiagram
     A-->>B: JSON response
 ```
 
-**Critical:** the cookie check in `proxy.ts` is optimistic (presence only) — it exists to redirect signed-out users, not to enforce security. Cryptographic verification always happens server-side near the data: `requireAuth()` in Server Actions/Components, the auth middleware in the API.
+**Critical:** the cookie check in `proxy.ts` is optimistic (presence only) — it exists to redirect signed-out users, not to enforce security. Cryptographic verification always happens server-side near the data: `requireAuth()` in Server Actions/Components, the auth middleware in the API, and the secret check in the scheduled erasure route.
 
 ## Request Patterns
 
@@ -124,6 +124,7 @@ Two conventions are enforced by a CI test (`backend/tests/unit/conventions.test.
 - **Firestore rules** — last line of defence; always assume clients are untrusted
 - **Cloud Functions** — verify ID tokens in the auth middleware for every protected route
 - **Next.js Server Actions** — call `requireAuth()` (verifies session cookie via Admin SDK) before any data operation
+- **Scheduled route handler**: checks `CRON_SECRET` in constant time and refuses every request while it is unset or invalid (no user is involved)
 - **proxy.ts** — optimistic cookie check only; used for redirects, never for security
 
 See `docs/SECURITY.md` for the full layered security reference.
