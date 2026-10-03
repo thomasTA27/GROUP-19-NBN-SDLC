@@ -38,6 +38,7 @@ export const TASK_MESSAGES = {
   deleteFields: 'A delete can only include the task ID',
   taskIdRequired: 'Task ID is required',
   taskIdSlash: "Task ID can't contain '/'",
+  taskIdInvalid: 'Task ID is not valid',
   taskGone: 'This task no longer exists.',
   saveFailed: "Your change couldn't be saved. Please try again.",
   loadFailed: "Tasks couldn't be loaded. Please refresh the page.",
@@ -106,6 +107,19 @@ const statusRule = z.enum(TASK_STATUSES, {
   errorMap: () => ({ message: TASK_MESSAGES.statusInvalid }),
 })
 
+const TASK_ID_MAX_BYTES = 1500
+
+// Firestore can't use these as a document ID: over 1,500 bytes, '.' or '..', or '__...__'. The
+// message never repeats the ID.
+function isUsableDocumentId(id: string): boolean {
+  return (
+    new TextEncoder().encode(id).length <= TASK_ID_MAX_BYTES &&
+    id !== '.' &&
+    id !== '..' &&
+    !/^__.*__$/.test(id)
+  )
+}
+
 // A refused ID never reaches the database. A '/' would point the lookup at another path.
 const taskIdRule = z
   .string({
@@ -114,6 +128,7 @@ const taskIdRule = z
   })
   .min(1, TASK_MESSAGES.taskIdRequired)
   .refine((id) => !id.includes('/'), TASK_MESSAGES.taskIdSlash)
+  .refine(isUsableDocumentId, TASK_MESSAGES.taskIdInvalid)
 
 /**
  * The past and 10-year rules (AC-2.6a, 2.6b, 2.6d) as a message, or null when the due date is

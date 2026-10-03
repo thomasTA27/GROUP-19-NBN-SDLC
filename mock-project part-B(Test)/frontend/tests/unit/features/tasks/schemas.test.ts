@@ -462,6 +462,41 @@ describe('task ID', () => {
     refused(schema, { id: '/', ...rest }, TASK_MESSAGES.taskIdSlash)
   })
 
+  const usable = [
+    'abc',
+    'task-1',
+    '_a_',
+    '__a',
+    'a__',
+    '...',
+    'a'.repeat(1500),
+    '\u00e9'.repeat(750), // 1,500 bytes
+  ]
+  const unusable = [
+    '.',
+    '..',
+    '__name__',
+    '__a__',
+    '____',
+    'a'.repeat(1501),
+    '\u00e9'.repeat(751), // 1,502 bytes
+  ]
+
+  it.each(schemas)('%s: accepts IDs Firestore can use', (_name, schema, rest) => {
+    for (const id of usable) expect(accepted(schema, { id, ...rest }).id).toBe(id)
+  })
+
+  it.each(schemas)(
+    '%s: refuses IDs Firestore cannot use, without repeating them',
+    (_n, schema, rest) => {
+      for (const id of unusable) {
+        refused(schema, { id, ...rest }, TASK_MESSAGES.taskIdInvalid)
+        const result = schema.safeParse({ id, ...rest })
+        expect(JSON.stringify(result.error?.issues)).not.toContain(id)
+      }
+    }
+  )
+
   it.each(schemas)('%s: refuses an ID that is not a string', (_name, schema, rest) => {
     refused(schema, { id: 7, ...rest }, TASK_MESSAGES.invalidRequest)
   })
