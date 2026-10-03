@@ -8,6 +8,8 @@ import { adminDb } from '@/lib/firebase/admin'
 // This route deliberately departs from .claude/rules/tasks.md, which does not load for this path:
 // - Rule 2 (always query tasks with deletedAt == null): this job has to select DELETED tasks.
 // - Rule 3 (write only in an owner-checked transaction): this job has no user, and it hard-deletes.
+// - The last sentence of rule 1 (no task writes outside Server Actions): this route hard-deletes
+//   tasks, and it is not a Server Action.
 // The guard instead is the cron secret, the 720-hour cutoff, and the per-document re-check below.
 // Rule 5 still applies: no raw error text ever leaves this route.
 
@@ -45,10 +47,13 @@ function unauthorized(): Response {
   return respond({ error: 'Unauthorized' }, 401)
 }
 
-// A secret with surrounding whitespace could never match: Headers strips that padding from the
-// incoming value, so erasure would silently stop. Refuse it, and anything shorter than the floor.
+// The secret is restricted to ASCII letters (A-Z, a-z), digits and - _ . ~ so it can be sent in a
+// header and written to an unquoted env line without being cut or expanded. At least
+// MIN_SECRET_LENGTH of them.
+const SECRET_PATTERN = new RegExp(`^[A-Za-z0-9_.~-]{${MIN_SECRET_LENGTH},}$`)
+
 function isValidSecret(secret: string | undefined): secret is string {
-  return secret !== undefined && secret.length >= MIN_SECRET_LENGTH && secret === secret.trim()
+  return secret !== undefined && SECRET_PATTERN.test(secret)
 }
 
 // AC-7.8: never erase a task that is not deleted. Firestore range filters are expected to skip

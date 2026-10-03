@@ -116,7 +116,7 @@ function isUsableDocumentId(id: string): boolean {
     new TextEncoder().encode(id).length <= TASK_ID_MAX_BYTES &&
     id !== '.' &&
     id !== '..' &&
-    !/^__.*__$/.test(id)
+    !/^__[\s\S]*__$/.test(id)
   )
 }
 

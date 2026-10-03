@@ -12,8 +12,9 @@ import { TaskItem } from '@/features/tasks/components/TaskItem'
 const PAGE_LINK_CLASS =
   'inline-flex items-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800'
 
-// useTasks reads 20 x page + 1 documents, and the spec's capacity is 1,000 tasks (A33, 50
-// pages). So a page above MAX_PAGE is page 1 and never reaches the hook as a huge limit.
+// useTasks reads 20 x page + 1 documents. The spec's capacity is 1,000 tasks (A33), which is 50
+// pages, but MAX_PAGE is 1000 pages, not 50: it only keeps a huge ?page= from reaching the hook
+// as a huge limit. A page above MAX_PAGE is page 1.
 const MAX_PAGE = 1000
 
 // The URL is the page (?page=N). Anything that isn't a positive whole number is page 1.

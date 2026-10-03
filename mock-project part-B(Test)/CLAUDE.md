@@ -72,7 +72,7 @@ Everything a feature build needs already exists below. **Do not survey the codeb
 | `frontend/src/components/layout/` | `DashboardShell`, `Sidebar` (navItems array — add links here), `Navbar`, `PageHeader` | App shell |
 | `frontend/src/components/shared/` | `ErrorBoundary`, `LoadingSpinner`, `FullPageSpinner`, `EmptyState { title, description?, icon?, action? }` | Loading/empty/error states |
 | `frontend/src/app/api/auth/session/route.ts` | POST (token → `__session` cookie), DELETE | Already wired — don't touch for features |
-| `frontend/src/app/api/cron/erase-deleted-tasks/route.ts` | GET (daily Vercel cron, guarded by `CRON_SECRET`; hard-deletes tasks deleted more than 30 days ago) | Scheduled erasure per ADR-0001 (schedule in `frontend/vercel.json`). Departs from `tasks.md` rules 2 and 3 on purpose, so don't copy its pattern for features |
+| `frontend/src/app/api/cron/erase-deleted-tasks/route.ts` | GET (daily Vercel cron, guarded by `CRON_SECRET`; hard-deletes tasks deleted more than 30 days ago) | Scheduled erasure per ADR-0001 (schedule in `frontend/vercel.json`). Departs from `tasks.md` rules 2 and 3, and from the last sentence of rule 1 (no task writes outside Server Actions), on purpose because it hard-deletes, so don't copy its pattern for features |
 
 ### Backend building blocks
 

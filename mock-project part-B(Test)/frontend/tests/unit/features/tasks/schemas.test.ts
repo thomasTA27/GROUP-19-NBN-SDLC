@@ -497,6 +497,10 @@ describe('task ID', () => {
     }
   )
 
+  it.each(schemas)('%s: refuses a __x__ ID with a line break inside', (_name, schema, rest) => {
+    refused(schema, { id: '__a\nb__', ...rest }, TASK_MESSAGES.taskIdInvalid)
+  })
+
   it.each(schemas)('%s: refuses an ID that is not a string', (_name, schema, rest) => {
     refused(schema, { id: 7, ...rest }, TASK_MESSAGES.invalidRequest)
   })

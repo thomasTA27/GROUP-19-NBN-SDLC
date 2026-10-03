@@ -240,12 +240,47 @@ describe('authorization', () => {
       expectNoDatabaseCall()
     })
 
-    it('allows a single space inside the secret (only surrounding whitespace is refused)', async () => {
-      vi.stubEnv('CRON_SECRET', 'fake secret 1234')
-      expect('fake secret 1234').toHaveLength(16)
-      const response = await GET(request('Bearer fake secret 1234'))
+    it('accepts 16 characters that use every allowed class: upper, lower, digit and - _ . ~', async () => {
+      const secret = 'aZ09-_.~aZ09-_.~'
+      vi.stubEnv('CRON_SECRET', secret)
+      expect(secret).toHaveLength(16)
+      const response = await GET(request(`Bearer ${secret}`))
       expect(response.status).toBe(200)
       expect(fake.collection).toHaveBeenCalledWith('tasks')
+      expect(errorSpy).not.toHaveBeenCalled()
+    })
+
+    it('accepts a long hex secret, the kind openssl rand -hex 32 makes', async () => {
+      const secret = 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90'
+      vi.stubEnv('CRON_SECRET', secret)
+      expect(secret).toHaveLength(64)
+      const response = await GET(request(`Bearer ${secret}`))
+      expect(response.status).toBe(200)
+    })
+  })
+
+  describe('a 16 character secret with a character outside ASCII letters (A-Z, a-z), digits and - _ . ~', () => {
+    // Each secret is 16 characters, so only the character set can be the reason for the refusal. The
+    // header is the exact matching value, so a refusal is the secret rule and not a header mismatch.
+    it.each([
+      ['a #', 'fake-secret#1234'],
+      ['a $', 'fake-secret$1234'],
+      ['a space inside', 'fake secret 1234'],
+      ['a non-ASCII letter', 'fake-secrét-1234'],
+      ['a double quote', 'fake-secret"1234'],
+      ['a backslash', 'fake-secret\\1234'],
+      ['an =', 'fake-secret=1234'],
+    ])('refuses a secret with %s: 401, no Firestore read, one fixed log line', async (_name, secret) => {
+      expect(secret).toHaveLength(16)
+      vi.stubEnv('CRON_SECRET', secret)
+      const response = await GET(request(`Bearer ${secret}`))
+      expect(response.status).toBe(401)
+      expect(await bodyOf(response)).toEqual({ error: 'Unauthorized' })
+      expectNoDatabaseCall()
+      expect(errorSpy.mock.calls).toEqual([
+        ['Erase deleted tasks refused: CRON_SECRET is missing or invalid'],
+      ])
+      expect(JSON.stringify(errorSpy.mock.calls)).not.toContain(secret)
     })
   })
 

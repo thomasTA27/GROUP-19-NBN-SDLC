@@ -230,7 +230,7 @@ Document this as a per-client hardening step in the forking guide.
 - Server-only: never use a `NEXT_PUBLIC_` prefix (exposes it to the browser)
 - Never commit this value to version control
 - Never put it in a URL or query string, and never log it
-- Use at least 16 characters of plain visible ASCII (the route also refuses a secret with leading or trailing whitespace)
+- Use at least 16 characters, only ASCII letters (A-Z, a-z), digits and - _ . ~ (for example the output of `openssl rand -hex 32`); the route refuses any other secret
 - The route refuses every request while the secret is unset or invalid, and logs one fixed line that contains no value
 - Store it as a Vercel environment variable (the root `.env` is for local development only)
 - To rotate it, change it in Vercel and redeploy, then update the root `.env` for local use

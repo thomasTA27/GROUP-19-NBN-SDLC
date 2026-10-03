@@ -45,7 +45,7 @@ Merge to main
    | `NEXT_PUBLIC_APP_NAME` | app display name |
    | `NEXT_PUBLIC_APP_URL` | your Vercel production URL, once known |
    | `FIREBASE_SERVICE_ACCOUNT_KEY_BASE64` | base64-encoded service account JSON (server-only — do **not** prefix with `NEXT_PUBLIC_`) |
-   | `CRON_SECRET` | shared secret for the scheduled erasure route, set for Production (server-only, do **not** prefix with `NEXT_PUBLIC_`, at least 16 characters of plain visible ASCII, see `docs/SECURITY.md`) |
+   | `CRON_SECRET` | shared secret for the scheduled erasure route, set for Production (server-only, do **not** prefix with `NEXT_PUBLIC_`, at least 16 characters, only ASCII letters (A-Z, a-z), digits and - _ . ~ (for example the output of `openssl rand -hex 32`), see `docs/SECURITY.md`) |
 
 4. Deploy. Every push to `main` auto-deploys to production from then on — there's no approval gate on Vercel's side, so treat merging to `main` as shipping.
 5. If you later add the `backend/` Express API and need the frontend to call it cross-origin, set `CORS_ORIGIN` in the backend's env to your Vercel production URL.

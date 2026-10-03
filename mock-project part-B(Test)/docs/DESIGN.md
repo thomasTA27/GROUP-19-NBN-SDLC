@@ -248,18 +248,22 @@ For inline errors, show a plain message:
 
 ```tsx
 if (error) return (
-  <p className="text-sm text-red-600">{error.message ?? 'Something went wrong.'}</p>
+  <p className="text-sm text-red-600">Something went wrong. Try again.</p>
 )
 ```
+
+The raw error is never shown to the user: not `error.message`, and not any library text (the project rule in `.claude/rules/tasks.md`, rule 5).
 
 ### Empty
 
 Use `<EmptyState>` from `@/components/shared/EmptyState`:
 
 ```tsx
+import { UsersIcon } from 'lucide-react'
+
 if (!data.length) return (
   <EmptyState
-    icon={<UsersIcon className="size-8 text-zinc-400" />}
+    icon={UsersIcon} // the icon component itself (a LucideIcon), not an element; EmptyState sizes it
     title="No users yet"
     description="Users will appear here once they sign up."
   />
