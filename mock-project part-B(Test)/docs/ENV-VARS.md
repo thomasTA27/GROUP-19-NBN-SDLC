@@ -68,6 +68,8 @@ The root `.env` is for local development only. For CI/CD, add repository secrets
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_SERVICE_ACCOUNT_KEY_BASE64`
 
+`CRON_SECRET` is not a GitHub Actions secret, it is set as a Vercel environment variable (see `docs/CI-CD.md`).
+
 See `docs/CI-CD.md` for the full list and how they're used.
 
 ## Adding a New Variable

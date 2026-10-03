@@ -45,9 +45,16 @@ Merge to main
    | `NEXT_PUBLIC_APP_NAME` | app display name |
    | `NEXT_PUBLIC_APP_URL` | your Vercel production URL, once known |
    | `FIREBASE_SERVICE_ACCOUNT_KEY_BASE64` | base64-encoded service account JSON (server-only — do **not** prefix with `NEXT_PUBLIC_`) |
+   | `CRON_SECRET` | shared secret for the scheduled erasure route, set for Production (server-only, do **not** prefix with `NEXT_PUBLIC_`, at least 16 characters of plain visible ASCII, see `docs/SECURITY.md`) |
 
 4. Deploy. Every push to `main` auto-deploys to production from then on — there's no approval gate on Vercel's side, so treat merging to `main` as shipping.
 5. If you later add the `backend/` Express API and need the frontend to call it cross-origin, set `CORS_ORIGIN` in the backend's env to your Vercel production URL.
+
+### Scheduled Job (Erasure)
+
+`frontend/vercel.json` defines one daily cron at 16:00 UTC (`0 16 * * *`) that calls `GET /api/cron/erase-deleted-tasks`. Per ADR-0001 (`docs/adr/0001-task-erasure-job.md`), Vercel sends the secret as an `Authorization: Bearer <CRON_SECRET>` header, a run starts anywhere within the hour on the Hobby plan, and a failed run is not retried. The route refuses every request while `CRON_SECRET` is unset or invalid. Because `vercel.json` sits in `frontend/`, it relies on the Root Directory being set to `frontend`, as in step 2 above.
+
+No GitHub Actions secret is needed, because no workflow reads `CRON_SECRET`. Per ADR-0001, the job needs no paid plan or billing account (D5). It only runs once the frontend is deployed with the secret set, and nothing has been deployed by the change that added it. This guide does not rely on scheduled jobs running on preview deployments (unverified).
 
 ## GitHub Actions Secrets Required (for `deploy.yml`)
 
@@ -92,6 +99,8 @@ npx firebase-tools deploy --only firestore:indexes
 # Backend Cloud Function — optional, requires the Blaze plan
 npx firebase-tools deploy --only functions
 ```
+
+`deploy.yml` deploys the Firestore rules only, so the tasks composite index in `firebase/firestore.indexes.json` is deployed by hand with the `firestore:indexes` command shown above.
 
 The frontend has no manual `firebase deploy` equivalent — it deploys via Vercel (dashboard push, or `vercel --prod` with the Vercel CLI if installed).
 

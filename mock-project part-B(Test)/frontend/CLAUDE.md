@@ -46,6 +46,7 @@ src/
 │   ├── (auth)/           # Login, register — no auth required
 │   ├── (dashboard)/      # Protected pages — requireAuth() in layout
 │   ├── api/auth/session/ # Session cookie route handler
+│   ├── api/cron/erase-deleted-tasks/ # Scheduled erasure route (CRON_SECRET, no user)
 │   ├── layout.tsx        # Root layout — Server Component
 │   └── page.tsx          # Landing page — Server Component
 ├── components/
