@@ -12,6 +12,12 @@ const { useAuth, useTasks, useSearchParams } = vi.hoisted(() => ({
 vi.mock('@/hooks/useAuth', () => ({ useAuth }))
 vi.mock('@/features/tasks/hooks/useTasks', () => ({ useTasks }))
 vi.mock('next/navigation', () => ({ useSearchParams }))
+// TaskItem imports the Server Actions and sonner. TaskList never calls them.
+vi.mock('@/features/tasks/actions/tasks.actions', () => ({
+  setTaskStatus: vi.fn(),
+  deleteTask: vi.fn(),
+}))
+vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
 
 import { TaskList } from '@/features/tasks/components/TaskList'
 
