@@ -1,4 +1,4 @@
-import type { ActionResult } from '@/types'
+import type { ActionResult, Task } from '@/types'
 
 /** The task form's fields: the ones a refusal can name, so its message shows beside them. */
 export type TaskField = 'title' | 'description' | 'dueDate'
@@ -11,3 +11,6 @@ export type TaskField = 'title' | 'description' | 'dueDate'
 export interface TaskActionResult<T = undefined> extends ActionResult<T> {
   field?: TaskField
 }
+
+/** A task as the list hook returns it: the stored fields plus the document ID. */
+export type TaskWithId = Task & { id: string }
