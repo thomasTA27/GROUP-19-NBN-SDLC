@@ -25,6 +25,7 @@ pnpm run env:sync       # also runs automatically before `pnpm run dev`
 |---------|--------|----------|-------------|
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | No | Yes | Firebase project id — must match `.firebaserc`. Synced under the same name to both frontend and backend. |
 | `FIREBASE_SERVICE_ACCOUNT_KEY_BASE64` | **Yes** | Yes | Base64-encoded service account JSON. Synced to both packages; server-only in each. |
+| `CRON_SECRET` | **Yes** | Only where erasure should run | Shared secret the scheduled erasure route checks in the `Authorization` header. Frontend only: synced to `frontend/.env.local`, never to the backend. At least 16 characters of plain visible ASCII with no surrounding whitespace. The route refuses every request while it is unset or invalid. Set it in Vercel too, because the root `.env` is local only. |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | No | Yes | Firebase web app config → `apiKey` |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | No | Yes | Web app config → `authDomain` |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | No | Yes | Web app config → `messagingSenderId` |
