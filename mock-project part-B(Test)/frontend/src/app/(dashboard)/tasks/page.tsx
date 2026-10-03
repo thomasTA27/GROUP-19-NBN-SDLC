@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { requireAuth } from '@/actions/auth.actions'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { CreateTaskForm } from '@/features/tasks/components/CreateTaskForm'
 import { TaskList } from '@/features/tasks/components/TaskList'
 
 export const metadata: Metadata = { title: 'Tasks' }
@@ -15,6 +16,7 @@ export default async function TasksPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Tasks" />
+      <CreateTaskForm />
       <Suspense fallback={<LoadingSpinner />}>
         <TaskList />
       </Suspense>
