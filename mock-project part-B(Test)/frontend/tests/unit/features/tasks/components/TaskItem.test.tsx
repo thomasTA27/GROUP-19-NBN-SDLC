@@ -6,13 +6,18 @@ import { TASK_MESSAGES } from '@/features/tasks/schemas'
 import { formatDatetime } from '@/lib/utils'
 import type { TaskActionResult, TaskWithId } from '@/features/tasks/types'
 
-const { setTaskStatus, deleteTask, toastSuccess, toastError } = vi.hoisted(() => ({
+const { setTaskStatus, deleteTask, updateTask, toastSuccess, toastError } = vi.hoisted(() => ({
   setTaskStatus: vi.fn(),
   deleteTask: vi.fn(),
+  updateTask: vi.fn(),
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
 }))
-vi.mock('@/features/tasks/actions/tasks.actions', () => ({ setTaskStatus, deleteTask }))
+vi.mock('@/features/tasks/actions/tasks.actions', () => ({
+  setTaskStatus,
+  deleteTask,
+  updateTask,
+}))
 vi.mock('sonner', () => ({ toast: { success: toastSuccess, error: toastError } }))
 
 import { TaskItem } from '@/features/tasks/components/TaskItem'
@@ -24,6 +29,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   setTaskStatus.mockResolvedValue({ success: true })
   deleteTask.mockResolvedValue({ success: true })
+  updateTask.mockResolvedValue({ success: true })
   confirmSpy.mockReturnValue(true)
   alertSpy.mockReturnValue(undefined)
 })
@@ -785,5 +791,394 @@ describe('TaskItem: two clicks before a re-render (the in-flight guard)', () => 
     expect(deleteTask).toHaveBeenCalledTimes(1)
     call.resolve({ success: true })
     await waitFor(() => expect(toastSuccess).toHaveBeenCalledTimes(1))
+  })
+})
+
+describe('TaskItem: inline edit (AC-2.6b, 2.6c, 5.1 to 5.4, 7.1, 7.4, 8.4a, A8)', () => {
+  const editButton = () => screen.getByRole('button', { name: 'Edit "Write the report"' })
+  const deleteButton = () => screen.getByRole('button', { name: 'Delete "Write the report"' })
+  const editGroup = () => screen.getByRole('group', { name: 'Edit "Write the report"' })
+  const titleInput = () => screen.getByLabelText('Title') as HTMLInputElement
+  const saveButton = () => screen.getByRole('button', { name: 'Save' })
+  const cancelButton = () => screen.getByRole('button', { name: 'Cancel' })
+
+  it('shows an Edit button with the title in its accessible name, next to Delete', () => {
+    renderItem(makeTask())
+    expect(editButton()).toHaveTextContent('Edit')
+    expect(editButton()).toHaveAttribute('type', 'button')
+    expect(editButton().parentElement).toBe(deleteButton().parentElement)
+    expect(editButton()).toHaveClass('border-zinc-300', 'bg-white')
+    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.queryByLabelText('Title')).toBeNull()
+  })
+
+  it('opens the form in place of the title, description, due date and Delete, keeping the checkbox', async () => {
+    renderItem(makeTask({ description: 'Some details' }))
+    await userEvent.click(editButton())
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(1)
+    expect(editGroup()).toBeInTheDocument()
+    expect(titleInput().value).toBe('Write the report')
+    expect(screen.getByLabelText('Description')).toHaveValue('Some details')
+    expect(screen.queryByRole('heading', { level: 3 })).toBeNull()
+    expect(screen.queryByTestId('task-description')).toBeNull()
+    expect(screen.queryByTestId('task-due')).toBeNull()
+    expect(screen.queryByRole('button', { name: /^Edit "/ })).toBeNull()
+    expect(screen.getByRole('checkbox', { name: /Write the report/ })).toBeInTheDocument()
+    expect(updateTask).not.toHaveBeenCalled()
+  })
+
+  it('moves focus to the Title field when it opens', async () => {
+    renderItem(makeTask())
+    await userEvent.click(editButton())
+    await waitFor(() => expect(titleInput()).toHaveFocus())
+  })
+
+  it('hides the delete controls while editing', async () => {
+    renderItem(makeTask())
+    await userEvent.click(editButton())
+    expect(screen.queryByRole('button', { name: /^Delete "/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Delete task' })).toBeNull()
+    expect(screen.queryByRole('group', { name: /Confirm deleting/ })).toBeNull()
+    expect(deleteTask).not.toHaveBeenCalled()
+  })
+
+  it('Cancel brings the normal view back, calls no action and returns focus to Edit', async () => {
+    renderItem(makeTask({ description: 'keep me' }))
+    await userEvent.click(editButton())
+    await userEvent.clear(titleInput())
+    await userEvent.type(titleInput(), 'Never saved')
+    await userEvent.click(cancelButton())
+
+    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Write the report')
+    expect(screen.getByTestId('task-description')).toHaveTextContent('keep me')
+    expect(deleteButton()).toBeInTheDocument()
+    expect(editButton()).toHaveFocus()
+    expect(updateTask).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
+  })
+
+  it('Escape does the same as Cancel', async () => {
+    renderItem(makeTask())
+    await userEvent.click(editButton())
+    await userEvent.keyboard('{Escape}')
+
+    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Write the report')
+    expect(editButton()).toHaveFocus()
+    expect(updateTask).not.toHaveBeenCalled()
+  })
+
+  it('opens again after Cancel with the stored values, not the abandoned edit', async () => {
+    renderItem(makeTask())
+    await userEvent.click(editButton())
+    await userEvent.type(titleInput(), ' abandoned')
+    await userEvent.click(cancelButton())
+    await userEvent.click(editButton())
+    expect(titleInput().value).toBe('Write the report')
+    expect(saveButton()).toBeDisabled()
+    await waitFor(() => expect(titleInput()).toHaveFocus())
+  })
+
+  it('a successful save closes the form, shows the success toast and returns focus to Edit', async () => {
+    renderItem(makeTask())
+    await userEvent.click(editButton())
+    await userEvent.clear(titleInput())
+    await userEvent.type(titleInput(), 'New title')
+    await userEvent.click(saveButton())
+
+    await waitFor(() => expect(screen.queryByRole('group')).toBeNull())
+    expect(updateTask).toHaveBeenCalledTimes(1)
+    expect(updateTask).toHaveBeenCalledWith({ id: 't1', title: 'New title' })
+    expect(toastSuccess).toHaveBeenCalledWith('Task updated')
+    expect(toastError).not.toHaveBeenCalled()
+    // The list is not touched: the live listener supplies the new title, so the old one shows.
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Write the report')
+    await waitFor(() => expect(editButton()).toHaveFocus())
+  })
+
+  it('a refused save keeps the form open and the user’s values, with the action’s text (AC-7.4)', async () => {
+    updateTask.mockResolvedValue({ success: false, error: TASK_MESSAGES.taskGone })
+    renderItem(makeTask())
+    await userEvent.click(editButton())
+    await userEvent.clear(titleInput())
+    await userEvent.type(titleInput(), 'New title')
+    await userEvent.click(saveButton())
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith(TASK_MESSAGES.taskGone))
+    expect(toastSuccess).not.toHaveBeenCalled()
+    expect(editGroup()).toBeInTheDocument()
+    expect(titleInput().value).toBe('New title')
+  })
+
+  it('can be used with the keyboard alone (AC-8.4a)', async () => {
+    renderItem(makeTask())
+    editButton().focus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(() => expect(titleInput()).toHaveFocus())
+    await userEvent.keyboard('!')
+    await userEvent.tab()
+    await userEvent.tab()
+    await userEvent.tab()
+    expect(saveButton()).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(() =>
+      expect(updateTask).toHaveBeenCalledWith({ id: 't1', title: 'Write the report!' })
+    )
+    await waitFor(() => expect(editButton()).toHaveFocus())
+  })
+
+  it('edits only the item whose Edit was clicked', async () => {
+    render(
+      <ul>
+        <TaskItem task={makeTask({ id: 'a', title: 'First' })} />
+        <TaskItem task={makeTask({ id: 'b', title: 'Second' })} />
+      </ul>
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Edit "First"' }))
+
+    expect(screen.getAllByRole('group')).toHaveLength(1)
+    expect(screen.getByRole('group', { name: 'Edit "First"' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Second')
+    expect(screen.getByRole('button', { name: 'Edit "Second"' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Delete "Second"' })).toBeEnabled()
+  })
+
+  it('has no Edit button while the delete confirmation is open, and not while a delete is running', async () => {
+    const call = deferred()
+    deleteTask.mockReturnValue(call.promise)
+    renderItem(makeTask())
+    await userEvent.click(deleteButton())
+    expect(screen.queryByRole('button', { name: /^Edit "/ })).toBeNull()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete task' }))
+    expect(screen.queryByRole('button', { name: /^Edit "/ })).toBeNull()
+
+    call.resolve({ success: true })
+    await waitFor(() => expect(toastSuccess).toHaveBeenCalled())
+  })
+
+  it('brings Edit back after the delete confirmation is cancelled', async () => {
+    renderItem(makeTask())
+    await userEvent.click(deleteButton())
+    await userEvent.click(cancelButton())
+    expect(editButton()).toBeInTheDocument()
+    expect(deleteButton()).toHaveFocus()
+  })
+
+  describe('the checkbox while the form is open', () => {
+    it('still toggles, with the same action call, and leaves the form open and its values alone', async () => {
+      const call = deferred()
+      setTaskStatus.mockReturnValue(call.promise)
+      renderItem(makeTask({ status: 'pending' }))
+      await userEvent.click(editButton())
+      await userEvent.type(titleInput(), ' edited')
+
+      const checkbox = screen.getByRole('checkbox')
+      await userEvent.click(checkbox)
+      expect(setTaskStatus).toHaveBeenCalledTimes(1)
+      expect(setTaskStatus).toHaveBeenCalledWith({ id: 't1', status: 'completed' })
+      expect(checkbox).toBeDisabled()
+      expect(checkbox).toHaveAttribute('aria-busy', 'true')
+
+      expect(editGroup()).toBeInTheDocument()
+      expect(titleInput().value).toBe('Write the report edited')
+      expect(saveButton()).toBeEnabled()
+
+      call.resolve({ success: true })
+      await waitFor(() => expect(checkbox).toBeEnabled())
+      expect(editGroup()).toBeInTheDocument()
+      expect(titleInput().value).toBe('Write the report edited')
+      expect(updateTask).not.toHaveBeenCalled()
+    })
+
+    it('never sends the status with a save, even after a toggle', async () => {
+      const { rerender } = renderItem(makeTask({ status: 'pending' }))
+      await userEvent.click(editButton())
+      await userEvent.click(screen.getByRole('checkbox'))
+      await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled())
+      rerender(
+        <ul>
+          <TaskItem task={makeTask({ status: 'completed' })} />
+        </ul>
+      )
+      expect(screen.getByRole('checkbox')).toBeChecked()
+
+      await userEvent.type(titleInput(), '!')
+      await userEvent.click(saveButton())
+      await waitFor(() => expect(updateTask).toHaveBeenCalledTimes(1))
+      expect(updateTask).toHaveBeenCalledWith({ id: 't1', title: 'Write the report!' })
+      expect(updateTask.mock.calls[0]![0]).not.toHaveProperty('status')
+    })
+
+    it('shows a failed toggle’s error without closing the form or touching its values', async () => {
+      setTaskStatus.mockResolvedValue({ success: false, error: TASK_MESSAGES.taskGone })
+      renderItem(makeTask())
+      await userEvent.click(editButton())
+      await userEvent.type(titleInput(), '!')
+      await userEvent.click(screen.getByRole('checkbox'))
+
+      await waitFor(() => expect(toastError).toHaveBeenCalledWith(TASK_MESSAGES.taskGone))
+      expect(editGroup()).toBeInTheDocument()
+      expect(titleInput().value).toBe('Write the report!')
+      expect(screen.getByRole('checkbox')).not.toBeChecked()
+    })
+  })
+
+  describe('a live update while the form is open', () => {
+    it('keeps what the user typed when the task prop changes', async () => {
+      const { rerender } = renderItem(makeTask())
+      await userEvent.click(editButton())
+      await userEvent.type(titleInput(), ' mine')
+
+      rerender(
+        <ul>
+          <TaskItem task={makeTask({ title: 'Changed elsewhere', status: 'completed' })} />
+        </ul>
+      )
+      expect(titleInput().value).toBe('Write the report mine')
+      expect(screen.getByRole('checkbox')).toBeChecked()
+      expect(screen.getByRole('group', { name: 'Edit "Changed elsewhere"' })).toBeInTheDocument()
+    })
+  })
+})
+
+describe('TaskItem: inline edit, behaviour records and overlapping calls', () => {
+  const editButton = () => screen.getByRole('button', { name: /^Edit "/ })
+  const editGroup = () => screen.getByRole('group', { name: /^Edit "/ })
+  const titleInput = () => screen.getByLabelText('Title') as HTMLInputElement
+  const saveButton = () => screen.getByRole('button', { name: 'Save' })
+  const heading = () => screen.getByRole('heading', { level: 3 })
+
+  // Opens the form and types a new title with one change event.
+  async function openAndChangeTitle(value = 'New title') {
+    await userEvent.click(editButton())
+    fireEvent.change(titleInput(), { target: { value } })
+  }
+
+  // a. Records current behaviour, does not endorse it. After a successful save the form closes
+  // at once, but the item shows the task prop, and the prop only changes when the live listener
+  // delivers the saved task. Until then the item shows the OLD title.
+  it('a. after a successful save the item shows the old title until the task prop changes', async () => {
+    const { rerender } = renderItem(makeTask())
+    await openAndChangeTitle()
+    await userEvent.click(saveButton())
+
+    await waitFor(() => expect(screen.queryByRole('group')).toBeNull())
+    expect(toastSuccess).toHaveBeenCalledWith('Task updated')
+    expect(toastError).not.toHaveBeenCalled()
+    await waitFor(() => expect(editButton()).toHaveFocus())
+    expect(heading()).toHaveTextContent('Write the report')
+    expect(heading()).not.toHaveTextContent('New title')
+
+    rerender(
+      <ul>
+        <TaskItem task={makeTask({ title: 'New title' })} />
+      </ul>
+    )
+    expect(heading()).toHaveTextContent('New title')
+  })
+
+  // h. Records current behaviour, does not endorse it. The inputs stay editable while a save
+  // runs. What the user types meanwhile is not sent, and it is dropped when the save succeeds
+  // and the form closes: opening the form again shows the stored values.
+  it('h. drops what was typed during a save when the save succeeds and the form closes', async () => {
+    const call = deferred()
+    updateTask.mockReturnValue(call.promise)
+    renderItem(makeTask())
+    await openAndChangeTitle('Sent title')
+    await userEvent.click(saveButton())
+
+    expect(titleInput()).not.toBeDisabled()
+    fireEvent.change(titleInput(), { target: { value: 'Typed during the save' } })
+    expect(titleInput().value).toBe('Typed during the save')
+
+    await act(async () => {
+      call.resolve({ success: true })
+    })
+    await waitFor(() => expect(screen.queryByRole('group')).toBeNull())
+    expect(updateTask).toHaveBeenCalledTimes(1)
+    expect(updateTask).toHaveBeenCalledWith({ id: 't1', title: 'Sent title' })
+
+    await userEvent.click(editButton())
+    expect(titleInput().value).toBe('Write the report')
+    expect(screen.queryByDisplayValue('Typed during the save')).toBeNull()
+  })
+
+  describe('d. a toggle and a save in flight together', () => {
+    // Both calls pending at once. Neither result may touch the other, and no call is dropped.
+    async function startBoth() {
+      const toggle = deferred()
+      const save = deferred()
+      setTaskStatus.mockReturnValue(toggle.promise)
+      updateTask.mockReturnValue(save.promise)
+      renderItem(makeTask())
+      await openAndChangeTitle()
+      const checkbox = screen.getByRole('checkbox')
+      await userEvent.click(checkbox)
+      await userEvent.click(saveButton())
+
+      expect(setTaskStatus).toHaveBeenCalledTimes(1)
+      expect(setTaskStatus).toHaveBeenCalledWith({ id: 't1', status: 'completed' })
+      expect(updateTask).toHaveBeenCalledTimes(1)
+      expect(updateTask).toHaveBeenCalledWith({ id: 't1', title: 'New title' })
+      expect(checkbox).toBeDisabled()
+      expect(checkbox).toHaveAttribute('aria-busy', 'true')
+      expect(editGroup()).toHaveAttribute('aria-busy', 'true')
+      expect(saveButton()).toBeDisabled()
+      return { toggle, save, checkbox }
+    }
+
+    it('the save finishing first closes the form; the checkbox stays disabled until the toggle resolves', async () => {
+      const { toggle, save, checkbox } = await startBoth()
+
+      await act(async () => {
+        save.resolve({ success: true })
+      })
+      await waitFor(() => expect(screen.queryByRole('group')).toBeNull())
+      expect(toastSuccess).toHaveBeenCalledTimes(1)
+      expect(toastSuccess).toHaveBeenCalledWith('Task updated')
+      expect(toastError).not.toHaveBeenCalled()
+      expect(checkbox).toBeDisabled()
+      expect(checkbox).toHaveAttribute('aria-busy', 'true')
+
+      await act(async () => {
+        toggle.resolve({ success: true })
+      })
+      await waitFor(() => expect(checkbox).toBeEnabled())
+      expect(checkbox).not.toHaveAttribute('aria-busy')
+      expect(setTaskStatus).toHaveBeenCalledTimes(1)
+      expect(updateTask).toHaveBeenCalledTimes(1)
+      expect(toastSuccess).toHaveBeenCalledTimes(1)
+      expect(toastError).not.toHaveBeenCalled()
+    })
+
+    it('the toggle failing first shows its error, keeps the form open with the typed values, and the save still works', async () => {
+      const { toggle, save, checkbox } = await startBoth()
+
+      await act(async () => {
+        toggle.resolve({ success: false, error: TASK_MESSAGES.taskGone })
+      })
+      await waitFor(() => expect(toastError).toHaveBeenCalledWith(TASK_MESSAGES.taskGone))
+      expect(toastError).toHaveBeenCalledTimes(1)
+      expect(toastSuccess).not.toHaveBeenCalled()
+      await waitFor(() => expect(checkbox).toBeEnabled())
+      expect(checkbox).not.toBeChecked()
+      expect(editGroup()).toHaveAttribute('aria-busy', 'true')
+      expect(titleInput().value).toBe('New title')
+      expect(saveButton()).toBeDisabled()
+
+      await act(async () => {
+        save.resolve({ success: true })
+      })
+      await waitFor(() => expect(screen.queryByRole('group')).toBeNull())
+      expect(toastSuccess).toHaveBeenCalledTimes(1)
+      expect(toastSuccess).toHaveBeenCalledWith('Task updated')
+      expect(toastError).toHaveBeenCalledTimes(1)
+      expect(setTaskStatus).toHaveBeenCalledTimes(1)
+      expect(updateTask).toHaveBeenCalledTimes(1)
+    })
   })
 })

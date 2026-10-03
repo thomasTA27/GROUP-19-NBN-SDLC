@@ -1,21 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Timestamp } from 'firebase/firestore'
 import { TASK_MESSAGES } from '@/features/tasks/schemas'
 import type { TaskWithId } from '@/features/tasks/types'
 
-const { useAuth, useTasks, useSearchParams } = vi.hoisted(() => ({
+const { useAuth, useTasks, useSearchParams, updateTask, deleteTask } = vi.hoisted(() => ({
   useAuth: vi.fn(),
   useTasks: vi.fn(),
   useSearchParams: vi.fn(),
+  updateTask: vi.fn(),
+  deleteTask: vi.fn(),
 }))
 vi.mock('@/hooks/useAuth', () => ({ useAuth }))
 vi.mock('@/features/tasks/hooks/useTasks', () => ({ useTasks }))
 vi.mock('next/navigation', () => ({ useSearchParams }))
-// TaskItem imports the Server Actions and sonner. TaskList never calls them.
+// TaskItem and EditTaskForm import the Server Actions and sonner. TaskList itself never calls
+// them; only the key tests at the end click through to updateTask and deleteTask.
 vi.mock('@/features/tasks/actions/tasks.actions', () => ({
   setTaskStatus: vi.fn(),
-  deleteTask: vi.fn(),
+  deleteTask,
+  updateTask,
 }))
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
 
@@ -49,6 +54,8 @@ beforeEach(() => {
   useAuth.mockReturnValue({ user: { uid: 'user-1' }, loading: false })
   setPage(null)
   setTasks({})
+  updateTask.mockResolvedValue({ success: true })
+  deleteTask.mockResolvedValue({ success: true })
 })
 
 describe('TaskList: auth gate', () => {
@@ -250,5 +257,62 @@ describe('TaskList: unusual ?page= values', () => {
     expect(screen.getByText('Page 1')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Next' })).toHaveAttribute('href', '/tasks?page=2')
     expect(screen.queryByRole('link', { name: 'Previous' })).toBeNull()
+  })
+})
+
+// TaskList renders <TaskItem key={task.id} />. That key is what stops an open edit form or delete
+// confirmation from being reused for a different task: EditTaskForm captures its values once but
+// reads task.id live, so a reused instance would send one task's edit to another task's id.
+describe('TaskList: one item instance per task id (key={task.id})', () => {
+  it('replaces an open edit form when a different task takes the first position', async () => {
+    setTasks({ tasks: [makeTask('a'), makeTask('b')] })
+    const { rerender } = render(<TaskList />)
+    await userEvent.click(screen.getByRole('button', { name: 'Edit "Task a"' }))
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Typed edit for A' } })
+    expect(screen.getByDisplayValue('Typed edit for A')).toBeInTheDocument()
+
+    setTasks({ tasks: [makeTask('c'), makeTask('b')] })
+    rerender(<TaskList />)
+
+    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.queryByLabelText('Title')).toBeNull()
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'Task c',
+      'Task b',
+    ])
+    expect(screen.getByRole('button', { name: 'Edit "Task c"' })).toBeInTheDocument()
+    expect(screen.queryByDisplayValue('Typed edit for A')).toBeNull()
+    expect(document.body.textContent).not.toContain('Typed edit for A')
+    expect(updateTask).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit "Task c"' }))
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Edit for C' } })
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => expect(updateTask).toHaveBeenCalledTimes(1))
+    expect(updateTask).toHaveBeenCalledWith({ id: 'c', title: 'Edit for C' })
+    for (const [input] of updateTask.mock.calls) expect(input.id).not.toBe('a')
+  })
+
+  it('replaces an open delete confirmation when a different task takes the first position', async () => {
+    setTasks({ tasks: [makeTask('a'), makeTask('b')] })
+    const { rerender } = render(<TaskList />)
+    await userEvent.click(screen.getByRole('button', { name: 'Delete "Task a"' }))
+    expect(screen.getByRole('group', { name: 'Confirm deleting "Task a"' })).toBeInTheDocument()
+
+    setTasks({ tasks: [makeTask('c'), makeTask('b')] })
+    rerender(<TaskList />)
+
+    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Delete task' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Delete "Task c"' })).toBeInTheDocument()
+    expect(deleteTask).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete "Task c"' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Delete task' }))
+
+    await waitFor(() => expect(deleteTask).toHaveBeenCalledTimes(1))
+    expect(deleteTask).toHaveBeenCalledWith({ id: 'c' })
+    for (const [input] of deleteTask.mock.calls) expect(input.id).not.toBe('a')
   })
 })
