@@ -1,12 +1,12 @@
 # Testing and QA, Part B: decision record (module step 4)
 
-**Status: PROPOSED. Sign-off pending.** This is a draft prepared by Claude Code (claude-sonnet-5-5) from the measurement and classification in this folder, for the named person to read, change and decide. Nothing here is an approval, a release decision or a sign-off by anyone.
+**Status: Part B module verdict signed; test-gap recommendations proposed.** Prepared by Claude Code (claude-sonnet-5-5) from the measurement and classification in this folder. Sajad Ali Akbari signed the module usability verdict as Pass with changes on 4 October 2026. This is not application release approval or joint Part C agreement.
 
 | | |
 |---|---|
 | Change under test | Task CRUD (Implementation Part B), `main` at `d181508`, source and tests unchanged by this stage |
-| Decision made by | **Pending. Named person: ____________________** |
-| Date of decision | **Pending** |
+| Module verdict signed by | **Sajad Ali Akbari, Part B module tester** |
+| Date of module verdict | **4 October 2026** |
 | Implementation approver (module: "this stage inherits that") | **Not evidenced.** See [run-context.md](run-context.md) section 5 |
 | Entry conditions | Tests green: yes (778 frontend, 5 backend). "A PR is open": no, PR #46 was merged before this stage began. Recorded as a deviation, not a blocker |
 
@@ -18,7 +18,7 @@ Two separate conclusions follow. They answer different questions and should not 
 
 **Question.** Can a person independently follow the current four-step module on a project it was not written on, and get a usable result?
 
-**Recommendation: Pass with changes.** The module's four-step shape worked and the result was usable. It was not usable *as written*: several unstated decisions were needed, one of the module's stated remedies did not hold, and human confirmation of the decision remains pending.
+**Signed module verdict: Pass with changes.** The module's four-step shape worked and the result was usable. It was not usable *as written*: several unstated decisions were needed and one of the module's stated remedies did not hold. Project approval remains pending.
 
 ### Evidence
 
@@ -27,7 +27,7 @@ Two separate conclusions follow. They answer different questions and should not 
 | 1. Run the full suite | **Yes.** 778 frontend and 5 backend tests passed, no test changed | [run-context.md](run-context.md) section 5 |
 | 2. Run mutation testing | **Only with unstated decisions.** A complete run (953 mutants, score 92.65%, exit 0), but setup took most of the recorded session time and the score describes an adapted execution, not the unchanged suite | [setup-log.md](setup-log.md), [mutation-report.md](mutation-report.md) sections 1 and 7 |
 | 3. Classify every survivor | **Yes, and it was the useful part.** All 70 undetected mutants fell into four classes with none unresolved. Drafting was quick; verifying took far more effort | [classified-survivors.md](classified-survivors.md) |
-| 4. Decide | **Draft prepared; confirmation pending.** The project has not evidenced an approver. This is a governance limitation, not proof that the module makes the step impossible. | this file |
+| 4. Decide | **Part B module verdict signed; test-gap triage pending.** The project has not evidenced an Implementation approver. This is a governance limitation, not proof that the module makes the step impossible. | this file |
 
 ### Unstated decisions the module needed
 
@@ -36,7 +36,7 @@ Two separate conclusions follow. They answer different questions and should not 
 3. **A side effect of the install.** Adding the tool made `pnpm run typecheck` fail through a transitive Zod 4 dependency. The module does not warn that installing a tool can change the project. Typecheck was not run before the install, so the install is the probable cause, not a proved one. A scoped `packageExtensions` entry repaired it.
 4. **What the score covers.** 22 of 778 tests were never selected by the tool's default filter, tests that read source text earn no credit, and the report keys tests by name. None of this is in the module.
 5. **How to treat awkward survivors.** A module that fails to load was counted as survival (1 tool artefact). Styling class strings that carry keyboard-focus classes are not harmless. "Equivalent" needs reasoning, not just a passing suite.
-6. **Recording decisions and usage.** The run needed a record outside the already-merged PR. Human confirmation is pending. Total time and original session usage were not captured; that does not make the module's decision step impossible.
+6. **Recording decisions and usage.** The run needed a record outside the already-merged PR. The module verdict is now signed; test-gap approval remains pending. Total time and original session usage were not captured; that does not make the module's decision step impossible.
 
 ### Necessary guidance versus optional technique
 
@@ -122,15 +122,15 @@ The score (92.65%, from an adapted Stryker execution: 879 Killed, 4 Timeout, 67 
 
 | Field | Entry |
 |---|---|
-| Module usability | Proposed: Pass with changes. **Confirmed / changed to: ____ by ____ on ____** |
+| Module usability | **Pass with changes — signed by Sajad Ali Akbari on 4 October 2026** |
 | Gaps returned to Implementation | Proposed: the 20 in 2a. **Confirmed / changed: ____** |
 | Gaps to investigate | Proposed: the 11 in 2b. **Confirmed / changed: ____** |
 | Gaps accepted, with rationale | Proposed: 2c. **Confirmed / changed: ____** |
 | Decision on the change | **____ (not proposed here)** |
-| Named person, role, date | **____** |
-| Where this record is attached | **____** (no open PR exists; the module says the record goes on the PR) |
+| Named person, role, date | **Sajad Ali Akbari, Part B module tester, 4 October 2026** (module verdict only) |
+| Where this record is attached | Evidence PR: https://github.com/thomasTA27/GROUP-19-NBN-SDLC/pull/47 |
 
-Signed: **pending**. Nobody has signed for anyone.
+Module verdict signed: **Sajad Ali Akbari, 4 October 2026**. Test-gap triage and application release approval remain pending.
 
 ## Where the evidence is
 

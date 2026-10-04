@@ -169,7 +169,7 @@ The ordinary suite passed 778 frontend tests and 5 backend tests. Stryker 10.0.0
 | 1. Run the suite | Both ordinary suites passed. | Yes |
 | 2. Measure fault detection | Setup and a complete mutation run succeeded. Runner limitations required an adapted execution, and a tooling dependency repair was needed. | Partly |
 | 3. Classify survivors | All 70 undetected mutants were classified and checked using ordinary-suite replay and separate diagnostics. Human confirmation remains pending. | Partly: AI work complete; developer check pending |
-| 4. Decide | A reasoned decision draft separates module usability from test-gap triage. | Pending human confirmation |
+| 4. Decide | Part B module verdict signed as Pass with changes; test-gap triage remains proposed. | Module verdict confirmed; project approval pending |
 
 The intended open-PR entry condition was not met: Implementation PR #46 had already merged, and independent approval was not evidenced. Measurement proceeded as a recorded retrospective deviation. This is not evidence that the module's approval gate should be removed.
 
@@ -199,7 +199,7 @@ The harness review found that a saved script erased output before parsing it. Ea
 | Diagnostic support | Recorded | 37 gap classifications have failing diagnostic assertions; one has a changed message trace. Equivalent classifications rely on code reasoning within stated domains, with sampled traces as support. |
 | Timeout checks | Reproduced, qualified | All four remained Timeout at concurrency 1. Ordinary probes gave timeout or incomplete out-of-memory runs, consistent with nonterminating loops; not formal proof. |
 | Integrity and tooling | Pass after repair | All 79 application source/test files and original report hashes unchanged. Typecheck and both suites passed after the scoped dependency repair. No pre-install typecheck was captured, so installation causation is probable, not proved. |
-| Human decision | Pending | No sign-off or release approval is asserted. |
+| Human decision | Part B module verdict signed | Sajad Ali Akbari confirmed Pass with changes on 4 October 2026. Test-gap approval and release approval remain pending. |
 
 The score describes the adapted execution. Replay supports the classifications of its undetected mutants; it does not validate every killed mutant or establish complete coverage of timezone behaviour. No live integration or browser assessment was performed.
 
@@ -209,11 +209,11 @@ These are weaknesses exposed by deliberate faults, not demonstrated defects in t
 
 ### B3. Sign-off
 
-- [ ] I did not do Part A.
-- [ ] Result: Pass / Pass with changes / Fail — sent back.
-- Signed: pending.
+- [x] I did not do Part A.
+- [x] Result: **Pass with changes**.
+- Signed: **Sajad Ali Akbari, 4 October 2026**.
 
-**Proposed module result: Pass with changes.** The [decision draft](../../mock-project%20part-B%28Test%29/testing-and-qa/decision.md) contains the separate test-gap recommendations. Neither is a confirmed human decision.
+**Signed Part B module result: Pass with changes.** The [decision record](../../mock-project%20part-B%28Test%29/testing-and-qa/decision.md) contains the separate test-gap recommendations, which remain proposed. This sign-off concerns module usability, not application release approval or joint Part C agreement.
 
 ---
 
@@ -296,7 +296,7 @@ Both runs found permissive test doubles, limited scenarios and runner artefacts.
 
 ### Verdict and proposed tailoring
 
-**Pass with changes, proposed.** The workflow produced useful evidence. Setup and interpretation needed additional guidance; the human review and decision are still pending. Missing project approval is distinct from a defect in the methodology.
+**Pass with changes, signed for Part B.** The workflow produced useful evidence. Setup and interpretation needed additional guidance; joint Part C agreement and project approval remain pending. Missing project approval is distinct from a defect in the methodology.
 
 Recommend five concise, general clarifications:
 
@@ -310,4 +310,4 @@ Recommend five concise, general clarifications:
 
 Retain the module's existing warning against score thresholds. Do not infer a universal coverage rule or AI-behaviour claim from these runs. Scenario diversity and optional usage metrics can be supporting notes rather than new mandatory steps.
 
-**Still open:** human confirmation of material classifications and the verdict; agreement with Part A's author; appropriate follow-up on test gaps and browser/integration limits. No application fixes or post-fix measurements were performed. The module remains unchanged for reviewer consideration.
+**Still open:** human confirmation of material classifications; agreement with Part A's author; appropriate follow-up on test gaps and browser/integration limits. No application fixes or post-fix measurements were performed. The module remains unchanged for reviewer consideration.
