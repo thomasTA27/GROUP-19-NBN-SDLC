@@ -1,0 +1,53 @@
+// DIAGNOSTIC ONLY. Applies one Stryker mutant (from the ORIGINAL mutation.json) to a disposable copy and runs
+// the diagnostic tests in tests/diag (assertions of intended behaviour + traces). usage:
+//   node diagprobe.mjs <workerDir> <project> <outFile> <id,id,...|base>
+import { readFileSync, writeFileSync, appendFileSync, rmSync, existsSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { join } from 'node:path'
+
+const [workerDir, project, outFile, idList] = process.argv.slice(2)
+const report = JSON.parse(readFileSync(join(project, 'testing-and-qa/reports/mutation.json'), 'utf8'))
+const byId = new Map()
+for (const [file, fr] of Object.entries(report.files)) for (const m of fr.mutants) byId.set(String(m.id), { ...m, file })
+const front = join(workerDir, 'frontend')
+
+function off(text, line, col) {
+  let o = 0
+  for (let l = 1; l < line; l++) o = text.indexOf('\n', o) + 1
+  return o + col - 1
+}
+
+for (const id of idList.split(',')) {
+  let path = null, original = null
+  if (id !== 'base') {
+    const m = byId.get(id)
+    path = join(front, m.file)
+    original = readFileSync(path, 'utf8')
+    const crlf = original.includes('\r\n')
+    const text = original.replace(/\r\n/g, '\n')
+    const mutated = text.slice(0, off(text, m.location.start.line, m.location.start.column)) + m.replacement + text.slice(off(text, m.location.end.line, m.location.end.column))
+    writeFileSync(path, crlf ? mutated.replace(/\n/g, '\r\n') : mutated)
+  }
+  for (const f of ['diag-trace.jsonl', 'diag-result.json']) rmSync(join(front, f), { force: true })
+  const t0 = Date.now()
+  let res
+  try {
+    res = spawnSync(process.execPath, ['node_modules/vitest/vitest.mjs', 'run', 'tests/diag', '--reporter=json', '--outputFile=diag-result.json'], { cwd: front, encoding: 'utf8', timeout: 240000 })
+  } finally {
+    if (path) writeFileSync(path, original)
+  }
+  const failed = []
+  let total = null
+  try {
+    const j = JSON.parse(readFileSync(join(front, 'diag-result.json'), 'utf8'))
+    total = j.numTotalTests
+    for (const f of j.testResults) {
+      for (const a of f.assertionResults) if (a.status === 'failed') failed.push(a.fullName)
+      if (f.assertionResults.length === 0 && f.status === 'failed') failed.push('SUITE-LEVEL FAILURE: ' + f.name.replace(/\\/g, '/').split('/').pop())
+    }
+  } catch (e) { failed.push('NO RESULT: ' + e) }
+  const traces = existsSync(join(front, 'diag-trace.jsonl'))
+    ? readFileSync(join(front, 'diag-trace.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l))
+    : []
+  appendFileSync(outFile, JSON.stringify({ id, exit: res?.status, signal: res?.signal, seconds: Math.round((Date.now() - t0) / 1000), total, failed, traces }) + '\n')
+}

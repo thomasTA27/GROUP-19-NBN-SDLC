@@ -1,0 +1,1 @@
+signal=SIGTERM status=null
