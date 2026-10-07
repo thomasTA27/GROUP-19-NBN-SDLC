@@ -34,6 +34,16 @@ guidance) are captured in the governance research. The Implementation module app
 
 ---
 
+## What changes: traditional vs AI-native
+
+### Standard practice, without AI
+
+SWEBOK v4 defines software construction as coding, verification, unit testing, integration testing and debugging. Checking the work is part of the work, not a separate stage afterwards. The design and acceptance criteria arrive as inputs to this phase and verified working code is the output. Developers still make plenty of calls for things like algorithms, local structure, error handling but within a standard that already exists.
+
+SWEBOK also names Constructing for Verification as a fundamental: build software so faults can be readily found. Reviewability is a property of the code itself. That's why implementation is a conformance-checking phase, and why this phase is Human-Verification oriented rather than Human-Decision oriented. "Conformance-checking" is our framing, not SWEBOK's wording.
+
+This phase is named Implementation. The corresponding SWEBOK v4 knowledge area is Software Construction. We use the phase name throughout and mean coding, verification, unit testing, integration testing and debugging, not deployment.
+
 # Primary sources
 
 ## 1. SWEBOK v4: Software Construction knowledge area
