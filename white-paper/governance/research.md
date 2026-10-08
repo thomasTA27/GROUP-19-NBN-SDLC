@@ -50,13 +50,21 @@ Supply-chain Levels for Software Artifacts. (n.d.). SLSA. Retrieved September 12
 
 The common consensus in enterprise and open source development is that the human who merges/commits/signs is accountable regardless of who wrote the code. On a higher level "Your organisation is ultimately accountable for how and where AI is used. AI complexity can create gaps where no one takes clear responsibility for outcomes." according to the Australian Government [1]
 
-**Code ownership and review structures** (Flagged as a vendor source)
+**Code ownership and review structures** (Flagged as a vendor source, unverified in practice)
 
 [The tier structure could be used but the specifics will be determined by the company itself]
 
 CODEOWNERS + mandatory named reviewers: owners must review/approve every change to their codebase and is being reinforced in the AI era.
 
 The emerging enterprise pattern treats AI-generated code like a third-party dependency and escalates high-risk changes (auth, payments, money movement, PII, infrastructure, data migrations, public APIs) to explicit human sign-off with a required test diff and a second reviewer, while low-risk changes can use lighter/automated gates. "An AI reviewer can be useful, but it is not an approval authority."
+
+**Proposed tier definition.** The enterprise pattern above lists subsystems. A list of subsystems misses changes that affect those subsystems indirectly, so this methodology defines the tier by what the code can cause rather than by what kind of code it is.
+
+A change is lower risk only if it cannot affect who can read or write data, cannot reach storage, the network or the file system, cannot change what input is accepted, and cannot alter the outcome of any action that does those things. In practice that means presentation and formatting code calling only already-reviewed handlers. Everything else is higher risk, including anything the developer is unsure about.
+
+The tier is set when the work is scoped, before anything is written. A lower-risk classification is recorded with its reason; a higher-risk classification needs no justification.
+
+Example: a button whose disabled state is the only thing preventing an action is higher risk, because removing it changes the outcome of an action that reaches storage. A subsystem list would classify it as UI.
 
 For more detail go to https://www.metacto.com/blogs/establishing-code-review-standards-for-ai-generated-code
 
