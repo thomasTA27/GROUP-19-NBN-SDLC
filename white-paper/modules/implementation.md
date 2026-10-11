@@ -19,7 +19,7 @@ Implementation produces six outputs, each consumed by a later step:
 - **The pull request with description, test plan and caveats** (reviewers, then the Security Gate)
 - **CI results** (the merge decision)
 
-The caveats section carries what the checks found and could not settle. For example, the agent's findings on the commit message, claims left unverified, spec conflicts raised but not yet answered, and any control found missing at Step 0. A PR template with an explicit caveats heading is what makes those visible rather than lost in prose.
+The caveats section carries what the checks found and could not settle: the outcome of the commit-message check, claims left unverified, spec conflicts raised but not yet answered, controls found missing at Step 0, acceptance criteria the dev-environment run could not confirm, and a skipped independent review with its reason.
 
 ## The AI-Assisted Workflow & cycle of implementation
 
@@ -145,7 +145,7 @@ Risk tiers are defined in [white-paper/governance/](../governance/). This phase 
 
 **Checklist:**
 
-- **(a)** Has the exit condition been met, with the agent's findings on the commit message recorded in the PR caveats?
+- **(a)** Has the exit condition been met, with the outcome of the commit-message check recorded in the PR caveats?
 - **(b)** Does the change satisfy the stated acceptance criterion and nothing more?
 - **(c)** Do the tests assert real behaviour? Run the mutation check and read the table.
 - **(d)** Do the scans pass on the diff? Secret, dependency and SAST scanning, plus a check that any new dependency actually exists and is the intended package. Where a scanner is missing, Step 0 recorded that, and it goes in the PR caveats.
@@ -217,12 +217,33 @@ See [white-paper/governance/](../governance/) for more detail
 A suggested sequence for adopting this phase. These are recommended defaults rather than settled requirements. Where an open question below is unresolved, treat the recommendation as a starting position for NBN to confirm.
 
 - **Encode the readiness layer (week 1).** Ship a tight `.github/copilot-instructions.md` covering the project map, build and test commands, conventions, and the commit rules: the only trailer is `Assisted-by:`, never `Co-authored-by:` or any default the tool adds, and the agent stages only and never commits, amends, signs off or pushes. Keep it short and put non-negotiables first. If agent output routinely ignores a rule, split it into a scoped `*.instructions.md` with an applyTo clause. Instruction files are advisory rather than deterministic, so the commit prompt still prints what was staged as a check.
-- **Set up the PR template (week 1).** Five of this phase's steps write into the PR caveats, so the template is a prerequisite. Headings for what the change does, how it was tested, and caveats, with the caveats section covering the commit-message findings, unverified claims, open spec conflicts and any control found missing at Step 0.
+- **Set up the PR template (week 1).** Six of this phase’s steps write into the PR caveats, so the template is a prerequisite
 - **Encode the prompts (weeks 2-3).** Provide `*.prompt.md` files for the prompts in this module: baseline, work package plan, staging, commit-message check, unverified claims, mutation check, independent review, docs audit and text hazards. The five generation patterns in "What to ask the AI" are adapted per task rather than shipped as files. Make plan mode the default for step 1 so no files change during planning.
 - **Encode what leaves the phase (weeks 3-4).** Verify the trailers with a commit hook or CI check. Apply `CODEOWNERS` so every change has a named human approver, and branch-protection rules requiring SAST, secret scanning and dependency verification as blocking status checks, which are server-side enforcement rather than editor-side hooks. Confirm the merge method preserves trailers and signatures, or that merged branches are retained if squash is the convention. Enable Copilot code review as a supplement only as it defaults to a non-blocking "Comment" review and GitHub states it must not replace human review.
 - **Measure and tune (ongoing).** Track measured PR cycle time, review time, change failure and rework rate, and duplication and churn, segmented for AI-authored PRs. Benchmark to escalate: if a 25% or greater rise in AI adoption coincides with falling stability, enforce smaller batch sizes and tighten the security gate before expanding use.
 
 This is a lot to run on every change. The full set is what the test run used, and nearly every check caught something, but that was one run on one branch by people who knew they were testing. Expect to tune which checks apply where rather than running all of them indefinitely. Which ones survive contact with a real team is itself an open question.
+
+### Example PR template
+
+#### What this change does
+
+#### How it was tested
+
+#### Caveats
+
+**Commit message check:** <what the agent found, and whether you
+fixed the message, fixed the code, or disagreed>
+
+**Unverified:** <claims the agent made that were not probed>
+
+**Open spec conflicts:** <SCRs raised, and which side was built>
+
+**Controls missing:** <anything Step 0 found absent>
+
+**AC not confirmed:** <criteria the dev-environment run could not check>
+
+**Independent review:** <run, or skipped with the reason>
 
 ## Metrics for success
 
