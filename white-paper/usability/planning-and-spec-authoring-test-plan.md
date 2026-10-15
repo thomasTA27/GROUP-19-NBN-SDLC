@@ -4,7 +4,7 @@
 **Date:** 2026-10-09
 **Status:** Draft. Awaiting teammate review.
 **Module version tested:** `planning-and-spec-authoring.md` as merged in PR #52
-**Participant:** Leon
+**Participant:** _to be confirmed_ (computer science student)
 
 ---
 
@@ -73,7 +73,7 @@ projects hold `CLAUDE.md` and `AGENTS.md` at the root and in `frontend/` and
 `backend/`, so this is satisfied. Confirm it again on the day, because a session
 that stops at step 1 produces nothing.
 
-Leon also needs the project running locally and Claude Code working. Sort that
+The participant also needs the project running locally and Claude Code working. Sort that
 out the day before, not in the session.
 
 ---
@@ -112,6 +112,12 @@ around 68, which came from software studies (Sauro, 2011). The score is therefor
 reported as an internal baseline for comparing our own modules, not as evidence
 of being above or below average.
 
+The questionnaire is a Google Form, so the participant answers on their own
+device rather than out loud. The wording follows
+`module-usability-questionnaire.md` exactly.
+
+Form: https://docs.google.com/forms/d/e/1FAIpQLSfE3x565Pcu6kohZmOlH1qVUi2_h0GAU6m41131hWyIvmW48A/viewform
+
 **Confidence rating.** Asked before and after on a one to five scale:
 
 > How confident are you that you could write a specification for this ticket that
@@ -125,14 +131,21 @@ changed your answer?"
 
 ## 5. Participant
 
-Leon. One participant.
+One participant: a computer science student on the same degree as the team.
 
-He did not write any part of the module, which is what makes him suitable, and he
-can judge whether a specification is workable.
+They did not write any part of the module, which is what makes them suitable,
+and they have enough background to tell whether a specification is workable.
 
-One participant is not a sample. This session finds defects that stop a competent
-reader from using the module. It cannot show how common a defect is, or support a
-claim that the module works for developers generally. The report will say so.
+**Read the result as a junior developer's.** The original plan named an
+experienced developer, who did not take part. A student is closer to the junior
+reader the module describes in its section on experience levels, so the session
+shows whether the guidance works for someone learning it, not whether it works
+for a senior engineer who already knows most of it.
+
+One participant is not a sample. This session finds defects that stop a
+competent reader from using the module. It cannot show how common a defect is,
+or support a claim that the module works for developers generally. The report
+will say so.
 
 ---
 
@@ -158,7 +171,7 @@ failed session, and the remaining time is better spent on the debrief.
 | Role | Person | Does |
 | --- | --- | --- |
 | Facilitator | Ujjawal Mittal | Reads the script, keeps time, logs errors and timings |
-| Participant | Leon | Performs the task |
+| Participant | _to be confirmed_ | Performs the task |
 
 The facilitator does not help. If he asks what a step means, the answer is "what
 do you think it means?" and the question is logged as an error. Explaining the
@@ -174,7 +187,7 @@ is no product owner on a mock project, so the facilitator answers, factually and
 briefly, as a stand-in. The module requires this to be recorded in the resolved
 questions, so it is written down rather than left implied.
 
-Step 8 says the approver should not be the person who wrote the spec. Leon writes
+Step 8 says the approver should not be the person who wrote the spec. The participant writes
 it, so he cannot approve it. The session stops at the point of sign-off and the
 specification is taken to a Gate 1 approver afterwards.
 
