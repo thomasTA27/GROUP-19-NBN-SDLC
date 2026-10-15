@@ -4,7 +4,7 @@
 **Date:** 2026-10-09
 **Status:** Draft. Awaiting teammate review.
 **Module version tested:** `planning-and-spec-authoring.md` as merged in PR #52
-**Participant:** _to be confirmed_ (computer science student)
+**Participant:** Mark Nguyen (computer science student)
 
 ---
 
@@ -131,7 +131,8 @@ changed your answer?"
 
 ## 5. Participant
 
-One participant: a computer science student on the same degree as the team.
+Mark Nguyen. One participant, a computer science student on the same degree
+as the team.
 
 They did not write any part of the module, which is what makes them suitable,
 and they have enough background to tell whether a specification is workable.
@@ -171,7 +172,7 @@ failed session, and the remaining time is better spent on the debrief.
 | Role | Person | Does |
 | --- | --- | --- |
 | Facilitator | Ujjawal Mittal | Reads the script, keeps time, logs errors and timings |
-| Participant | _to be confirmed_ | Performs the task |
+| Participant | Mark Nguyen | Performs the task |
 
 The facilitator does not help. If he asks what a step means, the answer is "what
 do you think it means?" and the question is logged as an error. Explaining the
