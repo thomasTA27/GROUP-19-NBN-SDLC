@@ -6,6 +6,7 @@
 **Module tested:** `white-paper/modules/planning-and-spec-authoring.md`
 **Model used:** Claude Sonnet 5.5, low effort
 **Task time:** approximately 60 minutes
+**Adapted SUS score:** 5 out of 100
 
 ---
 
@@ -21,6 +22,46 @@ placeholder with no explanation of what goes in it, and he could not fill it.
 
 Everywhere the module hands over a prompt, the reader proceeds. Everywhere it
 asks for judgement without one, the reader stops. That is one fix, not four.
+
+---
+
+## The usability score
+
+**5 out of 100.** The lowest possible is 0.
+
+| Item | Response | Contribution |
+| --- | --- | --- |
+| 1 I would like to use this module frequently | 1 | 0 |
+| 2 I found the module unnecessarily complex | 5 | 0 |
+| 3 I thought the module was easy to use | 2 | 1 |
+| 4 I would need the support of a technical person | 5 | 0 |
+| 5 The various functions were well integrated | 1 | 0 |
+| 6 There was too much inconsistency | 4 | 1 |
+| 7 Most people would learn to use this quickly | 1 | 0 |
+| 8 I found the module very cumbersome | 5 | 0 |
+| 9 I felt very confident using the module | 1 | 0 |
+| 10 I needed to learn a lot before getting going | 5 | 0 |
+| | **Total** | **2** |
+
+2 × 2.5 = 5.
+
+**The responses are coherent, not careless.** He answered 5 to every negatively
+worded item and 1 to almost every positive one, which is the expected pattern
+from someone who found the document hard. He also discriminated: item 3 drew a 2
+rather than a 1, and item 6 a 4 rather than a 5. Someone answering at random or
+misreading the scale direction does not produce that.
+
+The score matches the observed session. He could not perform step 3, could not
+fill in step 4's placeholder, misread what step 4 was asking him to count, and
+spent about an hour.
+
+**How to read it.** This is an internal baseline. The wording is adapted from
+"system" to "module", so it cannot be compared with the published software
+average. It is a starting point for comparing our own modules against each
+other, and the Implementation session will use the same adapted wording.
+
+One participant. The score says this reader found the module very hard. It does
+not establish how a different reader would score it.
 
 ---
 
@@ -153,3 +194,11 @@ never noticed the gaps.
 The model and effort level were not controlled. Sonnet 5.5 at low effort may
 behave differently from whatever the evidence runs used.
 
+---
+
+## Still to record
+
+- [ ] Confidence rating before and after, and the reason for any change
+- [ ] Gate scoring: the six Plan Approved criteria, each met, partly met or not met
+- [ ] Token cost and duration from `/usage`
+- [ ] A copy of `notes-delete-spec.md`
