@@ -3,7 +3,7 @@
 **Author:** Ujjawal Mittal (BA and UX)
 **Date:** 2026-10-10
 **Status:** Draft. Awaiting teammate review.
-**Participant:** Ben
+**Participant:** _to be confirmed_ (computer science student)
 
 Uses the same measures as the Planning and Spec Authoring test plan, so the two
 sessions can be compared.
@@ -25,7 +25,7 @@ document, not the participant.
 | Implementation | `white-paper/modules/implementation.md` |
 
 Checklist item (f) needs the risk tiers in `white-paper/governance/research.md`.
-That file is read during the session but is not being tested. Whether Ben can
+That file is read during the session but is not being tested. Whether the participant can
 find and apply the tier is a finding about the Implementation module.
 
 Problems belonging to another module are passed to its owner.
@@ -34,16 +34,16 @@ Problems belonging to another module are passed to its owner.
 
 ## 3. The task
 
-**The specification.** Ben builds from the notes delete specification that Leon
-produces in the Planning session, which runs first. Chaining the two is
+**The specification.** The participant builds from the notes delete
+specification produced in the Planning session, which runs first. Chaining the two is
 deliberate. The Planning module asks whether a specification is buildable without
 asking its author, and this session answers it.
 
-If Leon's session does not run in time, a short specification is prepared instead
+If the Planning session does not run in time, a short specification is prepared instead
 and approved at Gate 1.
 
 **Why notes.** Both evidence runs used Task CRUD, and both evidence files publish
-what came out of them. Given a task, Ben could read the answers rather than find
+what came out of them. Given a task, the participant could read the answers rather than find
 them. Notes has one server action, `createNote`, so the gap is real and nothing
 is published.
 
@@ -61,13 +61,13 @@ rests on. It also holds the warning about opening the agent from the project
 folder rather than a parent, a mistake this team has already made once.
 
 **What he does not do.** The verification checklist, items (a) to (g), is read
-but not run. Ben is asked in the debrief what each item requires, which tests
+but not run. The participant is asked in the debrief what each item requires, which tests
 whether it reads clearly. Items (d), (f) and (g) could not be run anyway: they
 need scanners, a second reviewer and documentation to audit.
 
 ### Known problems to sort out first
 
-Two things in the module will trip Ben up. We already know about both, so we
+Two things in the module will trip the participant up. We already know about both, so we
 should decide what to do before the session rather than during it.
 
 **1. The module tells him to write into a section that does not exist.**
@@ -76,10 +76,10 @@ Five steps say to put things in "the PR caveats". Our pull request template has
 no caveats heading. It has a section for what the change does, one for where it
 lives, and a checklist. Nothing else.
 
-So Ben will reach the end and have nowhere to put his notes.
+So the participant will reach the end and have nowhere to put his notes.
 
 We can either add the heading before the session, or leave it as it is and watch
-what he does. Both are fine. What is not fine is working it out in front of him.
+what they do. Both are fine. What is not fine is working it out in front of him.
 
 **2. The prompts are written for the wrong tool.**
 
@@ -87,12 +87,13 @@ The module's prompts use `#file:` and `@workspace /tests`. Those are GitHub
 Copilot. Our mock project runs Claude Code.
 
 Line 90 of the module does tell the reader to use plain file paths on the
-command line. The question is whether Ben notices that line. We leave this one
+command line. The question is whether the participant notices that line. We leave this one
 alone, because finding out is the point.
 
 **3. Check the setup the day before.**
 
-Leon's specification is approved. The project runs on Ben's machine with
+The Planning specification is approved. The project runs on the
+participant's machine with
 dependencies installed. Claude Code works.
 
 Worth doing properly. When William ran this phase, he started with no
@@ -147,6 +148,12 @@ breaks comparison with the published average of around 68 (Sauro, 2011), so the
 score is an internal baseline. Both sessions use the same wording, so their
 scores compare with each other.
 
+The questionnaire is a Google Form, so the participant answers on their own
+device rather than out loud. The wording follows
+`module-usability-questionnaire.md` exactly.
+
+Form: https://docs.google.com/forms/d/e/1FAIpQLScbc7qNL2pHHCsJg3qQIkwRQdhmg9F57VlsaaytUabxe6zQTA/viewform
+
 **Confidence rating.** Asked before and after on a one to five scale:
 
 > How confident are you that you could take this specification and produce a
@@ -159,18 +166,26 @@ answer?"
 
 ## 5. Participant
 
-Ben. One participant.
+One participant: a computer science student on the same degree as the team.
 
-He did not write any part of the module, and he can judge whether a change is
-ready to merge.
+They did not write any part of the module, and they have enough background to
+work through a change and judge whether it is ready.
 
-One participant is not a sample. This session finds defects that stop a competent
-reader from using the module. It cannot show how common a defect is, or support a
-claim that the module works for developers generally.
+**Read the result as a junior developer's.** The original plan named an
+experienced developer, who did not take part. A student is closer to the junior
+reader the module describes in its section on experience levels. This matters
+more here than in Planning, because the module leans on judgement a student may
+not have yet: deciding when the loop is finished, and telling a corrective round
+from a hardening one. Difficulty with those is worth recording, but it may be
+the reader rather than the writing.
 
-Ben and Leon are different people, so the two sessions compare the modules only
-roughly. A measure that differs sharply between them may be the participant
-rather than the document.
+One participant is not a sample. This session finds defects that stop a
+competent reader from using the module. It cannot show how common a defect is,
+or support a claim that the module works for developers generally.
+
+The two sessions use different participants, so they compare the modules only
+roughly. A measure that differs sharply between them may be the person rather
+than the document.
 
 ---
 
@@ -193,11 +208,11 @@ and a team budgeting for this phase would want to.
 
 He may well not finish. The evidence run took about 222 active minutes for nine
 work packages, roughly 25 minutes each, by the person who wrote the module. Where
-Ben stops is a result, not a failure.
+the participant stops is a result, not a failure.
 
 **On comparing the two sessions.** The measures are identical. The coverage is
-not: Ben works through part of a large module, Leon through the whole of a
-smaller one. The report says so rather than presenting the scores as like for
+not: this session covers part of a large module, where Planning covers the
+whole of a smaller one. The report says so rather than presenting the scores as like for
 like.
 
 ---
@@ -207,9 +222,9 @@ like.
 | Role | Person | Does |
 | --- | --- | --- |
 | Facilitator | Ujjawal Mittal | Reads the script, keeps time, logs errors and timings |
-| Participant | Ben | Performs the task |
+| Participant | _to be confirmed_ | Performs the task |
 
-The facilitator does not help. If Ben asks what a step means, the answer is "what
+The facilitator does not help. If the participant asks what a step means, the answer is "what
 do you think it means?" and the question is logged as an error. Explaining the
 module destroys the finding, because it has to work without its author present.
 
@@ -217,7 +232,7 @@ The exception is a tooling problem that is not about the module: the environment
 failing to start, a crash, a missing dependency. Those are fixed and the lost
 time is excluded.
 
-Ben writes the commit message himself. The facilitator does not read it.
+The participant writes the commit message themselves. The facilitator does not read it.
 
 If the module raises a spec change request, the facilitator answers as the Gate 1
 owner, briefly and factually, and the answer is recorded.
@@ -231,7 +246,7 @@ owner, briefly and factually, and the answer is recorded.
 - The Step 0 baseline output, what failed, and any control found missing
 - The work package plan, the diff, the commit message and the agent's findings
 - The six task success items, marked met, partly met or not met
-- What Ben said each checklist item requires
+- What the participant said each checklist item requires
 - Confidence before and after, with the reason for any change
 - Usability scale responses and the calculated score
 - Token cost and duration from `/usage`
@@ -264,11 +279,11 @@ the module, and that the script does not lead the participant.
 
 ## 11. Open questions
 
-1. Should the PR template gain a caveats heading before the session, or is Ben's
-   reaction to its absence the more useful finding?
-2. Chaining the sessions means a problem in Leon's specification becomes a
-   problem in Ben's. That is accepted, because separating them would lose the
-   answer to Planning's open question 3. Worth revisiting if Leon's
+1. Should the PR template gain a caveats heading before the session, or is the
+   participant's reaction to its absence the more useful finding?
+2. Chaining the sessions means a problem in the Planning specification
+   becomes a problem here. That is accepted, because separating them would lose the
+   answer to Planning's open question 3. Worth revisiting if that
    specification turns out badly.
 3. The prompts are written for Copilot and the project runs Claude Code. Is the
    gap a finding, or should the module carry both forms?
