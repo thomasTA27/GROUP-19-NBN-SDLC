@@ -196,9 +196,39 @@ behave differently from whatever the evidence runs used.
 
 ---
 
+## Submitted artifact, gate assessment and environment change
+
+The [combined analysis](planning-session-2026-10-15/analysis.md) incorporates
+William's cleaned data, this report and the artifact assessment. It records
+source disagreements, independently checked calculations and remaining gaps.
+William's cleaned record identifies Bao Nguyen Le as participant and Sajad as
+facilitator, with William and Ujjawal taking notes; the original header above is
+retained pending teammate confirmation. His 58-minute recorded window is not
+yet verified as task-only time. The analysis links directly to this report;
+its original version remains available in Git history through PR #61.
+
+The tester's original specification is now preserved as
+[notes-delete-spec.md](planning-session-2026-10-15/notes-delete-spec.md), unchanged
+from the tester's fork commit. The
+[assessment and provenance record](planning-session-2026-10-15/assessment.md)
+scores the submitted artifact against all six Plan Approved criteria:
+**1 met, 4 partly met, 1 not met; gate not passed**. Sajad Ali Akbari prepared
+these ratings, which await teammate review and are not a named approver's sign-off.
+
+Sajad reported that VM environment changes and latency led the team to move the
+test to the participant's local clone and receive the result through his fork.
+The assessment records this deviation and the missing timing/environment details.
+The approximately 60-minute task-time figure above has not been reconciled with
+setup or migration time.
+
+The submission says the linked module pages were not read. Whether this refers
+only to the AI, while the participant read them separately, still needs checking
+against session records before making claims about adherence to the module.
+
 ## Still to record
 
 - [ ] Confidence rating before and after, and the reason for any change
-- [ ] Gate scoring: the six Plan Approved criteria, each met, partly met or not met
+- [x] Gate scoring: all six criteria assessed in the linked record (human review pending)
 - [ ] Token cost and duration from `/usage`
-- [ ] A copy of `notes-delete-spec.md`
+- [x] An unchanged copy of `notes-delete-spec.md`, linked above with provenance
+- [ ] Human review of gate scoring and confirmation of module use and timing boundaries
