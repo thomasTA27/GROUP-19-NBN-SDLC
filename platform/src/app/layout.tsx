@@ -53,7 +53,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             >
               SDLC with AI
             </Link>
-            <ThemeToggle />
+            <nav className="flex items-center gap-4">
+              <Link
+                href="/usability"
+                className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+              >
+                Usability evidence
+              </Link>
+              <ThemeToggle />
+            </nav>
           </div>
         </header>
         {children}
