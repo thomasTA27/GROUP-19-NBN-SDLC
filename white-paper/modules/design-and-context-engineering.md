@@ -1,241 +1,382 @@
 # Stage: Design & Context Engineering
-
-_Entered from Gate 1. Not yet tested; to be run on Create Task in Sprint 2._
-
 ## What changes: traditional vs AI-native
 
 ### Standard practice, without AI
 
-SWEBOK v4 covers this phase in two knowledge areas: Software Architecture treats architecture as a set of significant decisions. Software Design covers detailed design, recording rationale, and design reviews. Both take requirements as input and produce the structure that construction builds from. The phase's key output is the decision and its rationale.
-
-The common lightweight form is the Architecture Decision Record (ADR), popularised by Michael Nygard. An ADR is one short file per decision, with Title, Status, Context, Decision and Consequences, usually plus a Rationale listing the rejected options. An accepted ADR is never edited. A new one supersedes it instead, so the reasons behind the system survive.
-
-Design sets the standard that later phases check against. If it is wrong, every later check verifies against the wrong thing, which is why this phase is Human-Decision oriented. "Standard-setting" is our framing, not SWEBOK's. We call this phase Design to mean both architectural and detailed design.
+SWEBOK v4 treats architecture as a set of significant decisions, and design as turning requirements into the structure that construction builds from. Each decision goes in an Architecture Decision Record (ADR), following Michael Nygard, with its context, the decision and its consequences. A changed decision gets a new ADR that supersedes the old one. In this methodology every later phase checks its work against these decisions, which makes this phase Human-Decision oriented.
 
 ### How AI changes this
 
-An agent only works from what is in its context window, so design gains a new job which is turning human decisions into context the agent will actually see. This is context engineering, which Thoughtworks describes as curating what the model sees so that you get a better result.
-
-**AI performs the task, human checks:** mapping the codebase's constraints and conventions, spotting where the approved spec departs from them, drafting ADRs, and drafting instruction rules from accepted ADRs.
-
-**AI proposes, humans decide:** design options with trade-offs, and adversarial review of a design.
-
-**Untouched by AI:** choosing architecture, patterns or services, and accepting risk. These are the red-shield decisions.
+An agent only acts on what is in its context window, so Design also turns decisions into context the agent will see, which Thoughtworks calls context engineering. AI does the groundwork and proposes options, and a human makes the red-shield (Human-Decision) calls on architecture, patterns, services and risk.
 
 ## Artifacts generated
 
-Design produces four outputs, each consumed by a later step:
+- **ADRs** in `docs/adr/` record the reasons behind each decision for Implementation, review and later design.
+- **Context updates** are new scoped rules and fixes to context files that were wrong. Every later agent session loads them.
+- **Design notes** in `docs/design/<feature>/` hold the questions, options and decisions, plus the doc entries Implementation must write.
+- **Spec change requests** go back to the Gate 1 approver.
+- **The design review PR** holds all of these and is the evidence for the checkpoint.
 
-- **The ADR**, e.g. `docs/adr/0001-due-date-as-string.md` (Implementation, as the "why"; code review; future design work)
-- **Context updates:** new or changed scoped rules in `.github/instructions/*.instructions.md`, plus doc entries the conventions require, such as a codebase map or schema note.
-- **The design review record**, the approved PR on the ADRs and context updates (gate evidence for the Human-Decision checkpoint)
-- **Spec change requests**, when Design finds a gap or contradiction in the approved spec. (Back to the Gate 1 owner.)
-
-An ADR is ready to merge when it names who decided, which options were rejected and why, and what the decision costs. Without rejected options, a reviewer can't tell whether a real choice was made.
+An ADR can be Accepted only when it names the human who decided, gives the rejected options and the cost, has no unverified claims left, has had any security review it needs, and the design review PR is approved.
 
 ## AI-Assisted Workflow
 
-_This workflow is the methodology's proposal, not established practice._
+_This workflow is the methodology's own proposal and isn't yet established practice._
 
-Design starts from the spec approved at Gate 1. On a codebase with strong conventions, Planning has already settled much of the design, so this stage only does work where the spec departs from or extends a documented convention.
+Planning decides what gets built, and Design decides how it gets built. Conventions answer most "how" questions, so an ADR is only needed where none does or where the spec departs from one.
 
-1. **Check the spec against the conventions.** The AI reads the approved spec and the project's context files and lists every item that departs from or extends a convention. Run this read-only, plan mode for example
-2. **Decide each flagged item.** For each item, the AI lays out options with trade-offs and does not pick one. A named human decides. This is the Human-Decision checkpoint, and it cannot be delegated. If the options expose a gap or contradiction in the spec, it goes back to the Gate 1 owner as a spec change request, not to the AI.
-3. **Record and carry it forward.** The AI drafts the ADR and the context updates. The human reviews them and keeps only rules the agent couldn't infer from the code.
+1. **Read the spec.** The AI lists the "how" questions, marks whether a convention answers each, and checks the spec for contradictions.
+2. **Sort by hand.** Each item gets one of five outcomes. Spec problems go to the Gate 1 approver as spec change requests.
+3. **Decide.** For each ADR item, the AI gives options and a named human decides. A decision no human made is recorded as such and can't be Accepted.
+4. **Record.** The AI drafts the ADRs, fixes wrong context files, drafts rules and lists the doc entries Implementation will write. The human keeps only rules the agent couldn't infer, then opens the design review PR.
 
-If step 1 finds nothing, Design is a single check, recorded in the design review PR as "no new decisions".
+With no ADR items, skip step 3. If step 4 has nothing to do either, the design review PR records "no new decisions".
 
-**Example.** On the Create Task spec, step 1 should flag three items, and each becomes an ADR: storing `dueDate` as a date string instead of a `Timestamp` allowing task writes only through the Server Action sorting tasks in the client The second also conflicts with the spec's note that later tickets will relax the update rule, so that question goes back to Planning.
+**Exit condition.** A named human can defend every decision without the AI, and an implementer, human or agent, could build the change without making an architecture-significant choice.
 
-**Exit condition.** A named human can defend every decision without deferring to the AI. In addition, an implementer, human or agent, could build the change without making an architecture-significant choice of its own.
+**Larger features.** A feature with little to lean on, such as one that adds a background job or an external service, comes back mostly "no convention". Step 3 then also covers structure, quality attributes such as reliability, cost and privacy, and the contracts between new parts, with a senior decider.
 
-**Larger features.** Create Task is routine: the conventions settle most of its design. A feature with no convention to lean on, such as reminders, needs a new scheduled job and notification service, so step 1 flags most of it. The same steps apply, but step 2 then covers structural choices, quality attributes such as reliability, cost and privacy, and the interface contracts between new parts, each recorded in an ADR with a senior decider.
+**New projects.** Without context files, every question comes back "no convention", so run the New projects card before the first feature reaches Planning.
 
 ## What to ask the AI
 
-Examples use the Create Task ticket and VS Code syntax; on the CLI, use `@path` instead of `#file:`. Run steps 1 and 2 in the Plan agent or Ask mode. If the spec lives in Jira rather than the repo, paste it in.
+Each card gives the inputs, the mode, a prompt to copy, where to save the output and what to check. "Read-only" means plan mode or Ask mode, where the AI changes no files, so you copy its answer into the save file.
 
-### Step 1: check the spec against the conventions
+Start each step in a new session, because a long session costs more with every turn.
 
-**Find what needs deciding (context engineering):**
+**Context files** are everything the agent loads or is pointed to, meaning instruction and rule files (`.github/copilot-instructions.md`, `.github/instructions/`, `AGENTS.md`, every `CLAUDE.md`, `.claude/rules/`), skills, custom agents and subagents, prompt files and commands, and any doc these tell the agent to read.
 
-```
-#file:docs/specs/create-task.md #file:CLAUDE.md #file:docs/FIRESTORE-SCHEMA.md #file:docs/SECURITY.md Read the approved spec and these convention files. List every item in the spec that departs from or extends a documented convention, citing the convention and the spec section. Include assumptions that are really technical decisions. Do not propose changes.
-```
+Design notes go in `docs/design/<feature>/`, with one folder per feature, and each feature's rule file is named after the code folder it governs. Attach files with `#file:` in Copilot in VS Code, or `@path` in Copilot CLI and Claude Code.
 
-Choosing the files is part of context-engineering. "Do not propose changes" stops it designing too early. Each item it lists is a candidate ADR, and anything it misreads about the conventions is a candidate rule.
+### New projects: set up the base conventions first
 
-### Step 2: decide each flagged item
-
-**Options without a verdict:**
+**You need** the project files so far, such as `package.json`, framework config and any docs. **Run it** read-only and **save it to** `docs/design/project-setup/step1-questions.md`.
 
 ```
-The spec stores dueDate as a YYYY-MM-DD string instead of a Timestamp. Give 2-3 options for storing a date-only due date in Firestore, with trade-offs for time-zone correctness, sorting, querying and consistency with the schema conventions. Do not recommend one. End with the questions I need to answer to decide.
+Read the attached project files. List the conventions an agent would need
+to build features here consistently, covering at least: tech stack and
+versions, folder structure, how data is stored and accessed, security rules
+and authentication, error handling, testing, and build and run commands.
+For each, say whether the project already settles it (quote the file) or
+whether it is still open. Do not propose answers.
 ```
 
-"Do not recommend one" keeps the decision with the human. A recommendation anchors the reader, especially a junior one, and turns the checkpoint into a rubber stamp.
+**Then** decide each open item with step 3 and record it as an ADR without a spec section. Write the base context file (`.github/copilot-instructions.md` or `AGENTS.md` in Copilot, `CLAUDE.md` in Claude Code) with one line per item, citing its source file or ADR. The five-rule limit and "never" form are only for feature rules. A tech lead approves the file in a design review PR before the first feature reaches Planning.
 
-**Consistency check:**
+### Step 1: Read the spec
 
-```
-#file:docs/specs/create-task.md Do any decisions, assumptions or out-of-scope notes contradict each other? Quote both sides of each conflict.
-```
+Run both prompts before sorting. A spec in Jira needs pasting into `docs/design/<feature>/spec.md` first so it can be attached.
 
-This is the prompt meant to catch the conflict between all writes going through the Server Action and the note that later tickets will relax the update rule. Conflicts go back to Planning as spec change requests.
+**You need** the spec approved at Gate 1 and the context files. That means the repo-wide instruction file, any scoped instruction or rule files, the skills that cover the same area, and the docs they point to, such as a schema or security doc. **Run it** read-only and **save it to** `step1-questions.md` and `step1-spec-conflicts.md`.
 
-### Step 3: record and carry it forward
-
-**Rule derivation (context engineering):**
+**List the "how" questions (context engineering)**
 
 ```
-From #file:docs/adr/0002-task-writes-via-server-action.md, propose at most five rules for .github/instructions/tasks.instructions.md with applyTo: "frontend/src/features/tasks/**". Only include rules an agent could not infer from the code. Start each rule with what the agent must never do.
+Read the approved spec and the attached context files. List every question
+about how this feature will be built, covering at least: data model, where
+logic runs, security rules, validation, error handling, state and loading,
+and external services. Start with the spec's product decisions and its
+numbered assumptions. For each question give the spec section, and whether
+a convention answers it: quote the convention, name its file, and say
+whether the spec follows or departs from it. If none does, write "no
+convention". Do not propose answers.
 ```
 
-Its output, such as "never write to `tasks` with the Firestore client SDK", is loaded by every later agent session. "At most five" and "could not infer" keep the rules short and non-obvious.
-
-**Rule conflict check (context engineering):**
+**Consistency check**
 
 ```
-Compare these proposed rules with #file:.github/copilot-instructions.md and the files in .github/instructions/. List any rule that duplicates, contradicts or overlaps an existing one.
+Read the attached spec. Do any decisions, assumptions, acceptance criteria
+or out-of-scope notes contradict each other? Quote both sides of each
+conflict with their section references.
 ```
 
-Copilot defines no precedence between instruction files, so a conflicting rule makes the agent's behaviour unpredictable. This backs check (e) below.
+**Then** spot-check the quoted conventions, because the AI can overstate them, and note any it misreads in `step2-sort.md` as a candidate rule. Dismiss intentional contradictions with a one-line reason in `step1-spec-conflicts.md`, and treat the rest as spec change requests. Leave the spec itself alone.
 
-### Writing context updates
+### Step 2: Sort by hand
 
-The rule-derivation prompt produces a draft; this is how to judge it. Put feature rules in a scoped `.instructions.md` file, keep the reasoning in the ADR, and record any fact a convention requires in the document it names, such as `docs/FIRESTORE-SCHEMA.md`.
+**You need** both step 1 files. **Do this** without AI, since this is where spec problems and wrong context files surface. **Save it to** `step2-sort.md`.
 
-The tasks feature needs only three rules, because the project's conventions cover the rest:
+Give each question, and each contradiction you didn't dismiss, one of these outcomes.
+
+| Outcome | Use it when | Next |
+|---|---|---|
+| Follows convention | A convention answers it and the spec follows it | Cite the convention. |
+| Decided in Planning | The spec settles it as a product decision | Cite the decision. If a convention needs a doc entry, it goes on step 4's list. |
+| ADR | No convention answers it, or the spec departs from one | Steps 3 and 4. |
+| Spec change request | The spec is unclear, contradicts itself, or can't sensibly be delivered | Send it to the Gate 1 approver and don't decide it here. |
+| Context fix | An existing context file is wrong | Step 4, Fix a context file. |
+
+If an item's outcome changes later, note the change and the reason in `step2-sort.md`.
+
+Write each spec change request in `spec-change-requests.md` using this format.
+
+```markdown
+## SCR-1: Short title of the problem
+- Spec section: for example A12 or AC6
+- Quote: the exact spec text
+- Problem: what is unclear, contradictory, or can't be delivered
+- Question: one question that settles it
+- Raised by: name, date
+- Answer: Gate 1 approver's answer, name, date
+- Spec updated: yes or no
+```
+
+The Gate 1 approver answers, updates the spec and decides whether it needs Gate 1 again. If the approver is also running Design, the product owner answers. Keep each request to one problem. The same fields work as a Jira comment.
+
+**Then** group questions one decision would settle into a single ADR item, send the spec change requests, and wait for answers to any that affect an ADR item.
+
+### Step 3: Decide, one ADR item at a time
+
+**You need** an ADR item from `step2-sort.md`. **Run it** read-only and **save it to** `step3-options.md`, with one heading per item.
+
+**First** write your preferred option and a one-line reason in `my-view.md`, or "no view" and what you'd need to know. Keep it out of the prompt so it can't shape the options.
+
+```
+Below is one design question, with its spec section and convention status.
+Give 2-3 realistic options. For each, give the trade-offs for correctness,
+security, testability, effort and consistency with the conventions. Mark
+any claim about a library, API or platform as "verified" (name the source)
+or "unverified". Do not recommend an option. End with the questions I need
+to answer to decide.
+
+Question:
+<paste the item from step2-sort.md here>
+```
+
+**Then** decide. In `decisions.md`, write the decision, the reason, whether your view held, changed or was missing, and the name of whoever made the call, which certifies they made it. If an AI made or confirmed it, say so in place of a name, and the ADR stays Proposed until a human decides. A choice that would change the spec needs a spec change request.
+
+### Step 4: Record and carry it forward
+
+Run these cards in order.
+
+**Draft the ADR.** **You need** the entry from `decisions.md`, its options from `step3-options.md`, and the template below, saved once as `docs/adr/template.md`. **Run it** in agent mode and **save it to** `docs/adr/`, numbered after the last ADR as `NNNN-short-title.md`.
 
 ```markdown
 ---
-applyTo: "frontend/src/features/tasks/**"
+Status: Proposed
+Decided-by:
+Drafted-with:
+Supersedes: none
+Security review: not needed | needed: <reviewer> | done: <reviewer>, <date>
 ---
 
-# Tasks feature rules (from ADR-0001 to ADR-0003)
+# ADR-NNNN: Short title of the decision
 
-- Never convert `dueDate` to a Firestore Timestamp. Store it as a `YYYY-MM-DD` string or `null`. See docs/adr/0001-due-date-as-string.md.
-- Never write to `tasks` with the Firestore client SDK; security rules deny it. Use the tasks Server Actions.
-- Never sort tasks with Firestore `orderBy('dueDate')`; it puts null dates first. Sort in the client with the sort helper.
+## Context
+The question, its spec section if there is one, and any convention involved.
+
+## Decision
+What was chosen, in one or two sentences.
+
+## Rationale
+Why the chosen option was chosen, and why each other option was rejected,
+in the decider's words.
+
+## Consequences
+What this costs or makes harder, and what later work must do because of it.
+
+## Not yet verified
+Library, API or platform claims a person hasn't yet checked against
+official docs. Must be empty before the ADR is Accepted.
 ```
 
-**Rules of thumb:**
+```
+Draft an ADR for the decision below, using docs/adr/template.md. Set Status
+to Proposed and leave Decided-by empty. In Rationale, use only the reasons
+given below. Copy every claim about a library, API or platform into "Not
+yet verified", whether or not it is marked "verified".
 
-- Only what the agent couldn't infer from the code.
-- Lead with what never to do. A constraint is checkable against a diff in a way a positive instruction is not, so it is easier to review and easier to tell whether it was followed. Whether constraint-shaped rules also perform better is untested.
-- One checkable behaviour per rule, so a reviewer can check a diff against it.
-- Scope it with applyTo and keep files short. Short files are easier to review, and a reviewer has to be able to hold the whole rule set in mind to check a diff against it. Whether shorter files also cost less is contested: token counts suggest yes, but caching may absorb much of the difference.
-- No duplicates or contradictions. Copilot has no precedence order between instruction files.
-- Change rules with the decision. When an ADR is superseded, update its rules in the same PR.
+Decision and reasons:
+<paste the entry from decisions.md here>
 
-**Before merging, check two things:**
+Options considered:
+<paste the matching section from step3-options.md here>
+```
 
-- **It loads.** Open a file the `applyTo` pattern matches and confirm the rule is in context, for example with `/context` on the CLI.
-- **It changes behaviour.** Give the agent a small task the rule should affect, such as "add a due date filter to the task list", with and without the rule. No published method exists for evaluating whether a rule file works. Jiang and Nam note that rule content is based on developer intuition and that its impact on model performance is an open question, so this comparison, not the rules of thumb, is what shows a rule is working.
+**Then** check the rejected options are fair and the reasons are the decider's. Fill in `Decided-by`, empty if an AI decided, and `Drafted-with` as `tool:model`. For authentication, authorisation, data residency or personal data, set `Security review` to "needed" with a reviewer, who changes it to "done". If it replaces an older ADR, set `Supersedes` and mark the old one Superseded. Check each "Not yet verified" claim against official docs, then move it into the ADR with its source or drop the option it supports. The read-only design reviewer (see In practice) can also critique the draft.
+
+**Fix a context file.** **You need** a Context fix item, the wrong file and the doc holding the convention. **Run it** in agent mode. **Save** the fixed file and add a line under "Context fixes" in `decisions.md` naming the file, the problem and the convention it now follows.
+
+```
+The attached context file conflicts with the convention in the attached
+document, as described below. Change only the conflicting lines so the file
+follows the convention, and quote each line before and after. Change
+nothing else.
+
+Problem:
+<paste the Context fix item from step2-sort.md here>
+```
+
+**Then** check that the diff only touches those lines. If you can't tell whether the file or the convention is wrong, treat it as an ADR item. A file that `CODEOWNERS` gives to another team is raised with them and listed as open, and the PR can still merge.
+
+**Derive rules (context engineering).** **You need** the feature's ADRs and any candidate rules from `step2-sort.md`. **Run it** read-only and **save** a draft to `step4-rules-draft.md`. Final rules usually go in one file per feature, `.github/instructions/<feature>.instructions.md` in Copilot or `.claude/rules/<feature>.md` in Claude Code.
+
+```
+From the attached ADRs and candidate rules, propose at most five rules for
+the agent that will implement this feature. Only include rules an agent
+could not infer from the code. Start each rule with what the agent must
+never do, then what to do instead. For each, name the ADR it comes from and
+every file or folder where it could be broken, including security rules,
+config or schema files outside the feature folder.
+```
+
+**Then** judge the draft against Writing context updates below.
+
+**Rule conflict check (context engineering).** **You need** the drafted rules and every context file. **Run it** read-only and **save it to** `step4-rule-conflicts.md`.
+
+```
+Compare the drafted rules with the attached context files, including
+skills, custom agents, prompt files and the docs they point to. List any
+existing instruction that duplicates, contradicts or overlaps a drafted
+rule, quoting both.
+```
+
+**Then** remove duplicates and resolve every contradiction, because neither tool reliably decides which rule wins. If an existing file is the one that's wrong, fix that file directly. When an ADR departs from a doc on purpose, the ADR and its doc entry below resolve the conflict.
+
+**List required doc entries.** **You need** the ADRs, the "Decided in Planning" items, and the context files, which say what must be documented. **Run it** read-only and **save it** under "Doc entries required" in `decisions.md`, one line per entry.
+
+```
+For each attached ADR, and each item below, check whether a convention says
+the decision must be recorded in a document. If so, give one line: the
+document, the entry it needs, and the ADR or spec decision it comes from.
+Quote the convention. Do not edit any document.
+
+Items tagged "Decided in Planning":
+<paste them here, or write "none">
+```
+
+**Then** check each line names its document, decision and convention. Implementation writes the entries with the code, so no document describes something not yet built.
+
+**Open the design review PR.** Put the ADRs, context updates and design notes in one PR, and list any open spec change requests, context fixes raised with other teams and the after-Implementation follow-up issue in its description. A `CODEOWNERS` approver reviews it against What to verify, with the security reviewer where needed. Each decider sets their ADR to Accepted as the last change before approval. The PR waits while a spec change request affecting an ADR is unanswered, and Implementation starts from the merged PR.
+
+### Writing context updates
+
+Feature rules go in a scoped rule file and the reasoning stays in the ADR. Most features need only a few, since the conventions cover the rest. In Copilot the file is `.github/instructions/<feature>.instructions.md` and looks like this.
+
+```markdown
+---
+applyTo: "<feature folder>/**,<other files where the rules could be broken>"
+---
+
+# <Feature> rules (from ADR-NNNN, last checked <date>)
+
+- Never <what the agent must not do>. <What to do instead>. See docs/adr/NNNN-short-title.md.
+```
+
+In Claude Code the same rules go in `.claude/rules/<feature>.md`, with the scope written as a `paths:` list in the front matter.
+
+```markdown
+---
+paths:
+  - "<feature folder>/**"
+  - "<other files where the rules could be broken>"
+---
+```
+
+**Rules of thumb**
+
+- Only include what the agent can't infer from the code.
+- Lead with "never", because a constraint is easy to check against a diff.
+- Keep to one checkable behaviour per rule.
+- Scope each rule to every file where it could be broken. Shared types, data-access code, security rules and config often sit outside the feature folder, so check whether they belong in scope. A rule that needs a much wider scope belongs in its own file.
+- Keep files short enough to review in one read.
+- Avoid duplicates and contradictions.
+- Change rules in the same PR as the ADR they come from, and update the "last checked" date in the file's heading.
+
+**Before merging**
+
+- **Context loads at all.** Once per project and whenever context files are added, ask a new session to list the instruction files, rules, skills, agents and MCP servers it can see. Fix any that are missing, because a misplaced file may be ignored silently.
+- **The rule loads.** Open a file in its scope and check `/context` in Copilot CLI or its "Memory files" in Claude Code. If your tool doesn't list individual files, rely on the probe.
+- **The rule reads as meant.** In a new session, run this prompt with the name of a file in the rule's scope, save the answer to `step4-probe.md` and reword any rule it misreads.
+
+  ```
+  Read <a file in the rule's scope>. Before changing anything, list every rule,
+  decision and convention you would follow when editing this file, and say
+  in one line what each requires. Do not make any changes.
+  ```
+
+**After Implementation, check that the rule changes behaviour (optional).** Run a small task the rule should affect, such as a change to one of the files it covers, in two new sessions, one with the rule and one on a branch with the rule file removed and the ADRs left out. Track it as an issue assigned to the ADR's decider. Published studies only test generic rules, so this is the only way to see whether a project's own rule works.
 
 ## What to verify before accepting output
 
-Checklist:
-
-- (a) Can a named human defend every decision without deferring to the AI?
-- (b) Does every decision trace to the approved spec or a documented convention, and does every item flagged in step 1 end as an ADR, an explicit "follows convention", or a spec change request?
-- (c) Are the rejected options real and fairly stated? Check library, API and package claims against official docs and the package registry, not against the model.
-- (d) Does each ADR still satisfy the spec's acceptance criteria? If a decision changes what a criterion means, raise a spec change request rather than editing the spec.
-- (e) Do new rules conflict with existing instruction files, and is each one something the agent couldn't infer from the code?
-- (f) Are secrets, internal hostnames and PII absent from ADRs, specs and instruction files?
-
-Ensure you check (e) carefully. Copilot doesn't define a precedence order between its instruction files, and GitHub's own guidance is to avoid conflicting instructions. When two rules disagree, you can't predict which one the agent follows.
+- (a) Does each ADR name a decider in `Decided-by`, with their reason and the held, changed or missing line in `decisions.md`, and an entry in `my-view.md`? Filling in `Decided-by` certifies that person made the call, the way `Signed-off-by` certifies authorship.
+- (b) Does every decision trace to the spec or a convention, and does every item in `step2-sort.md` have one outcome, with later changes noted?
+- (c) Are the rejected options real and fairly described, and is each ADR's "Not yet verified" list empty? Check library, API and package claims against official docs and the package registry, because the model's word isn't enough.
+- (d) Does each ADR still satisfy the spec's acceptance criteria? If a decision changes what a criterion means, raise a spec change request.
+- (e) Do new rules conflict with any context file, apart from deliberate departures an ADR lists as a doc entry, and could the agent have inferred any of them from the code?
+- (f) Are secrets, internal hostnames and PII kept out of ADRs, design notes and context files?
+- (g) Is each ADR's `Security review` either "not needed" or "done"?
 
 ## Governance and security touchpoints
 
-- (i) **Context files are an attack surface.** Instruction files, prompt files, custom agents and skills are loaded straight into the model's context. A malicious or careless edit is a route for prompt injection. Put them under `CODEOWNERS` like code.
-- (ii) **Third-party skills, agents and MCP servers are dependencies.** Those with write or shell tools also carry excessive-agency risk. Adding one at design time is a supply-chain decision.
-- (iii) **Secrets in design artifacts.** ADRs, specs and instruction files are committed and loaded into agent sessions (LLM02 Sensitive Information Disclosure).
+- (i) **Context files are an attack surface.** They load straight into the model's context, so a careless or malicious edit can become a prompt injection. Review them under `CODEOWNERS` like code.
+- (ii) **Third-party skills, agents and MCP servers are dependencies.** Those with write or shell tools also carry excessive-agency risk, so adding one at design time is a supply-chain decision.
+- (iii) **Secrets in design artifacts.** ADRs, design notes and context files are committed and loaded into agent sessions (LLM02 Sensitive Information Disclosure).
 - (iv) **Security-relevant decisions.** An ADR that touches authentication, authorisation, data residency or personal data needs a second, security-aware reviewer before it is accepted.
 
 ## How authorship is recorded
 
-Attribution is recorded at commit time. Accountability is recorded at review and merge. Both sit in the governance band that runs under every phase, so this section covers only what design & context engineering is responsible for producing.
+**Attribution.** Commits with AI-assisted content carry an `Assisted-by:` trailer naming the tool and model you actually used, following the Linux kernel convention, for example `Assisted-by: Copilot:gpt-5`. Each ADR's front matter also records `Decided-by` and `Drafted-with`, which are this methodology's own convention.
 
-**Attribution.** Every commit containing AI-assisted content carries an `Assisted-by:` trailer naming the tool and model, following the Linux kernel convention:
+**Accountability.** The committer adds `Signed-off-by:` to certify NBN's DCO, and AI agents must never add it. Filling in `Decided-by` certifies that person made the call, and only they can move the ADR to Accepted in the design review PR. `CODEOWNERS` names a human approver for `docs/adr/`, `docs/design/` and every context file.
 
-```
-Assisted-by: Copilot:gpt-5
-```
+**Accountable people.** The decider is accountable for the decision, and the approver who merges is accountable for the change.
 
-Each ADR also carries front matter naming who decided and which tool helped draft it:
-
-```
-Status: Accepted
-Decided-by: <name, role>
-Drafted-with: Copilot:gpt-5
-```
-
-The front-matter fields are our convention, not an external standard. The AI may draft an ADR, but only the named decider can move it from Proposed to Accepted, and only through a reviewed PR.
-
-**Accountability.** The committer adds `Signed-off-by:` certifying NBN's DCO; AI agents must not add it. `CODEOWNERS` names a human approver for two groups of paths:
-
-- design artifacts: `docs/adr/`
-- every agent-context path: `.github/copilot-instructions.md`, `AGENTS.md`, `.github/instructions/`, `.github/prompts/`, `.github/agents/` and `.github/skills/`
-
-**Accountable person:** the named decider in the ADR for the decision itself, and the approver who merges it for the change to the repository.
-
-See [white-paper/governance/](../governance/) for the full attribution and accountability treatment, including build-layer provenance (SLSA), sampling audits of approver sign-off, and organisational accountability under SOCI/CIRMP.
+[white-paper/governance/](../governance/) covers the rest, including build provenance (SLSA), sampling audits of sign-off, and accountability under SOCI/CIRMP.
 
 ## In practice
 
-A suggested sequence for adopting this phase. These are recommended defaults rather than settled requirements. Where an open question below is unresolved, treat the recommendation as a starting position for NBN to confirm.
+These are recommended defaults for NBN to confirm.
 
-- **Set up the decision record (week 1).** Add `docs/adr/` with a Nygard template, a Rationale section and the front-matter fields above. Apply `CODEOWNERS` to the design and agent-context paths.
-- **Encode the design prompts (weeks 1-2).** Provide `*.prompt.md` files for the prompt patterns above, plus a read-only custom agent for design review with only read and search tools. Make the Plan agent, or `/plan` on the CLI, the default for design work so no files change during exploration.
-- **Connect design to the readiness layer (weeks 2-3).** Each accepted ADR produces its context updates, written as described under Writing context updates and reviewed in the same PR as the ADR.
-- **Test rules before scaling them (ongoing).** Run the same small task with and without a new rule. Compare the result, the token use and the review outcome before adding more. In Böckeler's words there are no unit tests for context engineering, so this comparison is the closest substitute.
+- **Set up the decision record (week 1).** Save the step 4 template as `docs/adr/template.md`, and apply `CODEOWNERS` to `docs/adr/`, `docs/design/` and the context files.
+- **Save the prompts as reusable commands (weeks 1-2).** Use prompt files (`.github/prompts/`) in Copilot in VS Code and skills in Copilot CLI and Claude Code. Add a read-only design reviewer as a Copilot custom agent or a Claude Code subagent.
+- **Ship rules with their ADR (weeks 2-3).** Context updates go in the same PR as the ADR they come from, so both are accepted together.
+- **Test rules before adding more (ongoing).** After Implementation, run the with and without comparison. Context engineering has no unit tests, and this is the closest thing to one.
 
 ## Metrics for success
 
-- **Decision traceability (our metric):** the share of implementation PRs that link the ADRs and spec they were built against. This checks whether implementation work is actually built against the design.
-- **Design-attributable rework (our metric):** PRs reworked because the design was missing or wrong, tagged in retros. This checks whether bad or missing design is causing problems later.
-- **Context-file cost versus value.** Track tokens, runtime and success per agent task, with and without new rules. Published results point in opposite directions, so only local measurement settles it. This checks whether your rules are worth what they cost.
-- **Instruction freshness (our metric):** time since each rule was last checked against an accepted ADR. Context files grow through frequent small additions, so they drift unless someone prunes them. This checks whether rules have gone stale.
+- **Decision traceability (our metric).** The share of implementation PRs that link the ADRs and spec they were built against.
+- **Design-attributable rework (our metric).** PRs reworked because the design was missing or wrong, tagged in retros.
+- **Context-file cost versus value (our metric).** Tokens, runtime and success per task with and without new rules, once feature code exists. Record dollars on API billing and tokens on subscription plans, and keep them separate.
+- **Instruction freshness (our metric).** Time since each rule file's "last checked" date, because rule files drift unless someone prunes them.
 
 ## How this differs by experience level
 
-Evidence specific to design is thin, because the controlled studies measure coding tasks rather than design, so the guidance below is our inference.
+Controlled studies have only measured coding, so this guidance is our inference.
 
-**Juniors: anchoring risk.** A junior who asks for options before forming a view tends to adopt the AI's framing. Differentiated guidance:
+**Juniors face an anchoring risk.** Seeing options before forming a view tends to mean adopting the AI's framing.
 
-- Write down your own option before prompting.
-- Use AI to check the spec against the conventions and to explain trade-offs.
-- Draft ADRs, but leave architecture-significant decisions to a senior or architect.
+- Don't skip `my-view.md`. If you have no view, say so and ask a senior before reading the options.
+- Use AI to check the spec against conventions and explain trade-offs.
+- Decide ADR items only if your organisation allows juniors to. Otherwise draft them for a senior or architect to decide.
 
-**Seniors: rubber-stamp risk.** The METR finding in the Implementation module shows experts misjudge their own AI-assisted work. The risk here is accepting a fluent, plausible ADR without checking its rejected options. Differentiated guidance:
+**Seniors face a rubber-stamp risk.** Experts misjudge their own AI-assisted speed (METR, in the Implementation module), and we expect the same overconfidence in review, so a fluent ADR can be accepted without its rejected options being checked.
 
-- Own the `Decided-by` field.
-- Use AI for breadth and adversarial review.
-- Act as CODEOWNER for instruction-file changes.
+- Decide the ADR items juniors can't, and review the ones they can.
+- Use AI for a wider range of options and for critique.
+- Act as CODEOWNER for context-file changes.
 
-The gate is the same for both. Experience changes who decides, not whether the checkpoint applies.
+The checkpoint is the same for both. Experience only changes who decides.
 
 ## What this stage does not cover
 
 - Requirements, acceptance criteria and the assumptions table (Planning, approved at Gate 1)
 - Writing production code (Implementation)
+- Writing doc entries such as schema notes (Implementation, from the list in the design notes)
 - Test strategy and QA (Testing)
-- Security testing of the built change (Security Gate, after Implementation)
+- Security testing of the built change (Security Gate, between Testing and Deployment)
 - Organisation-wide AI policy and tool approval (governance)
-
-The design phase produces accepted decisions and the context that prepares the agent. It does not produce the spec, the code or the tests.
 
 ## Open questions
 
-- **How are instruction files evaluated?** No accepted method exists yet. Assumption until NBN confirms otherwise: rules are reviewed but not tested. Sensible approach: the with/without comparison described under In practice, on a small sample of tasks. To verify this: Sprint 2 dogfooding on `garage-boilerplate` should show whether rules measurably change outcomes.
+- **How are instruction files evaluated?** No accepted method exists. Until NBN confirms otherwise, we assume rules are reviewed and probed but not measured. NBN could run the with and without comparison on a real feature and decide whether the result justifies the cost.
 
 ## Key takeaways
 
-- **Design sets the standard.** Implementation and Testing verify against what this phase decides, which is why the checkpoint here is Human-Decision oriented.
-- **AI can explore, draft and critique, but not decide.** The named human in the ADR owns the choice, and early evidence suggests agents are weakest at exactly these choices.
-- **Design now prepares the AI.** Accepted decisions become short, scoped instruction rules that every later agent session loads. This is where context engineering meets the design phase.
-- **Measure whether context helps, don't assume.** Keep rules to what the agent couldn't infer from the code, and test whether adding more improves results. The research disagrees on whether richer context helps or hurts, which is why the with and without comparison matters more than any rule of thumb.
-- **Context files are code.** Review them under `CODEOWNERS`, keep secrets out, and treat third-party skills and MCP servers as supply-chain dependencies.
+- **Planning settles what gets built and Design settles how,** and every later phase checks its work against that.
+- **AI proposes and a named human decides.** An ADR without a name in `Decided-by` hasn't been decided.
+- **Write only the rules an agent can't guess,** and scope them to wherever they can be broken.
+- **Probe rules before merging and measure them after Implementation.**
+- **Treat context files as code** and keep secrets out of them.
 
 **Research behind this module:** [research/modules/design-and-context-engineering.md](../../research/modules/design-and-context-engineering.md)
