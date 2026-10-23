@@ -3,8 +3,7 @@
 How the module usability tests were run, what they found, and what changes
 follow.
 
-**Status:** Planning session complete. Implementation session not yet run.
-**Sessions covered:** 1 of 2.
+**Status:** Complete. One session, on the Planning and Spec Authoring module.
 
 ---
 
@@ -18,18 +17,17 @@ not the participant.
 
 ### Design
 
-Two sessions were planned, one per module, using identical measures so the
-results could be compared.
+One session was run on the Planning and Spec Authoring module on 2026-10-15.
 
-| | Planning and Spec Authoring | Implementation |
-| --- | --- | --- |
-| Test plan | [`planning-and-spec-authoring-test-plan.md`](../usability/planning-and-spec-authoring-test-plan.md) | [`implementation-test-plan.md`](../usability/implementation-test-plan.md) |
-| Facilitator sheet | [`planning-facilitator-sheet.md`](../usability/planning-facilitator-sheet.md) | [`implementation-facilitator-sheet.md`](../usability/implementation-facilitator-sheet.md) |
-| Status | Run 2026-10-15 | Not run |
+| | Planning and Spec Authoring |
+| --- | --- |
+| Test plan | [`planning-and-spec-authoring-test-plan.md`](../usability/planning-and-spec-authoring-test-plan.md) |
+| Facilitator sheet | [`planning-facilitator-sheet.md`](../usability/planning-facilitator-sheet.md) |
+| Run | 2026-10-15 |
 
 ### Measures
 
-Five were planned. Each session was to record:
+Five were planned. The session was to record:
 
 1. **Task success**, scored against the module's own exit criteria
 2. **Time per step**
@@ -46,8 +44,7 @@ items are subtracted from five, the sum is multiplied by 2.5, giving 0 to 100.
 
 **That change breaks comparison with the published average of around 68**, which
 comes from software studies. The score is reported as an internal baseline for
-comparing our own modules against each other. Both sessions use identical
-wording, so they remain comparable to one another.
+this module only.
 
 The questionnaire is at
 [`module-usability-questionnaire.md`](../usability/module-usability-questionnaire.md)
@@ -56,10 +53,10 @@ and the scoring rules at
 
 ### Participants
 
-One per session. A computer science student on the same degree as the team, in
-each case someone who did not write the module.
+One participant. A computer science student on the same degree as the team, who
+did not write the module.
 
-An experienced developer was approached for each session and did not take part.
+An experienced developer was approached and did not take part.
 **The results therefore describe a junior reader**, which is closer to one of
 the two audiences the modules address but not the other.
 
@@ -334,17 +331,6 @@ behave differently from whatever produced the module's evidence figures.
 
 **No teammate review has been recorded** for the analysis or the gate
 assessment, and no named approver has signed off the specification.
-
----
-
-## 6. Results: Implementation
-
-**Not run.** This section is a placeholder.
-
-When the session takes place it will use the same five measures, so the two can
-be compared on the measures although not on coverage: the Implementation session
-covers part of a larger module, where Planning covered the whole of a smaller
-one.
 
 ---
 
