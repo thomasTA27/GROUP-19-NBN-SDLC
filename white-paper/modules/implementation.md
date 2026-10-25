@@ -73,7 +73,7 @@ Before accepting, the developer writes the commit message by hand, covering how 
 
 Writing the message by hand is ordinary practice while having the agent mark it is this methodology's proposal. Where an agent drafted the message, the check runs in a separate session or on a different model, since the model that wrote the code cannot mark its own explanation.
 
-This records that the check ran. It does not stop someone passing off an AI-written explanation. What makes it binding is the Signed-off-by: trailer certifying the signer reviewed any AI-assisted content. See [white-paper/governance/](../governance/)
+This records that the check ran. It does not stop someone passing off an AI-written explanation. What makes it binding is the Signed-off-by: trailer certifying the signer reviewed any AI-assisted content. See [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md)
 
 ```
 Stage only these files: <file list>. Do not commit. Then print the staged file list and anything staged that I did not name.
@@ -141,7 +141,7 @@ List everything you stated or assumed in this work package that you did not run 
 ## What to verify before accepting output
 Security checks run inside this phase rather than waiting for the gate. Secret, dependency and SAST scanning apply to AI-authored diffs as they are produced, which is what checklist (d) enforces. The Security Gate consolidates and confirms and it is not the first line of defence.
 
-Risk tiers are defined in [white-paper/governance/](../governance/). This phase applies them to item (f) only. The second human reviewer stays on governance's narrower escalation list, because review capacity is the constraint this phase is trying not to make worse.
+Risk tiers are defined in [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md). This phase applies them to item (f) only. The second human reviewer stays on governance's narrower escalation list, because review capacity is the constraint this phase is trying not to make worse.
 
 **Checklist:**
 
@@ -150,7 +150,7 @@ Risk tiers are defined in [white-paper/governance/](../governance/). This phase 
 - **(c)** Do the tests assert real behaviour? Run the mutation check and read the table.
 - **(d)** Do the scans pass on the diff? Secret, dependency and SAST scanning, plus a check that any new dependency actually exists and is the intended package. Where a scanner is missing, Step 0 recorded that, and it goes in the PR caveats.
 - **(e)** Has every factual claim the AI made about a library, API, platform or browser been probed or listed as unverified in the PR? A probe is a throwaway script that runs once and is deleted, not a test that lands in the suite.
-- **(f)** Has a reviewer that did not write the code reviewed the change? Required for higher-risk changes as defined in [white-paper/governance/](../governance/), and once over the whole branch before the PR. May be skipped for lower-risk code, with the skip and the reason recorded in the PR caveats.
+- **(f)** Has a reviewer that did not write the code reviewed the change? Required for higher-risk changes as defined in [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md), and once over the whole branch before the PR. May be skipped for lower-risk code, with the skip and the reason recorded in the PR caveats.
 - **(g)** Does the repository still describe itself accurately? Instruction files and docs match the code, and the added lines are free of text hazards such as non-ASCII characters, mixed tabs and spaces, or inconsistent line endings.
 
 **Prompts to assist verifying output**
@@ -210,7 +210,7 @@ Where squash is the organisation's convention, the squashed message carries the 
 
 **Accountable person:** the human who signs off and merges the change. At merge, `CODEOWNERS` enforces a named human approver, and higher-risk changes escalate to a second reviewer as defined in governance.
 
-See [white-paper/governance/](../governance/) for more detail
+See [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md) for more detail
 
 ## In practice
 

@@ -75,16 +75,16 @@ The release record itself needs no new tooling at NBN, just the habit of treatin
 ## Governance and security touchpoints
 
 - Giving this phase's automation standing production credentials widens its own attack surface; scope those credentials as a security review item, not just an ops convenience.
-- A named person, or role, needs standing authority to halt this phase's automation (a kill switch), set before it goes live, not improvised during an incident. See [white-paper/governance/research.md](../governance/research.md) for the broader human-oversight pattern.
+- A named person, or role, needs standing authority to halt this phase's automation (a kill switch), set before it goes live, not improvised during an incident. See [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md) for the broader human-oversight pattern.
 - None of this module's sources say what should happen when the ACA tool's result or the skill's Flag and a human's read of production telemetry disagree. Our recommendation: the human's read wins by default, since that person may know something elsewhere in the system the AI's metrics don't capture. Log the disagreement, not just the final decision.
-- NBN's Security of Critical Infrastructure (SOCI) Act obligations, including its Critical Infrastructure Risk Management Program (CIRMP) requirements, mean deploy and rollback automation isn't just a team-level choice; it sits inside a board-approved risk management program (see [white-paper/governance/research.md](../governance/research.md)). Engineers follow NBN's internal policy that implements SOCI, not the Act directly.
+- NBN's Security of Critical Infrastructure (SOCI) Act obligations, including its Critical Infrastructure Risk Management Program (CIRMP) requirements, mean deploy and rollback automation isn't just a team-level choice; it sits inside a board-approved risk management program (see [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md). Engineers follow NBN's internal policy that implements SOCI, not the Act directly.
 - Full cross-cutting AI-use policy lives in [white-paper/governance/](../governance/); this list is only the checkpoints specific to shipping a release.
 
 ## How authorship is recorded
 
 Authorship here builds on what Gate 3 already established: a named person approved this release. The record adds what shipped and how much was AI-assisted, against what that person approved.
 
-GitHub's release notes attribution is a concrete, adoptable pattern: a pull request opened by an agent is now credited to the human who directed it ("by @monalisa with @copilot"), not the agent alone. The same applies here: a deployment-review readout or a pipeline fix is a recommendation an agent produced, and the record should show which human accepted it and when, consistent with the commit-trailer conventions used upstream (see [white-paper/governance/research.md](../governance/research.md)).
+GitHub's release notes attribution is a concrete, adoptable pattern: a pull request opened by an agent is now credited to the human who directed it ("by @monalisa with @copilot"), not the agent alone. The same applies here: a deployment-review readout or a pipeline fix is a recommendation an agent produced, and the record should show which human accepted it and when, consistent with the commit-trailer conventions used upstream (see [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md)).
 
 ## A deployment skill for AI assistants
 
