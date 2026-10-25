@@ -325,7 +325,7 @@ paths:
 
 **Accountable people.** The decider is accountable for the decision, and the approver who merges is accountable for the change.
 
-[white-paper/governance/](../governance/) covers the rest, including build provenance (SLSA), sampling audits of sign-off, and accountability under SOCI/CIRMP.
+[white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md) covers the rest, including build provenance (SLSA), sampling audits of sign-off, and accountability under SOCI/CIRMP.
 
 ## In practice
 

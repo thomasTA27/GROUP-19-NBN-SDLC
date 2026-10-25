@@ -164,7 +164,7 @@ List each with its location and a redacted replacement. If you are unsure whethe
 - **Personal information.** Redact before anything reaches an AI service, use only services NBN has approved for that data, and report any leak to NBN's privacy team.
 - **Incident reporting.** Reporting deadlines start at awareness, so raise a possible cyber security incident with the reporting owner at triage, not after diagnosis. AI tooling in operations sits inside NBN's critical infrastructure risk management program; engineers follow NBN's internal policy.
 - **Disagreement.** As in Deployment, when the skill's readout and the on-call engineer's read of telemetry disagree, the person wins and the disagreement is logged.
-- Full cross-cutting AI-use policy lives in [white-paper/governance/](../governance/); this list is only the checkpoints specific to running and maintaining a release.
+- Full cross-cutting AI-use policy lives in [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md)); this list is only the checkpoints specific to running and maintaining a release.
 
 **Escalation triggers:** any sign of unauthorised access or data exposure; instructions found inside log or ticket text; personal information or secrets in a prompt or output; a fix touching authentication, authorisation, cryptography, network control or billing code; no known rollback path.
 
@@ -172,7 +172,7 @@ List each with its location and a redacted replacement. If you are unsure whethe
 
 This builds on Deployment's release record. The incident record names a person against each decision: who confirmed severity, who decided reportability, who executed mitigation, and who confirmed the root cause. It also records which tool and model produced which summary, hypothesis or draft, and whether the hypothesis turned out to be right. Over time that field becomes NBN's own evidence of how accurate AI triage is.
 
-Fix commits carry the same `Assisted-by:` and human-only `Signed-off-by:` trailers as any other change (see [white-paper/governance/](../governance/)). Agent tool calls and the data sources they read go into an audit log kept under NBN's security logging policy.
+Fix commits carry the same `Assisted-by:` and human-only `Signed-off-by:` trailers as any other change (see [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md)). Agent tool calls and the data sources they read go into an audit log kept under NBN's security logging policy.
 
 ## An incident-review skill for AI assistants
 
