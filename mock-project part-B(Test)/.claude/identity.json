@@ -1,0 +1,12 @@
+{
+  "version": "2.0",
+  "technicalLevel": "Technical",
+  "preferredStyle": {
+    "verbosity": "Minimal",
+    "codeComments": false,
+    "explanations": false
+  },
+  "domainFocus": "TypeScript",
+  "stack": "Next.js 16 + Firebase + pnpm workspaces",
+  "packageManager": "pnpm"
+}

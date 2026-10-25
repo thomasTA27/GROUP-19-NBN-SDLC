@@ -1,0 +1,147 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "env": {}
+    },
+    "firebase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "experimental:mcp"],
+      "env": {}
+    },
+    "stitch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "stitch-mcp@latest"],
+      "env": {
+        "STITCH_API_KEY": "${STITCH_API_KEY}"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true
+  },
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout -- *)",
+      "Bash(git clean -f*)",
+      "Bash(npm install*)",
+      "Bash(yarn *)",
+      "Bash(curl * | bash*)",
+      "Bash(wget * | bash*)",
+      "Bash(base64 -d * | bash*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.p12)",
+      "Read(**/*.key)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "description": "Inject project stack reminder at session start",
+            "command": "echo 'Stack: Next.js 16 + Firebase + pnpm workspaces. Always use pnpm. Check frontend/CLAUDE.md and backend/CLAUDE.md for package-specific rules. See docs/DESIGN.md for UI conventions.'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "description": "ESLint auto-fix for TypeScript files",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx) PKGDIR=$(echo \"$CLAUDE_FILE_PATH\" | grep -oE '^.*(frontend|backend)/') && [ -n \"$PKGDIR\" ] && cd \"$PKGDIR\" && npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>&1 | grep -E '(error|warning)' || true ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Prettier auto-format for TS/TSX/JSON/CSS/MD files",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.json|*.css|*.md) npx --yes prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Block `any` type usage in TypeScript (including any[], Promise<any>, Record<string, any>)",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx) if grep -qE ': any\\b|as any\\b|<any[,>\\[]' \"$CLAUDE_FILE_PATH\" 2>/dev/null; then echo 'BLOCKED: Do not use `any`. Use a proper type or `unknown` with narrowing. This includes any[], Promise<any>, Record<string,any>.' >&2; exit 2; fi ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Block NEXT_PUBLIC_ prefix on server-only secrets",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.env*) if grep -qiE 'NEXT_PUBLIC_.*(service.?account|admin|secret|private.?key)' \"$CLAUDE_FILE_PATH\" 2>/dev/null; then echo 'BLOCKED: Never use NEXT_PUBLIC_ prefix on service account keys or admin secrets. These are server-only.' >&2; exit 2; fi ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Block committing .env files (only .env.example allowed)",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.env.local|*.env.development|*.env.production|*.env.staging) echo 'BLOCKED: Only .env.example (committed) and .env/.env.local (gitignored) are allowed. Never create environment-specific committed env files.' >&2; exit 2 ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Block `use client` in lib/firebase/admin.ts",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *lib/firebase/admin.ts) if grep -q 'use client' \"$CLAUDE_FILE_PATH\" 2>/dev/null; then echo 'BLOCKED: firebase/admin.ts is server-only. It must never have \"use client\".' >&2; exit 2; fi ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Block relative imports beyond one level in frontend",
+            "command": "case \"$CLAUDE_FILE_PATH\" in */frontend/src/*.ts|*/frontend/src/*.tsx) if grep -qE \"from '\\.\\./\\.\\./\" \"$CLAUDE_FILE_PATH\" 2>/dev/null; then echo 'BLOCKED: Do not use relative paths more than one level deep. Use the @/ alias instead.' >&2; exit 2; fi ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "TypeScript typecheck after frontend source changes",
+            "command": "if echo \"$CLAUDE_FILE_PATH\" | grep -q 'frontend/src/'; then cd frontend && npx tsc --noEmit 2>&1 | tail -5 | grep -q 'error' && { echo 'TYPECHECK FAILED:' >&2; npx tsc --noEmit 2>&1 | grep 'error TS' | head -10 >&2; exit 2; } || true; fi"
+          },
+          {
+            "type": "command",
+            "description": "TypeScript typecheck after backend source changes",
+            "command": "if echo \"$CLAUDE_FILE_PATH\" | grep -q 'backend/src/'; then cd backend && npx tsc --noEmit 2>&1 | tail -5 | grep -q 'error' && { echo 'TYPECHECK FAILED:' >&2; npx tsc --noEmit 2>&1 | grep 'error TS' | head -10 >&2; exit 2; } || true; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "description": "Block direct pushes to main",
+            "command": "case \"$CLAUDE_COMMAND\" in *'git push'*) if echo \"$CLAUDE_COMMAND\" | grep -qE 'origin main'; then echo 'BLOCKED: Do not push directly to main. Create a feature branch and open a PR.' >&2; exit 2; fi ;; esac"
+          },
+          {
+            "type": "command",
+            "description": "Block firebase deploy without explicit approval",
+            "command": "if echo \"$CLAUDE_COMMAND\" | grep -qE 'firebase(-tools)?([^|;&]*)deploy'; then echo 'BLOCKED: firebase deploy (including via npx firebase-tools) deploys to production. This requires explicit user approval — do not run automatically.' >&2; exit 2; fi"
+          },
+          {
+            "type": "command",
+            "description": "Block force push and hook bypass flags",
+            "command": "case \"$CLAUDE_COMMAND\" in *'--force'*|*'-f origin'*|*'--no-verify'*) echo 'BLOCKED: --force push and --no-verify are not allowed in this project.' >&2; exit 2 ;; esac"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "description": "Audit all modified TS/TSX source files for console.log statements",
+            "command": "DIRTY=$(git diff --name-only HEAD 2>/dev/null | grep -E '\\.(ts|tsx)$' | grep -E 'src/' | xargs grep -l 'console\\.log' 2>/dev/null); if [ -n \"$DIRTY\" ]; then echo \"WARNING: console.log found in modified files — remove before committing:\"; echo \"$DIRTY\"; fi; true"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -20,13 +20,42 @@ else in the repo.
 - A box with no matching `.md` file yet renders a "research not started"
   placeholder instead of a broken link.
 
+## Links in markdown
+
+Authors write normal relative links, the same way they would on GitHub,
+for example `[see](../governance/research.md)`. The app translates them
+at render time instead of asking authors to think about which base path
+a link is served from.
+
+`getModuleContent` in `src/lib/content.ts` builds the repo-relative path
+of the file being rendered (for example `white-paper/modules/deployment.md`)
+and passes it to `MarkdownContent` as `sourcePath`. The pure helper in
+`src/lib/links.ts` resolves each link's href against that path and
+returns one of three outcomes:
+
+- **Internal route.** The link resolves to `white-paper/modules/<slug>.md`
+  or `white-paper/governance/<slug>.md`, and that slug exists in the
+  lifecycle map under the matching folder. Rendered as `/modules/<slug>`
+  with `next/link`, so any basePath is respected.
+- **GitHub.** Anything else that resolves to a real path inside the repo,
+  for example a research file or `governance/research.md`. Rendered as a
+  link to the repo on GitHub, using `/blob/main/<path>` for a file or
+  `/tree/main/<path>` for a folder, opened in a new tab.
+- **Unchanged.** Empty hrefs, `#anchors`, links with a scheme such as
+  `http:` or `mailto:`, root-relative links, and anything that would
+  resolve outside the repo. Rendered exactly as written.
+
+The repo URL and branch used for GitHub links are constants near the top
+of `src/lib/links.ts`. If a `sourcePath` is not passed at all,
+`MarkdownContent` does no rewriting and renders every link as written.
+
 ## The lifecycle map
 
 `src/data/lifecycle-map.ts` holds the team's agreed map (finalised
 2026-09-10): Planning and Spec Authoring, Design and Context
 Engineering, Implementation, Testing and QA, Security Review,
 Deployment, Maintenance and Operations. It mirrors the live Miro board
-(`design/lifecycle-map/README.md`), which stays the source of truth —
+(`white-paper/lifecycle-map/README.md`), which stays the source of truth —
 if the board changes, update this file to match.
 
 Only `planning-and-spec-authoring.md` has real (sample) content so far;
@@ -73,5 +102,5 @@ Deployed URL: https://group-19-nbn-sdlc.vercel.app/
 
 - The methodology definition itself — that lives in
   [white-paper/](../white-paper/), as plain markdown
-- Research, design, or project-management content — those have their own
+- Research, sprint, or certification content — those have their own
   top-level folders

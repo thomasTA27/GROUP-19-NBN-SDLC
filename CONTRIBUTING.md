@@ -43,7 +43,7 @@ docs: add benchmarking findings for code review stage
 
 feat: scaffold platform project structure for sprint 2
 
-docs: fix broken link to lifecycle map export in design/README.md
+docs: fix broken link to lifecycle map export in white-paper/lifecycle-map/README.md
 ```
 
 ## Branch naming
@@ -81,10 +81,11 @@ what it enforces and how it's applied.
 ## Everything lives in this repo
 
 The Planner board is for tracking tasks only. Every deliverable —
-research capture, white paper draft, design export, meeting note — lives
+research capture, white paper draft, lifecycle map export — lives
 in this repository and is **linked from** the relevant Planner card, not
 pasted or attached there. If it isn't in this repo, it doesn't exist as
-far as the white paper is concerned.
+far as the white paper is concerned. Meeting notes are not tracked in
+this repo — leave them on the Planner card itself.
 
 ## Handoff comments on Planner cards
 
@@ -106,14 +107,13 @@ See the root [README.md](README.md#where-does-my-work-go) for the full
 |---|---|
 | Personal research findings | `research/ai-in-sdlc/<firstname>.md` |
 | Module-specific Sprint 2 research | `research/modules/` |
-| Cross-person research rollup | `research/synthesis.md` |
-| Your own lifecycle diagram proposal | `design/lifecycle-map/proposals/<firstname>.md` |
-| Agreed lifecycle map (link + exports) | `design/lifecycle-map/` |
+| Cross-person research rollup | `research/ai-in-sdlc/synthesis.md` |
+| Your own lifecycle diagram proposal | `white-paper/lifecycle-map/proposals/<firstname>.md` |
+| Agreed lifecycle map (link + exports) | `white-paper/lifecycle-map/` |
 | White paper stage module | `white-paper/modules/` |
 | Governance / oversight content | `white-paper/governance/` |
 | Learning path / onboarding material | `white-paper/learning-paths/` |
 | Storyboard / presentation flow | `white-paper/storyboard/` |
 | Platform (Next.js demo site) code | `platform/` |
-| Meeting notes | `project/meetings/` |
-| Sprint plans and reviews | `project/sprints/` |
-| Certification notes / completion proof | `project/certification/` |
+| Sprint plans and reviews | `sprints-plan/` |
+| Certification notes / completion proof | `certification/` |

@@ -13,6 +13,8 @@ development lifecycle.
   methodology
 - `storyboard/` — the narrative flow/structure of the white paper as a
   presentable artifact
+- `lifecycle-map/` — the team-agreed lifecycle map: `README.md` holds the
+  live Miro link, `proposals/` holds everyone's draft diagrams
 
 ## Existing draft to migrate
 
@@ -21,11 +23,4 @@ https://rmiteduau-my.sharepoint.com/:w:/r/personal/s4101740_student_rmit_edu_au/
 Per `CONTRIBUTING.md`, the white paper itself should live in this repo
 going forward — migrate relevant content from that draft into `modules/`,
 `governance/`, or `learning-paths/` as appropriate, rather than continuing
-to edit it on SharePoint.
-
-## What does not belong here
-
-- Raw research (source notes, articles, findings) — that goes in
-  [research/](../research/), and gets cited from here once synthesized
-- Lifecycle map source or exports — that goes in [design/](../design/)
-- Meeting notes or sprint records — that goes in [project/](../project/)
+to edit it on SharePoint

@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/ tests/",
+    "format:check": "prettier --check src/ tests/",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run tests/unit",
+    "test:watch": "vitest tests/unit",
+    "test:coverage": "vitest run --coverage tests/unit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.3.1",
+    "firebase-admin": "^13.3.0",
+    "firebase-functions": "^6.4.0",
+    "helmet": "^8.1.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/express-rate-limit": "^6.0.2",
+    "@types/node": "^22.15.3",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vitest/coverage-v8": "^3.1.1",
+    "eslint": "^9.26.0",
+    "prettier": "^3.5.3",
+    "supertest": "^7.1.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}

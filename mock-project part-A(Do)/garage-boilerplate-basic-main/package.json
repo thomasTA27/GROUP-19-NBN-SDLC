@@ -1,0 +1,28 @@
+{
+  "name": "garage-boilerplate",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "node scripts/sync-env.js && pnpm --filter frontend dev",
+    "env:sync": "node scripts/sync-env.js",
+    "build": "pnpm --filter frontend build && pnpm --filter backend build",
+    "test": "pnpm --filter backend test",
+    "test:component": "pnpm --filter frontend test",
+    "test:all": "pnpm run test && pnpm run test:component",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "typecheck": "pnpm -r typecheck",
+    "bootstrap": "node scripts/bootstrap.js",
+    "validate": "node scripts/validate-placeholders.js",
+    "hooks": "lefthook install",
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "lefthook": "^1.11.13",
+    "next": "16.2.12"
+  }
+}
