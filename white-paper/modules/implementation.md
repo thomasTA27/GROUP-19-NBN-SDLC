@@ -1,7 +1,7 @@
 # Stage: Implementation
 SWEBOK defines construction as including verification. Design and acceptance criteria arrive as inputs, so the job here is conformance-checking instead of decision-origination.
 
-## How AI changes the implementation phase in the SDLC
+## What changes: traditional vs AI-native
 **AI proposes, humans decide:** inline completion, chat-based generation, refactoring suggestions, test scaffolding, code explanation/summarisation, PR-description drafting.
 
 **AI performs the task, with the human approving the finished change, rather than each step:** multi-file agentic editing (agent mode) and the asynchronous coding agent. The human doesn't approve each edit, but the work cannot land without them. The coding agent opens a draft PR that a human must mark ready and merge, and it cannot approve its own PR.
@@ -21,7 +21,7 @@ Implementation produces six outputs, each consumed by a later step:
 
 The caveats section carries what the checks found and could not settle. For example, the agent's findings on the commit message, claims left unverified, spec conflicts raised but not yet answered, and any control found missing at Step 0. A PR template with an explicit caveats heading is what makes those visible rather than lost in prose.
 
-## The AI-Assisted Workflow & cycle of implementation
+## AI-Assisted Workflow
 
 ### 0. Baseline and controls
 
