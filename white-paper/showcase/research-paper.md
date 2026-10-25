@@ -7,10 +7,12 @@ Akbari, William Lor · Client: NBN Co · October 2026
 
 ## The problem
 
-Published guides from Google, Microsoft, Atlassian and Anthropic all agree that
-a person must review AI-written code. None say who is accountable, at which
-point, or what that person has to check. For a company running critical
-infrastructure, that gap is the whole question.
+There is no established methodology for how AI is used and governed across the
+software development lifecycle. Published guides from Google, Microsoft,
+Atlassian and Anthropic describe tools, and agree that a person must review
+AI-written code, but none say at which phase, who is accountable, or what that
+person has to check. For a company running critical infrastructure, that gap is
+the whole question.
 
 We built a six-phase lifecycle with three human gates, tested every phase on a
 working project, then gave the guidance to a developer who had not seen it.
@@ -22,17 +24,17 @@ Planning → [Gate 1: Plan Approved] → Design → Implementation → Testing a
 → [Gate 2: Security] → Deployment → [Gate 3: Release Approved] → Maintenance
 ```
 
-Nothing passes a gate unless a named person acts. AI drafts, explores,
-summarises and scans. What stays with people is set per phase:
+Nothing passes a gate unless a named person acts. What AI does, and what it
+never does, is set per phase:
 
-| Phase | What stays with people |
-| --- | --- |
-| Planning | Deciding scope and answering the open questions |
-| Design | Choosing. The named person owns the decision record |
-| Implementation | Checking every change, writing the commit message by hand |
-| Testing and QA | Sorting the mutation results, the go or no-go |
-| Deployment | All promote and rollback decisions |
-| Maintenance | Severity, reporting, mitigation, every fix |
+| Phase | What AI does | What stays with people |
+| --- | --- | --- |
+| Planning | Drafts criteria, finds the gaps the author skipped | Deciding scope, answering the open questions |
+| Design | Explores options, drafts and criticises decision records | Choosing. The named person owns the record |
+| Implementation | Writes code against an approved plan | Checking every change, the handwritten commit message |
+| Testing and QA | Runs mutation testing across the suite | Sorting the results, the go or no-go |
+| Deployment | Scores canaries, triages pipelines, drafts release notes | All promote and rollback decisions |
+| Maintenance | Reads, summarises, drafts fixes | Severity, reporting, mitigation, every fix |
 
 Underneath sits a governance band: the tool is recorded at commit time, the
 person at review and merge.
@@ -61,9 +63,6 @@ was the most expensive phase at 222 active minutes across nine work packages.
 
 ## Testing the method on itself
 
-Guidance that tells other people how to work should survive being handed to
-someone who did not write it.
-
 A computer science student who had never seen the Planning module was given it,
 the gate document and a deliberately vague ticket, with a facilitator present
 under instruction to explain nothing.
@@ -83,18 +82,18 @@ been retested, so no improvement has been measured.
 ## Limits and conclusion
 
 One practice project, built by the people who wrote the guidance. One
-participant, a student rather than a senior engineer. Implementation has not
-been usability tested, the revised Planning module has not been retested, and
-model settings were not held constant. The figures above come from single runs.
-None of this shows the framework produces better software. It shows that it can
-be followed, where it cannot, and what following it cost us once.
+participant, a student rather than a senior engineer. Implementation was not
+usability tested, the revised Planning module was not retested, and the figures
+come from single runs. None of this shows the framework produces better
+software. It shows that it can be followed, where it cannot, and what following
+it cost us once.
 
 The useful result is not that AI makes development faster. It is that the
-accountability question has a concrete answer: a named person, at a named point,
+governance question has a concrete answer: a named person, at a named point,
 checking a named thing. Every phase arrived at that boundary on its own
-evidence, and the one phase handed to an outsider failed exactly where it asked
-for judgement without saying how to use it.
+evidence.
 
+---
 
 **Repository:** `GROUP-19-NBN-SDLC` · Modules in `white-paper/modules/`,
 evidence in `white-paper/evidence/`, usability in `white-paper/usability/`.
