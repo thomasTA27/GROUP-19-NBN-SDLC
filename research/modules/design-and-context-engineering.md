@@ -3,6 +3,7 @@
 **Prepared by:** William Lor
 **Date captured:** 2026-09-27
 **Updated:** 2026-10-23 by William Lor, to match the revised module
+**Updated:** 2026-10-25 by Brine, to align with the revised Planning module (see the update at the end)
 **Research angle:** Sprint 2 module research supporting [white-paper/modules/design-and-context-engineering.md](../../white-paper/modules/design-and-context-engineering.md). It covers how design decisions are recorded and how that output is turned into context an agent will actually load, set against standard, non-AI design practice as a baseline.
 
 **Where this sits on the agreed map:** Design & Context Engineering is phase 2 of six, entered from Gate 1, "Plan approved". The map marks this phase as Human-Decision, not Human-Verification, because the phase sets the standard that every later phase checks against. Every source below is read with that classification in mind.
@@ -357,3 +358,40 @@ Three sources captured in full elsewhere are cited by this module and should be 
 - **METR randomised controlled trial** (see [research/modules/implementation.md](implementation.md)). The finding that experienced developers misjudge their own AI-assisted speed is cited in this module's senior guidance. The module labels the extension from speed to review quality as its own expectation, not METR's finding.
 - **Linux kernel AI coding assistants policy and the Developer Certificate of Origin** (see [white-paper/governance/research.md](../../white-paper/governance/research.md)). Supplies the `Assisted-by:` and `Signed-off-by:` conventions this module applies to ADRs and context-file commits.
 - **CODEOWNERS and named-approver structures** (see [white-paper/governance/research.md](../../white-paper/governance/research.md)). This module applies the pattern to `docs/adr/`, `docs/design/` and every context file, as the module defines them, rather than defining it.
+
+---
+
+# Update, 2026-10-25 (William): aligning the module with the revised Planning module
+
+The Planning module was revised after usability testing, and these changes bring Design in line with it. Entries above that this update supersedes are listed first. They are left as written, for the record.
+
+## Superseded entries above
+
+- **"The consistency check runs before sorting, so every spec problem reaches the Gate 1 approver"** (Positions). Spec problems now go back to the spec author in Planning. The check still runs before sorting.
+- **"The spec change request format and independent approver. The Gate 1 approver answers, not the person running Design."** (Positions). The spec author now takes each request to the decision owner, who answers it. The person running Design never answers their own request. If the answer adds or changes a criterion, constraint, scope item or assumption, the spec goes back through Gate 1. Otherwise the Gate 1 approver confirms that nothing changed in substance.
+- **"Starting each step in a new session"** (Positions) gave cost as the only reason. The module now gives reliability as a second reason, citing the multi-turn finding below.
+
+## What changed in the module and why
+
+- **Step 1 reads Planning's Design handoff items first** (H1, H2 …), then the recorded decisions and numbered assumptions. Planning now hands Design an explicit list of "how" questions, each with any binding rule that limits it, and Design previously never asked for it. A handoff's "Limited by" rule is cited in `step2-sort.md`, and in the ADR's Context if the item becomes an ADR.
+- **"Product decisions" became "recorded decisions".** Planning's decisions are question answers with a named decider, and they can be about project rules as well as the product. The Decided in Planning outcome now cites the decision's question ID.
+- **The spec lives where Planning saves it,** `docs/specs/<feature>/spec.md`. The module previously had Jira specs pasted into `docs/design/<feature>/spec.md`, which made a second copy in a different folder.
+- **Design records the spec version it used,** in step 1's inputs and in the ADR's Context. Planning now versions the spec and returns it to Draft while a spec change request is open, so an ADR needs to show which approved version it was built against.
+- **The spec change request flow** now matches Planning, as in the superseded entry above. The template's Answer line reads "decision owner's answer". Items a request doesn't affect carry on from the last approved version.
+- **Quality outcomes belong to Planning.** Under Larger features, where the spec states a quality outcome, Design decides only the mechanism, and a missing outcome is a spec change request. Planning keeps performance, ordering, messages, privacy and retention outcomes in the spec, so without this line both modules claimed them.
+- **"What this stage does not cover"** no longer mentions "the assumptions table", which Planning no longer has.
+- **The read-only design reviewer gets a caution.** It may share the drafting model's blind spots, so a clean critique doesn't prove the ADR is sound.
+
+## Sources behind the new wording
+
+Both are captured in full in [research/modules/planning-and-spec-authoring.md](planning-and-spec-authoring.md), in its update of 2026-10-25, and are not duplicated here.
+
+- **Laban et al. (2025), "LLMs Get Lost In Multi-Turn Conversation", ICLR 2026.** Supports "models do worse when a task's details arrive over several turns". The paper revealed underspecified instructions turn by turn and didn't test design work, so applying it to one session per Design step is our extension.
+- **Panickssery et al. (2024), "LLM Evaluators Recognize and Favor Their Own Generations", NeurIPS 2024.** Related to the reviewer caution. It found models rate their own outputs higher, but only tested news summaries. The module's wording, "may share the drafting model's blind spots", is our hedge, and it applies most when the reviewer runs the same model as the drafter.
+
+## Positions added that are our construction
+
+- Citing a Design handoff item's "Limited by" rule in the sort and the ADR
+- Recording the spec version in the ADR's Context
+- The boundary that Planning sets quality outcomes and Design decides the mechanism
+- Items an open spec change request doesn't affect carrying on from the last approved version

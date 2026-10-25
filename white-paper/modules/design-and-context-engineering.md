@@ -14,7 +14,7 @@ An agent only acts on what is in its context window, so Design also turns decisi
 - **ADRs** in `docs/adr/` record the reasons behind each decision for Implementation, review and later design.
 - **Context updates** are new scoped rules and fixes to context files that were wrong. Every later agent session loads them.
 - **Design notes** in `docs/design/<feature>/` hold the questions, options and decisions, plus the doc entries Implementation must write.
-- **Spec change requests** go back to the Gate 1 approver.
+- **Spec change requests** go back to the spec author in Planning.
 - **The design review PR** holds all of these and is the evidence for the checkpoint.
 
 An ADR can be Accepted only when it names the human who decided, gives the rejected options and the cost, has no unverified claims left, has had any security review it needs, and the design review PR is approved.
@@ -26,7 +26,7 @@ _This workflow is the methodology's own proposal and isn't yet established pract
 Planning decides what gets built, and Design decides how it gets built. Conventions answer most "how" questions, so an ADR is only needed where none does or where the spec departs from one.
 
 1. **Read the spec.** The AI lists the "how" questions, marks whether a convention answers each, and checks the spec for contradictions.
-2. **Sort by hand.** Each item gets one of five outcomes. Spec problems go to the Gate 1 approver as spec change requests.
+2. **Sort by hand.** Each item gets one of five outcomes. Spec problems go back to Planning as spec change requests.
 3. **Decide.** For each ADR item, the AI gives options and a named human decides. A decision no human made is recorded as such and can't be Accepted.
 4. **Record.** The AI drafts the ADRs, fixes wrong context files, drafts rules and lists the doc entries Implementation will write. The human keeps only rules the agent couldn't infer, then opens the design review PR.
 
@@ -34,7 +34,7 @@ With no ADR items, skip step 3. If step 4 has nothing to do either, the design r
 
 **Exit condition.** A named human can defend every decision without the AI, and an implementer, human or agent, could build the change without making an architecture-significant choice.
 
-**Larger features.** A feature with little to lean on, such as one that adds a background job or an external service, comes back mostly "no convention". Step 3 then also covers structure, quality attributes such as reliability, cost and privacy, and the contracts between new parts, with a senior decider.
+**Larger features.** A feature with little to lean on, such as one that adds a background job or an external service, comes back mostly "no convention". Step 3 then also covers structure, quality attributes such as reliability, cost and privacy, and the contracts between new parts, with a senior decider. Where the spec states a quality outcome, Design decides only the mechanism, and a missing outcome is a spec change request.
 
 **New projects.** Without context files, every question comes back "no convention", so run the New projects card before the first feature reaches Planning.
 
@@ -42,7 +42,7 @@ With no ADR items, skip step 3. If step 4 has nothing to do either, the design r
 
 Each card gives the inputs, the mode, a prompt to copy, where to save the output and what to check. "Read-only" means plan mode or Ask mode, where the AI changes no files, so you copy its answer into the save file.
 
-Start each step in a new session, because a long session costs more with every turn.
+Start each step in a new session and attach the files it lists. A long session costs more with every turn, and models do worse when a task's details arrive over several turns.
 
 **Context files** are everything the agent loads or is pointed to, meaning instruction and rule files (`.github/copilot-instructions.md`, `.github/instructions/`, `AGENTS.md`, every `CLAUDE.md`, `.claude/rules/`), skills, custom agents and subagents, prompt files and commands, and any doc these tell the agent to read.
 
@@ -65,9 +65,9 @@ whether it is still open. Do not propose answers.
 
 ### Step 1: Read the spec
 
-Run both prompts before sorting. A spec in Jira needs pasting into `docs/design/<feature>/spec.md` first so it can be attached.
+Run both prompts before sorting. Planning saves the spec as `docs/specs/<feature>/spec.md`. A spec kept in Jira needs pasting into that file first so it can be attached.
 
-**You need** the spec approved at Gate 1 and the context files. That means the repo-wide instruction file, any scoped instruction or rule files, the skills that cover the same area, and the docs they point to, such as a schema or security doc. **Run it** read-only and **save it to** `step1-questions.md` and `step1-spec-conflicts.md`.
+**You need** the spec version approved at Gate 1, which Planning's `review.md` names, and the context files. That means the repo-wide instruction file, any scoped instruction or rule files, the skills that cover the same area, and the docs they point to, such as a schema or security doc. **Run it** read-only and **save it to** `step1-questions.md` and `step1-spec-conflicts.md`.
 
 **List the "how" questions (context engineering)**
 
@@ -75,11 +75,11 @@ Run both prompts before sorting. A spec in Jira needs pasting into `docs/design/
 Read the approved spec and the attached context files. List every question
 about how this feature will be built, covering at least: data model, where
 logic runs, security rules, validation, error handling, state and loading,
-and external services. Start with the spec's product decisions and its
-numbered assumptions. For each question give the spec section, and whether
-a convention answers it: quote the convention, name its file, and say
-whether the spec follows or departs from it. If none does, write "no
-convention". Do not propose answers.
+and external services. Start with the spec's Design handoff items (H1,
+H2 …), then its recorded decisions and numbered assumptions. For each
+question give the spec section, and whether a convention answers it: quote
+the convention, name its file, and say whether the spec follows or departs
+from it. If none does, write "no convention". Do not propose answers.
 ```
 
 **Consistency check**
@@ -101,10 +101,12 @@ Give each question, and each contradiction you didn't dismiss, one of these outc
 | Outcome | Use it when | Next |
 |---|---|---|
 | Follows convention | A convention answers it and the spec follows it | Cite the convention. |
-| Decided in Planning | The spec settles it as a product decision | Cite the decision. If a convention needs a doc entry, it goes on step 4's list. |
+| Decided in Planning | The spec settles it in a recorded decision | Cite the decision's question ID. If a convention needs a doc entry, it goes on step 4's list. |
 | ADR | No convention answers it, or the spec departs from one | Steps 3 and 4. |
-| Spec change request | The spec is unclear, contradicts itself, or can't sensibly be delivered | Send it to the Gate 1 approver and don't decide it here. |
+| Spec change request | The spec is unclear, contradicts itself, or can't sensibly be delivered | Send it to the spec author and don't decide it here. |
 | Context fix | An existing context file is wrong | Step 4, Fix a context file. |
+
+A Design handoff item's "Limited by" rule binds whatever is decided for it. Cite the rule in the item's line in `step2-sort.md`, and in the ADR's Context if it becomes one.
 
 If an item's outcome changes later, note the change and the reason in `step2-sort.md`.
 
@@ -117,11 +119,11 @@ Write each spec change request in `spec-change-requests.md` using this format.
 - Problem: what is unclear, contradictory, or can't be delivered
 - Question: one question that settles it
 - Raised by: name, date
-- Answer: Gate 1 approver's answer, name, date
+- Answer: decision owner's answer, name, date
 - Spec updated: yes or no
 ```
 
-The Gate 1 approver answers, updates the spec and decides whether it needs Gate 1 again. If the approver is also running Design, the product owner answers. Keep each request to one problem. The same fields work as a Jira comment.
+The spec author takes it to the decision owner, and the spec returns to Draft under a new version while the request is open. Items the request doesn't affect carry on from the last approved version. If the answer adds or changes a criterion, constraint, scope item or assumption, the spec goes back through Gate 1. Otherwise the Gate 1 approver confirms that nothing changed in substance. The person running Design never answers their own request. Keep each request to one problem. The same fields work as a Jira comment.
 
 **Then** group questions one decision would settle into a single ADR item, send the spec change requests, and wait for answers to any that affect an ADR item.
 
@@ -163,7 +165,7 @@ Security review: not needed | needed: <reviewer> | done: <reviewer>, <date>
 # ADR-NNNN: Short title of the decision
 
 ## Context
-The question, its spec section if there is one, and any convention involved.
+The question, its spec section and version if there is one, and any convention involved.
 
 ## Decision
 What was chosen, in one or two sentences.
@@ -193,7 +195,7 @@ Options considered:
 <paste the matching section from step3-options.md here>
 ```
 
-**Then** check the rejected options are fair and the reasons are the decider's. Fill in `Decided-by`, empty if an AI decided, and `Drafted-with` as `tool:model`. For authentication, authorisation, data residency or personal data, set `Security review` to "needed" with a reviewer, who changes it to "done". If it replaces an older ADR, set `Supersedes` and mark the old one Superseded. Check each "Not yet verified" claim against official docs, then move it into the ADR with its source or drop the option it supports. The read-only design reviewer (see In practice) can also critique the draft.
+**Then** check the rejected options are fair and the reasons are the decider's. Fill in `Decided-by`, empty if an AI decided, `Drafted-with` as `tool:model`, and the spec version in Context. For authentication, authorisation, data residency or personal data, set `Security review` to "needed" with a reviewer, who changes it to "done". If it replaces an older ADR, set `Supersedes` and mark the old one Superseded. Check each "Not yet verified" claim against official docs, then move it into the ADR with its source or drop the option it supports. The read-only design reviewer (see In practice) can also critique the draft. It may share the drafting model's blind spots, so a clean critique doesn't prove the ADR is sound.
 
 **Fix a context file.** **You need** a Context fix item, the wrong file and the doc holding the convention. **Run it** in agent mode. **Save** the fixed file and add a line under "Context fixes" in `decisions.md` naming the file, the problem and the convention it now follows.
 
@@ -360,7 +362,7 @@ The checkpoint is the same for both. Experience only changes who decides.
 
 ## What this stage does not cover
 
-- Requirements, acceptance criteria and the assumptions table (Planning, approved at Gate 1)
+- Requirements, acceptance criteria, recorded decisions and assumptions (Planning, approved at Gate 1)
 - Writing production code (Implementation)
 - Writing doc entries such as schema notes (Implementation, from the list in the design notes)
 - Test strategy and QA (Testing)
