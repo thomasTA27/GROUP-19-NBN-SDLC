@@ -321,7 +321,7 @@ something useful I went to the primary source instead.
 
 ---
 
-## Update, 2026-10-25 (William lor): research behind the revised module
+## Update, 2026-10-25 (William): research behind the revised module
 
 Added while revising the module after usability testing. Nothing above has been
 changed. Each entry says what the module now claims, where the claim comes from,
@@ -434,6 +434,8 @@ first-time reader can follow the steps.
   version, and raising the version only when the spec is sent to the approver
 - The correction formats, the per-owner person checks, and the product owner
   confirming Out of scope
+- Checking the spec against itself for contradictions at the end of Step 7,
+  with a prompt that mirrors Design's consistency check
 
 ### Open questions added
 

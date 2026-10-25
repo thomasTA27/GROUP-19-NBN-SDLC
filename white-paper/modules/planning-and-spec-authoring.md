@@ -375,13 +375,24 @@ that has no source and no confirmed decision. Give IDs and affected criteria
 only. Do not add or remove anything.
 ```
 
-**Check and save:** if a listed item already has a source or a confirmed
-decision, note that under Step 7 issues in `review.md` and leave the spec as it
-is. The owner confirms or removes each remaining item. Record each confirmation
-in `spec.md`, as the assumption's Status or as a new Blocking question with
-Answer and Decided by filled in, and cite its ID in the criterion. Removed items
-go under Removed. Check no requirement or binding rule was lost, and stop once
-every issue in `review.md` is settled.
+In the same session, check the spec against itself. Design runs a similar check
+on the approved spec.
+
+```
+Read the attached spec.md. Do any criteria, constraints, assumptions, recorded
+decisions or out-of-scope items contradict each other? Quote both sides of
+each conflict with their IDs. Do not change the spec.
+```
+
+**Check and save:** for the first list, if an item already has a source or a
+confirmed decision, note that under Step 7 issues in `review.md` and leave the
+spec as it is. The owner confirms or removes each remaining item. Record each
+confirmation in `spec.md`, as the assumption's Status or as a new Blocking
+question with Answer and Decided by filled in, and cite its ID in the criterion.
+Removed items go under Removed. For the contradictions, dismiss an intentional
+one with a one-line reason under Step 7 issues, and add the rest as Blocking
+questions for the decision owners of both sides. Check no requirement or binding
+rule was lost, and stop once every issue in `review.md` is settled.
 
 ### Step 8: request approval
 
@@ -389,8 +400,8 @@ every issue in `review.md` is settled.
 you last ran them, including changes from Step 6. Changes made to fix a step's
 own findings, and edits that only touch a source, ID or marker, don't need that
 step again. Stop when a rerun finds no new issue. Then open `spec.md` and
-`review.md` and confirm the list below. The first six match the Gate 1 checks the
-approver applies.
+`review.md` and confirm the list below. The first six match the Gate 1 checks
+the approver applies.
 
 - every criterion is testable, so a tester could write a check without asking what it means
 - no `[NEEDS CLARIFICATION]` marker remains, no question's Answer is Open, and every answer has a source, a named, dated decision or an H item
@@ -398,6 +409,7 @@ approver applies.
 - every criterion cites the request, a binding rule or a recorded decision, and nothing else was added
 - Out of scope is filled in and confirmed by the product owner
 - no missing binding rule or contradiction with the project's conventions found in Step 5 is still open
+- no contradiction within the spec from Step 7's final check is still open
 - each Design handoff item is an optional choice about how to build, with no required behaviour left undefined
 - the roles and Person checks in `review.md` are filled in
 - the files have the latest changes and someone without access to your chat can follow them
