@@ -18,7 +18,7 @@ Nothing in the research gives AI outright go/no-go or rollback authority here. I
 
 The best current industry evidence, DORA's 2025 State of AI-assisted Software Development report, finds this increases throughput but shows a negative relationship with delivery stability, a gap tied to team discipline: teams with strong testing, version control and feedback loops see real gains, teams without don't. Our recommendation: treat that discipline as a precondition, not a footnote. Don't turn on this phase's AI release automation until it's in place, or you get exactly DORA's pattern of throughput up, stability flat. We also treat the absence of full rollback authority as a deliberate boundary, not a gap the technology will close (see Governance below).
 
-## How to execute this phase
+## AI-Assisted Workflow
 
 A chronological runbook from Gate 3 sign-off to full production traffic. Each step names who acts: a human, the ACA tool, or the deployment-review skill.
 
@@ -109,13 +109,13 @@ description: Checks a release's delta and record completeness, and writes a plai
 
 This skill never scores telemetry, classifies a canary, or triggers a promote, rollback, or hold: the ACA tool already did that against approved thresholds. It makes that result easier for a human to act on, and catches what the ACA tool cannot see.
 
-## Checks
+### Checks
 
 1. Release delta: read the merged diff and list every changed service, endpoint, and schema change or migration; flag anything not declared in the release ticket.
 2. Record completeness: confirm the release record has a named Gate 3 approval and the other required fields; flag anything missing.
 3. ACA readout: read the score and classification the ACA tool already produced, do not recompute it, and summarise it in plain language, including what triggered a Marginal or Rollback result.
 
-## Output
+### Output
 
 Clear or Flag, never a promote, rollback, or hold decision.
 
@@ -149,7 +149,7 @@ jobs:
 
 GitHub recommends its separate Agentic Workflows feature over calling Copilot CLI directly for most automation, since it carries extra guardrails suited to running unattended (see "Automating tasks with Copilot CLI and GitHub Actions", [research/modules/deployment.md](../../research/modules/deployment.md#4-github-copilot-cli-automation-in-actions-and-release-note-attribution)).
 
-## Relevance to GitHub Copilot
+### Relevance to GitHub Copilot
 
 NBN's engineers use GitHub Copilot. Here is where it already fits this phase, and where it doesn't.
 
