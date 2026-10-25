@@ -46,7 +46,7 @@ Start each step in a new session and attach the files it lists. A long session c
 
 **Context files** are everything the agent loads or is pointed to, meaning instruction and rule files (`.github/copilot-instructions.md`, `.github/instructions/`, `AGENTS.md`, every `CLAUDE.md`, `.claude/rules/`), skills, custom agents and subagents, prompt files and commands, and any doc these tell the agent to read.
 
-Design notes go in `docs/design/<feature>/`, with one folder per feature, and each feature's rule file is named after the code folder it governs. Attach files with `#file:` in Copilot in VS Code, or `@path` in Copilot CLI and Claude Code.
+Design notes go in `docs/design/<feature>/`, with one folder per feature, and each feature's rule file takes the same `<feature>` name, with its scope set by `applyTo` or `paths:`. Attach files with `#file:` in Copilot in VS Code, or `@path` in Copilot CLI and Claude Code.
 
 ### New projects: set up the base conventions first
 
@@ -67,7 +67,7 @@ whether it is still open. Do not propose answers.
 
 Run both prompts before sorting. Planning saves the spec as `docs/specs/<feature>/spec.md`. A spec kept in Jira needs pasting into that file first so it can be attached.
 
-**You need** the spec version approved at Gate 1, which Planning's `review.md` names, and the context files. That means the repo-wide instruction file, any scoped instruction or rule files, the skills that cover the same area, and the docs they point to, such as a schema or security doc. **Run it** read-only and **save it to** `step1-questions.md` and `step1-spec-conflicts.md`.
+**You need** the spec version approved at Gate 1, found by its approved tag and named in Planning's `review.md`, and the context files. That means the repo-wide instruction file, any scoped instruction or rule files, the skills that cover the same area, and the docs they point to, such as a schema or security doc. **Run it** read-only and **save it to** `step1-questions.md` and `step1-spec-conflicts.md`.
 
 **List the "how" questions (context engineering)**
 
@@ -101,10 +101,10 @@ Give each question, and each contradiction you didn't dismiss, one of these outc
 | Outcome | Use it when | Next |
 |---|---|---|
 | Follows convention | A convention answers it and the spec follows it | Cite the convention. |
-| Decided in Planning | The spec settles it in a recorded decision | Cite the decision's question ID. If a convention needs a doc entry, it goes on step 4's list. |
-| ADR | No convention answers it, or the spec departs from one | Steps 3 and 4. |
+| Decided in Planning | The spec settles it in a recorded decision | Cite the decision's question or assumption ID. If a convention needs a doc entry, it goes on step 4's list. |
+| ADR | No convention answers it, the spec departs from one, or the convention is ambiguous | Steps 3 and 4. |
 | Spec change request | The spec is unclear, contradicts itself, or can't sensibly be delivered | Send it to the spec author and don't decide it here. |
-| Context fix | An existing context file is wrong | Step 4, Fix a context file. |
+| Context fix | An existing context file is wrong now, or will be once this feature is built | Step 4, Fix a context file, citing the ADR or criterion that makes it wrong. |
 
 A Design handoff item's "Limited by" rule binds whatever is decided for it. Cite the rule in the item's line in `step2-sort.md`, and in the ADR's Context if it becomes one.
 
@@ -120,32 +120,33 @@ Write each spec change request in `spec-change-requests.md` using this format.
 - Question: one question that settles it
 - Raised by: name, date
 - Answer: decision owner's answer, name, date
-- Spec updated: yes or no
+- Spec updated: no, or the new approved version
 ```
 
-The spec author takes it to the decision owner, and the spec returns to Draft under a new version while the request is open. Items the request doesn't affect carry on from the last approved version. If the answer adds or changes a criterion, constraint, scope item or assumption, the spec goes back through Gate 1. Otherwise the Gate 1 approver confirms that nothing changed in substance. The person running Design never answers their own request. Keep each request to one problem. The same fields work as a Jira comment.
+The spec author takes it to the decision owner, and the spec returns to Draft while the request is open. Items the request doesn't affect carry on from the last approved version, found by its approved tag. If the answer adds or changes a criterion, constraint, scope item or assumption, the spec goes back through Gate 1. Otherwise the Gate 1 approver confirms that nothing changed in substance. The person running Design never answers their own request. Keep each request to one problem. The same fields work as a Jira comment.
 
-**Then** group questions one decision would settle into a single ADR item, send the spec change requests, and wait for answers to any that affect an ADR item.
+**Then** group questions one decision would settle into a single ADR item, send the spec change requests, and wait for answers to any that affect an ADR item. If an answer changes the spec, wait for its new approved tag too.
 
 ### Step 3: Decide, one ADR item at a time
 
-**You need** an ADR item from `step2-sort.md`. **Run it** read-only and **save it to** `step3-options.md`, with one heading per item.
+**You need** a named decider for the item (see How this differs by experience level), an ADR item from `step2-sort.md`, the spec, and the context files and docs the item cites. **Run it** read-only and **save it to** `step3-options.md`, with one heading per item.
 
 **First** write your preferred option and a one-line reason in `my-view.md`, or "no view" and what you'd need to know. Keep it out of the prompt so it can't shape the options.
 
 ```
 Below is one design question, with its spec section and convention status.
-Give 2-3 realistic options. For each, give the trade-offs for correctness,
+Use the attached spec and context files. Give 2-3 realistic options. For each, give the trade-offs for correctness,
 security, testability, effort and consistency with the conventions. Mark
 any claim about a library, API or platform as "verified" (name the source)
 or "unverified". Do not recommend an option. End with the questions I need
 to answer to decide.
 
 Question:
-<paste the item from step2-sort.md here>
+<paste the item's rows from step2-sort.md here, with their spec sections,
+the conventions quoted in step1-questions.md and any Limited by rule>
 ```
 
-**Then** decide. In `decisions.md`, write the decision, the reason, whether your view held, changed or was missing, and the name of whoever made the call, which certifies they made it. If an AI made or confirmed it, say so in place of a name, and the ADR stays Proposed until a human decides. A choice that would change the spec needs a spec change request.
+**Then** delete any recommendation the AI added despite the prompt, so the decider sees only the options, and decide. In `decisions.md`, write the decision, the reason, whether your view held, changed or was missing, and the name of whoever made the call, which certifies they made it. If an AI made or confirmed it, say so in place of a name, and the ADR stays Proposed until a human decides. A choice that would change the spec needs a spec change request.
 
 ### Step 4: Record and carry it forward
 
@@ -195,15 +196,15 @@ Options considered:
 <paste the matching section from step3-options.md here>
 ```
 
-**Then** check the rejected options are fair and the reasons are the decider's. Fill in `Decided-by`, empty if an AI decided, `Drafted-with` as `tool:model`, and the spec version in Context. For authentication, authorisation, data residency or personal data, set `Security review` to "needed" with a reviewer, who changes it to "done". If it replaces an older ADR, set `Supersedes` and mark the old one Superseded. Check each "Not yet verified" claim against official docs, then move it into the ADR with its source or drop the option it supports. The read-only design reviewer (see In practice) can also critique the draft. It may share the drafting model's blind spots, so a clean critique doesn't prove the ADR is sound.
+**Then** check the rejected options are fair and the reasons are the decider's. Fill in `Decided-by`, empty if an AI decided, `Drafted-with` as `tool:model`, and the spec version in Context. For authentication, authorisation, data residency or personal data, set `Security review` to "needed" with a reviewer, who changes it to "done". If it replaces an older ADR, set `Supersedes` and mark the old one Superseded. Check each "Not yet verified" claim against official docs for the version the project uses. Move a true claim into Rationale or Consequences with its source. If a false claim supports the chosen option, return the item to its decider and note any change in `decisions.md`. If it supports a rejected option, remove the claim and keep the option if its rejection still stands, and otherwise return the item to its decider. The read-only design reviewer (see In practice) can also critique the draft. It may share the drafting model's blind spots, so a clean critique doesn't prove the ADR is sound.
 
-**Fix a context file.** **You need** a Context fix item, the wrong file and the doc holding the convention. **Run it** in agent mode. **Save** the fixed file and add a line under "Context fixes" in `decisions.md` naming the file, the problem and the convention it now follows.
+**Fix a context file.** **You need** a Context fix item, the wrong file, and the doc holding the convention or the ADR that makes the file wrong. **Run it** in agent mode. **Save** the fixed file and add a line under "Context fixes" in `decisions.md` naming the file, the problem and the convention it now follows.
 
 ```
-The attached context file conflicts with the convention in the attached
-document, as described below. Change only the conflicting lines so the file
-follows the convention, and quote each line before and after. Change
-nothing else.
+The attached context file conflicts with the convention or ADR in the
+attached document, as described below. Change only the conflicting lines so
+the file follows it, and quote each line before and after. Change nothing
+else.
 
 Problem:
 <paste the Context fix item from step2-sort.md here>
@@ -233,7 +234,7 @@ existing instruction that duplicates, contradicts or overlaps a drafted
 rule, quoting both.
 ```
 
-**Then** remove duplicates and resolve every contradiction, because neither tool reliably decides which rule wins. If an existing file is the one that's wrong, fix that file directly. When an ADR departs from a doc on purpose, the ADR and its doc entry below resolve the conflict.
+**Then** remove duplicates and resolve every contradiction, because neither tool reliably decides which rule wins. If an existing file is the one that's wrong, fix it with the Fix a context file card and record it under "Context fixes". When an ADR departs from a doc on purpose, the ADR and its doc entry below resolve the conflict.
 
 **List required doc entries.** **You need** the ADRs, the "Decided in Planning" items, and the context files, which say what must be documented. **Run it** read-only and **save it** under "Doc entries required" in `decisions.md`, one line per entry.
 
@@ -247,9 +248,9 @@ Items tagged "Decided in Planning":
 <paste them here, or write "none">
 ```
 
-**Then** check each line names its document, decision and convention. Implementation writes the entries with the code, so no document describes something not yet built.
+**Then** check each line names its document, decision and convention, and that the quoted convention really requires a record. Delete any line whose convention doesn't. Implementation writes the entries with the code, so no document describes something not yet built.
 
-**Open the design review PR.** Put the ADRs, context updates and design notes in one PR, and list any open spec change requests, context fixes raised with other teams and the after-Implementation follow-up issue in its description. A `CODEOWNERS` approver reviews it against What to verify, with the security reviewer where needed. Each decider sets their ADR to Accepted as the last change before approval. The PR waits while a spec change request affecting an ADR is unanswered, and Implementation starts from the merged PR.
+**Open the design review PR.** Put the ADRs, context updates and design notes in one PR, and list any open spec change requests, context fixes raised with other teams and the after-Implementation follow-up issue in its description. A `CODEOWNERS` approver reviews it against What to verify, with the security reviewer where needed. Each decider sets their ADR to Accepted as the last change before approval. The PR waits while a spec change request affecting an ADR is unanswered or its spec change isn't yet re-approved, and Implementation starts from the merged PR.
 
 ### Writing context updates
 
@@ -257,7 +258,7 @@ Feature rules go in a scoped rule file and the reasoning stays in the ADR. Most 
 
 ```markdown
 ---
-applyTo: "<feature folder>/**,<other files where the rules could be broken>"
+applyTo: "<each folder the feature changes>/**,<other files where the rules could be broken>"
 ---
 
 # <Feature> rules (from ADR-NNNN, last checked <date>)
@@ -270,7 +271,7 @@ In Claude Code the same rules go in `.claude/rules/<feature>.md`, with the scope
 ```markdown
 ---
 paths:
-  - "<feature folder>/**"
+  - "<each folder the feature changes>/**"
   - "<other files where the rules could be broken>"
 ---
 ```
@@ -350,7 +351,7 @@ Controlled studies have only measured coding, so this guidance is our inference.
 
 - Don't skip `my-view.md`. If you have no view, say so and ask a senior before reading the options.
 - Use AI to check the spec against conventions and explain trade-offs.
-- Decide ADR items only if your organisation allows juniors to. Otherwise draft them for a senior or architect to decide.
+- Until your organisation says juniors may decide, draft ADR items and have a senior or architect decide them.
 
 **Seniors face a rubber-stamp risk.** Experts misjudge their own AI-assisted speed (METR, in the Implementation module), and we expect the same overconfidence in review, so a fluent ADR can be accepted without its rejected options being checked.
 

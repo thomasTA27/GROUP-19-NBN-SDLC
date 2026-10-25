@@ -3,7 +3,7 @@
 **Prepared by:** William Lor
 **Date captured:** 2026-09-27
 **Updated:** 2026-10-23 by William Lor, to match the revised module
-**Updated:** 2026-10-25 by Brine, to align with the revised Planning module (see the update at the end)
+**Updated:** 2026-10-25 by William Lor, to align with the revised Planning module (see the update at the end)
 **Research angle:** Sprint 2 module research supporting [white-paper/modules/design-and-context-engineering.md](../../white-paper/modules/design-and-context-engineering.md). It covers how design decisions are recorded and how that output is turned into context an agent will actually load, set against standard, non-AI design practice as a baseline.
 
 **Where this sits on the agreed map:** Design & Context Engineering is phase 2 of six, entered from Gate 1, "Plan approved". The map marks this phase as Human-Decision, not Human-Verification, because the phase sets the standard that every later phase checks against. Every source below is read with that classification in mind.
@@ -361,7 +361,7 @@ Three sources captured in full elsewhere are cited by this module and should be 
 
 ---
 
-# Update, 2026-10-25 (William): aligning the module with the revised Planning module
+# Update, 2026-10-25 (William Lor): aligning the module with the revised Planning module
 
 The Planning module was revised after usability testing, and these changes bring Design in line with it. Entries above that this update supersedes are listed first. They are left as written, for the record.
 
@@ -370,6 +370,7 @@ The Planning module was revised after usability testing, and these changes bring
 - **"The consistency check runs before sorting, so every spec problem reaches the Gate 1 approver"** (Positions). Spec problems now go back to the spec author in Planning. The check still runs before sorting.
 - **"The spec change request format and independent approver. The Gate 1 approver answers, not the person running Design."** (Positions). The spec author now takes each request to the decision owner, who answers it. The person running Design never answers their own request. If the answer adds or changes a criterion, constraint, scope item or assumption, the spec goes back through Gate 1. Otherwise the Gate 1 approver confirms that nothing changed in substance.
 - **"Starting each step in a new session"** (Positions) gave cost as the only reason. The module now gives reliability as a second reason, citing the multi-turn finding below.
+- **"Juniors as deciders. Whether a junior may be the named decider is left to the organisation."** (Positions). The module now sets a default: until the organisation says juniors may decide, a junior drafts ADR items and a senior or architect decides them. Step 3 needs a named decider before it starts.
 
 ## What changed in the module and why
 
@@ -395,3 +396,11 @@ Both are captured in full in [research/modules/planning-and-spec-authoring.md](p
 - Recording the spec version in the ADR's Context
 - The boundary that Planning sets quality outcomes and Design decides the mechanism
 - Items an open spec change request doesn't affect carrying on from the last approved version
+- Finding the approved spec by its approved git tag, which Planning creates on approval
+- A Context fix covers a context file that will be wrong once the feature is built, citing the ADR or criterion that makes it wrong, and an ambiguous convention is sorted as an ADR item
+- Step 3 attaches the spec and the context files and docs the item cites, and the pasted item carries its spec sections, the conventions quoted in `step1-questions.md` and any Limited by rule
+- Unverified claims are checked against docs for the version the project uses. A false claim behind the chosen option returns the item to its decider, and a rejected option stays if its rejection still stands
+- Feature rule files take the feature's name and are scoped with `applyTo` or `paths:` to each folder the feature changes
+- Deleting any recommendation the AI adds before the decider reads the options
+- Doc entries are kept only when the quoted convention really requires a record
+- Waiting for the spec's new approved tag when a spec change request's answer changes the spec, before the design review PR merges
