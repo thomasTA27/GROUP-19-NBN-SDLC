@@ -1,450 +1,501 @@
 # Stage: Planning and Spec Authoring
 
-Planning turns a request into an agreement about what software must do, how its
-behaviour can be checked and what is outside the change. The result is a
-specification that another person can review and use without reconstructing the
-conversation that produced it.
+Planning turns a request into a specification that says what the software must
+do, how to check it and what is out of scope. Another person should be able to
+review it without the conversation that produced it. AI drafts, compares and
+finds open questions. People decide what is needed, check the sources and
+approve.
 
-AI can help draft that specification, compare it with project guidance and find
-unanswered questions. People remain responsible for deciding what is needed,
-checking the sources and approving the result. This module explains that division
-of responsibility and provides a practical workflow in eight steps.
-
-Use it for a feature, a bug fix or a change to existing behaviour. For larger
-work, agree a manageable scope and repeat the workflow for each part. The method
-does not depend on a particular programming language, framework or AI tool.
-Product owners, analysts, designers and developers can prepare the specification;
-readers without technical expertise should involve a technical reviewer for
-unfamiliar constraints.
+Use it for a feature, a bug fix or a change to existing behaviour, and split
+larger work into parts. It works with any language, framework or AI tool.
+Authors without technical expertise should involve a technical reviewer.
 
 ## Why planning needs explicit decisions
 
-When a specification becomes context for an AI agent, its assumptions can shape
-design, code and tests. A fluent draft may carry an unsupported decision through
-several stages without making that decision obvious. The important question is
-therefore not whether the draft sounds complete, but whether each requirement
-has a reason to be there and a person who can confirm it.
+A spec becomes context for every AI agent that follows, so an unsupported
+assumption in it can reach design, code and tests unnoticed. Three practices
+stop that. Each criterion links to the request, a binding rule or a recorded
+decision. Finding a question is kept separate from answering it. Decisions are
+saved in files outside the AI session.
 
-Three practices make that review possible. First, connect each criterion to the
-request, a binding project rule or a recorded decision. Second, separate finding
-an unanswered question from deciding its answer. Third, review changes in
-manageable groups and save the decisions outside the AI conversation. Together,
-these practices give the approver something concrete to check and a way to send
-an incorrect interpretation back for revision.
-
-The author coordinates the work and checks sources. The person responsible for
-the product or rule answers questions. AI assists with drafting and comparison.
-A separate approver decides whether the plan is ready to proceed. Several roles
-may be held by one person, but the author does not approve their own specification
-under the [Plan Approved gate](plan-approved.md).
+The author runs the work and checks sources. The product or rule owner answers
+questions. A separate approver passes the spec at [Gate 1 (Plan
+Approved)](plan-approved.md). One person can hold several roles, but the author
+never approves their own spec.
 
 ## Before you start
 
-The author first reads the original request, relevant project guidance and the
-[six Plan Approved checks](plan-approved.md#what-gets-checked). For existing
-software, establish current behaviour from documentation, a demonstration or
-implementation evidence with technical help. Project guidance may live in
-repository files, documents or a work tracker; no specific context-file format
-is required. Missing essential guidance must be established with the responsible
-owner before affected requirements are drafted.
+Read the request, the project guidance and the [six Gate 1
+checks](plan-approved.md#what-gets-checked), which Step 8 lists. For existing
+software, find out how it behaves now from its docs, a demo or the code. Settle
+any missing essential guidance with its owner first. A new project with no
+context files needs the [New projects card in Design and Context
+Engineering](design-and-context-engineering.md#new-projects-set-up-the-base-conventions-first)
+run before the first spec.
 
-Agree who answers product and rule questions, who provides technical help and
-who independently approves. Someone working alone must still arrange another
-reviewer before treating the specification as approved. Choose one versioned
-location for the specification and its supporting records so they remain
-available after the AI session ends.
+Agree who answers product questions, who owns each binding-rule document (such
+as the security doc or the context files), who gives technical help and who
+approves. Only a rule's owner settles a question about that rule. When two
+documents state the same rule, the owner of the more detailed one settles it,
+and if the documents disagree, both owners decide together. The product owner
+and rule owners are the decision owners. Record these roles in `review.md`.
+Someone working alone still needs another person to approve. Save everything in
+`docs/specs/<feature>/` unless your team keeps specs elsewhere. Keep it in the
+project's git repository so every version stays readable without your AI
+session. In Jira or Confluence, use version history wherever this module says to
+tag.
 
-Use a tool permitted to process the material being shared. Record the tool,
-model version and effort/reasoning setting where available, and any changes
-during the run. Ask the team when settings are unclear; this method prescribes
-no vendor or universal setting. An unavailable setting is recorded as unavailable,
-not guessed. Provide the AI with accessible source text or references, and check what it
-actually read before relying on its summary.
+Use an AI tool your team has approved for the material you share. Record the
+tool, model version and reasoning setting in `review.md`, and write
+"unavailable" for anything the tool doesn't show.
 
 ## Artifacts generated
 
-The artifacts form a review record. They may be sections of one document rather
-than separate files. An acceptance criterion describes an observable result;
-a clarification marker identifies an unanswered question; an assumption is a
-proposal, not an approved fact.
+Criteria are numbered AC1, AC2 and so on, with Q for questions, A for
+assumptions and H for Design handoff items, so records can point to each other.
+A **binding rule** is a documented project rule the change must follow. The
+project's **conventions** are the binding rules kept in its context files.
+[Design and Context Engineering](design-and-context-engineering.md) lists what
+counts as a context file. **Precedent** is how existing software happens to
+work, and it binds only where a rule says so. The request includes anything
+supplied with it, such as a mock-up, so a criterion can cite a named screen as
+its source.
 
-| Artifact | What the reviewer needs |
-| --- | --- |
-| Specification | Request and source references, numbered acceptance criteria, mandatory project constraints and explicit out-of-scope items. |
-| Questions and decisions | Question IDs, affected criteria, answers or unresolved status, decision owners and dates. |
-| Assumptions | IDs, sources/reasons, affected criteria and confirmation status, with references in both directions. |
-| Removed/deferred items | What changed, why, who decided and any Design handoff. Removing text does not cancel a binding rule. |
-| Review and approval | Issues found, their disposition, the reviewed version and the approver's named, dated decision. Until approval, the status remains Draft. |
+| File in `docs/specs/<feature>/` | What it holds | Written in |
+| --- | --- | --- |
+| `context-summary.md` | The checked summary of the request, current behaviour and binding rules, with the source list | Step 1 |
+| `spec.md` | The specification, using the template below. Status stays Draft until approval. | Steps 2 to 7 |
+| `review.md` | The roles, AI use, the Step 7 issues and what was done about each, the person checks, and the approval record against a named version | Before you start, Steps 7 and 8 |
+
+Save this template once as `docs/specs/template.md`. A team template can replace
+it if it keeps the same sections and IDs.
+
+```markdown
+# Spec: <feature>
+Status: Draft
+Version: <number, starting at 0.1>
+
+## Request
+<the request, quoted or linked>
+
+## Sources
+- <document, section, version, including any mock-up supplied with the request>
+
+## Acceptance criteria
+- AC1: <observable result>. Source: <request quote, rule section or decision's Q ID, plus any Q or A IDs it depends on>
+
+## Constraints
+- <binding rule that applies>. Source: <document, section>
+
+## Out of scope
+- <item>
+Confirmed by: <product owner, date>
+
+## Questions
+### Q1: <the question>
+- Affects: <criterion IDs>
+- Outcome: Blocking, Answered by source, Assumption A<n>, or Design handoff H<n>
+- Ask: <decision owner or owners, or none>
+- Answer: <the answer, or Open>
+- Decided by: <name, role, date>, or Source: <document, section>
+
+## Assumptions
+### A1: <the proposed answer>
+- Reason: <why it is proposed>
+- Affects: <criterion IDs>
+- Status: Pending, Confirmed or Rejected
+- Decided by: <name, role, date>
+
+## Design handoff
+- H1: <how-question for Design>. Limited by: <binding rule, or none>
+
+## Removed
+- <item>. Reason: <why>. Decided by: <name, role, date>
+```
+
+Removing an item from the spec doesn't cancel a binding rule.
+
+Start `review.md` from this skeleton, saved once as
+`docs/specs/review-template.md`.
+
+```markdown
+# Review: <feature>
+Author: <name, role>
+Product owner: <name>
+Rule owners: <document: name, one per document>
+Technical reviewer: <name>
+Approver: <name>
+
+## AI use
+- Tool: <tool>. Model: <model version>. Reasoning setting: <setting, or unavailable>
+- Changes during the work: <none, or what changed and when>
+
+## Step 7 issues
+- <criterion ID>: <failed check>. Decision: <what you did, and who decided>
+
+## Person checks
+- Feasible: <technical reviewer's finding, name, date>
+- Correct: <each decision owner's confirmation for the criteria they own, name, date>
+- Conforming: <your check against the template, date>
+
+## Approval
+- Version <n>: <Approved, or the failures listed>. Approver: <name, role, date>
+```
 
 ## AI-Assisted Workflow
 
-Read "Before you start" and gather the inputs before following Steps 1–8.
-Each step states what to read, what to do and what to check or save. Complete
-those actions whether you use the example prompts or write your own.
+Copy each prompt as written, replace every `<paste … here>` line, and read each
+output before sending the next. You can do any check by hand instead. When a
+prompt changes `spec.md`, an agentic tool edits the file and you check the diff.
+A chat tool shows only the changed passages, so copy them into the file or ask
+it for the whole file. `[NEEDS CLARIFICATION: …]` is different. The AI writes it
+to mark a real open question, so leave it until the question is answered.
 
-**The prompts are optional examples.** Adapt them to your project, tool and
-working style. Their purpose is to show the information and boundaries the AI
-needs; copying their wording is not a requirement. You can also perform checks
-yourself. Send one request at a time and inspect the output before continuing.
-
-If you use an example, replace bracketed inputs such as `[request]` with your
-actual information. Each step explains what belongs there. The output label
-`[NEEDS CLARIFICATION: ...]` is different: it identifies a real unanswered
-question in the draft. Do not invent answers just to remove the label.
+Start a new session at each step and attach the files that step lists. Within a
+step, stay in that session, for example to apply its corrections. Step 7 needs a
+new session for each group and for the final check. Models do worse when a
+task's details arrive over several turns and hold on to early assumptions, so
+one complete prompt is more reliable. A new session is still the same model and
+can rate its own writing too kindly, so also check the criteria a review passed.
 
 ### Step 1: read the request and load the context
 
-**Read:** the request, relevant project guidance and existing behaviour gathered
-under "Before you start". Provide the AI with the project inputs it needs;
-opening a document beside a chat does not mean the AI can see it.
+**Read:** the request and project sources. A chat tool may see only what you
+attach or paste. Agentic tools such as Claude Code and Copilot agent mode also
+load context files and can read the repository, so name the files the AI should
+use. If a link won't open, supply an approved excerpt.
 
-**Do:** provide the actual text or references the AI can access. Replace
-`[request]` with the request and `[sources]` with a list of the relevant files,
-documents or supplied excerpts, including versions where known. If a link is
-inaccessible, supply an approved excerpt or get access through the normal process.
+```
+Read the request and project sources below. Summarise the requested outcome,
+current behaviour, binding rules and important gaps. For each rule, name its
+source and section, and say whether it is a binding rule or precedent. List
+anything you could not read. Do not draft requirements or write code yet.
 
-**Example prompt (optional):**
+Request:
+<paste the request here, with any mock-ups or attachments>
 
-> Read this request: [request]. Read these project sources: [sources]. Summarise
-> the requested outcome, current behaviour, applicable rules and important gaps.
-> For each rule, name the source and section. Separate required rules from
-> examples of how existing software happens to work. List anything you could not
-> read. Do not draft requirements or write code yet.
+Sources:
+<paste the context files and any other file paths, document links or
+excerpts here, with versions where known>
+```
 
-**Check/output:** open the cited sections and verify the summary. Resolve missing
-essential sources with the owner. Save the checked summary and source list.
+**Check and save:** open the cited sections and check the summary against them.
+Save it with the source list as `context-summary.md`.
 
 ### Step 2: draft criteria and questions
 
-**Read:** the checked context summary and request. Continue in the same AI session,
-or provide the saved context again if you start another.
+**Read:** in a new session, attach `context-summary.md`, the request and
+`docs/specs/template.md`.
 
-**Do:** ask for a first draft using the checked context and the requirements
-below. The example prompt uses the inputs already provided.
+```
+Draft spec.md from the request and checked context, using the attached
+template. Give each acceptance criterion an ID (AC1, AC2 …), an observable
+result and its sources: a quote from the request, a rule section or a
+decision's question ID, plus every question or assumption ID it depends on.
+Treat precedent as binding only where a rule says so. Add a question
+(Q1, Q2 …) for each unknown with Answer set to Open, link it to the criteria it
+affects, and mark those criteria [NEEDS CLARIFICATION: the question]. Write a
+binding rule as a criterion when it has an observable result in this feature,
+and otherwise under Constraints only. Fill in Out of scope and leave its
+Confirmed by line empty. Do not guess values, add features or write code.
+```
 
-**Example prompt (optional):**
-
-> Draft a specification from the request and checked context. Give each acceptance
-> criterion a stable ID, an observable result and its source: Request (quote or
-> reference), Rule (document and section), or a recorded decision (ID). Do not
-> treat existing behaviour as a mandatory rule without evidence. Create numbered
-> questions Q1, Q2 and so on for unknowns; link each to affected criteria and mark
-> it [NEEDS CLARIFICATION: the specific question]. Do not guess values, add
-> features or write code. Separate observable behaviour from mandatory project
-> constraints and process checks. Include an explicit out-of-scope section.
-
-**Check/output:** save the numbered draft and questions. No particular number of
-criteria or questions is expected. An empty question list may mean the request
-is complete or the AI missed something; check rather than assuming either.
+**Check and save:** save it as `spec.md` with Status Draft and Version 0.1.
+There is no expected number of criteria or questions. An empty question list may
+mean the AI missed something, so check.
 
 ### Step 3: check each criterion against its source
 
-**Read:** the draft beside the original request and the source sections it cites.
-This is a human review. You may ask AI to locate text, but you confirm the match.
+**Read:** in a new session, attach `spec.md` and the sources it cites. This is a
+human review. AI can help you find text, but you confirm the match. For each
+criterion:
 
-**Do:** work through one criterion at a time:
+1. Find the source statement that supports it. If none exists, add a question
+   asking the owner whether the criterion belongs. Ask a technical reviewer about
+   unfamiliar rules.
+2. Say how someone would check the result. If two readers could expect different
+   results, add the question that settles it.
+3. Add a question for any behaviour, limit or number that nobody asked for and no
+   binding rule requires.
 
-1. Open its named source. Find the exact statement that supports it. If it is
-   missing, flag the criterion as a proposal needing a decision; do not accept
-   an invented source label. Ask a technical reviewer about unfamiliar rules.
-2. Describe how someone could tell whether the result happened. If two readers
-   could expect different results, write the question that would settle it.
-3. Compare scope with the request. Flag extra behaviour, limits or numbers that
-   nobody requested and no project rule requires.
+Fix wrong references now and leave the rest as questions for Step 4. A draft
+that says "exports are fast and always use PDF" for the request "users can
+export a report" needs two questions, one on format and one on timing. Don't
+pick a format or time limit just to make the criterion testable.
 
-**Example:** a request says "Users can export a report." A draft says "Exports
-are fast and always use PDF." "Fast" has no agreed check, and PDF has no source.
-Ask the owner which formats and, if relevant, what timing is required. Do not
-choose a time limit or format merely to make the criterion testable.
+```
+Apply only these corrections to the attached spec.md. Show each changed
+criterion and any new question. Keep every other criterion and its ID
+unchanged. Give each new item the next unused ID. For a new question, set
+Answer to Open, add its ID to the Source of each affected criterion and mark
+those criteria [NEEDS CLARIFICATION: the question]. For a split, the first
+part keeps the original ID and each part keeps only the sources that support
+it.
 
-For example, after the decisions in Step 6, the record could look like this:
+Corrections, one per line, in any of these forms:
+"<ID>: <the change>. Reason: <source section or question ID>"
+"New criterion: <observable result>. Source: <request quote, rule section or Q ID>"
+"New question: <the question>. Affects: <criterion IDs>"
+"Split <ID> into: <first part> | <second part> | …"
+<paste your corrections here>
+```
 
-| Record | Example content |
-| --- | --- |
-| Q1 — Which export format is required? | Resolved: CSV only. Decided by Product owner (example), 12 March 2026. PDF is outside this change. |
-| Q2 — Is a new response-time target required? | Resolved: no new target for this change; existing project performance rules still apply. Same decision owner and date. |
-| AC1 — Export format | Selecting Export for a report produces a downloadable CSV file. Source: decision Q1. |
+**Check and save:** check the changes match your list and save `spec.md`. Sort
+any question this prompt adds with the Step 4 table, here or when a later step
+reuses the prompt.
 
-AC1 now has an observable result and an identifiable decision. A reviewer can
-select Export and inspect the downloaded file's format. Other behaviour, such
-as which data the file contains, still needs its own criteria if relevant.
-The role label, date and decisions above are illustrative, not requirements or
-answers to copy into your project. In an actual decision record, use the real
-decision-maker's name, role and decision date.
+### Step 4: sort the questions
 
-Optional prompt, after your review: replace `[corrections]` with criterion IDs,
-the problem and supporting source or question for each.
+**Read:** in a new session, attach `spec.md`. Keep every criterion while you
+sort. Give each question one outcome.
 
-**Example prompt (optional):**
-
-> Apply only these reviewed corrections: [corrections]. Show the changed
-> criteria and any new questions. Preserve the other criteria and their IDs.
-
-**Check/output:** confirm the changes against your list and save the draft.
-
-### Step 4: sort the questions, keeping the criteria
-
-**Read:** every question and its affected criteria. You are filtering
-**clarification markers, not acceptance criteria**. Do not enter arbitrary
-criterion numbers or delete requirements to reduce a count.
-
-**Do:** assign each question one of these outcomes:
-
-| Outcome | When to use it | Record |
+| Outcome | Use it when | Then |
 | --- | --- | --- |
-| Blocking | An answer is needed to state/check intended behaviour, satisfy a binding rule or judge whether the request can proceed. | Question ID, reason, affected criteria and person to ask in Step 6. |
-| Answered by a source | An authoritative project source already supplies the answer. | Exact source/section; verify it in Step 5. |
-| Proposed assumption | You have a reasoned proposal that needs confirmation. | Numbered assumption A1, A2, etc., source/reason, affected criteria and Pending status. Behaviour-affecting proposals need the owner's decision before approval. |
-| Design decision | The question concerns how to implement an already clear outcome. | Design handoff item and relevant constraint. If it affects the intended outcome or an unresolved feasibility conflict, keep it blocking too. |
+| Blocking | An answer is needed to state or check the intended behaviour, meet a binding rule or decide whether the request can go ahead, and you can't propose one | Ask the decision owner in Step 6. |
+| Answered by source | The request or a binding rule already answers it | Note the document and section. Check it in Step 5. |
+| Assumption | You can propose an answer and give a reason | Add it under Assumptions with Status Pending. The owner confirms or rejects it in Step 6. |
+| Design handoff | It asks how to build an outcome that is already clear | Add it under Design handoff with any binding rule that limits it. |
 
-Keep every question's ID and history, but update its status as the work proceeds.
-A blocking question retains its unresolved marker until Step 6 supplies an
-answer. For a source-backed answer, replace the marker only after checking the
-source in Step 5; for a human decision, do so after checking the update in Step 6.
-In both cases, mark the question Resolved and link the affected criteria to the
-source or decision. Keep the original question and answer in the record.
+A question that could change the intended outcome is Blocking, even if it looks
+like a design choice. A Pending assumption blocks approval just as a Blocking
+question does, but the owner only has to confirm or reject your proposal.
+Performance, ordering, messages, privacy and retention often affect users or
+binding rules, so they stay in Planning by default. Library, storage structure
+and internal names go to Design.
 
-An assumption awaiting confirmation remains Pending and must not be treated as
-an agreed requirement. Once the owner confirms or rejects it, record that
-decision and update its affected criteria. For an optional implementation choice,
-record Deferred to Design and its reason instead of leaving an unresolved
-requirements marker. Deferral is valid only when the required behaviour and
-binding constraints are already clear; it cannot hide a blocking question.
+```
+Apply this sorting to the attached spec.md. Fill in each question's Outcome
+and Ask fields. Add an Assumptions entry with Status Pending for each
+Assumption, and add its ID to the Source of every criterion it affects. Add a
+Design handoff entry for each Design handoff, set that question's Answer to
+"Handed to Design as H<n>" and remove its [NEEDS CLARIFICATION] marker. Keep
+every acceptance criterion and its ID. Do not answer questions, invent
+defaults, write your own reasons or mark an assumption Confirmed. List any
+question left unsorted.
 
-Performance, ordering, messages, privacy and retention can affect user needs or
-binding rules; do not automatically dismiss them as implementation details.
-Keep a required technical constraint in its own section. Leave optional choices
-of library, storage structure or internal function names to Design.
+Sorting, one per line as "<Q ID>: <outcome>. <who to ask, source section or
+proposed answer>. Reason: <why, for assumptions only>":
+<paste your sorting here>
+```
 
-Replace `[classification]` with your reviewed list, for example: "Q1 blocking,
-ask the owner about supported formats; Q2 answered by Policy section 3; Q3 design
-decision, internal file naming." Use your own question IDs, not this example.
-
-**Example prompt (optional):**
-
-> Apply this question classification: [classification]. Keep acceptance criteria
-> and their IDs. Record source-backed answers, pending assumptions with their
-> affected criteria, blocking questions and design handoff items separately.
-> Do not silently answer questions, invent defaults or mark a proposal confirmed.
-> List any question that remains unclassified.
-
-**Check/output:** check every question has a disposition. For each assumption,
-check the criteria refer back to its ID and the dependency list is complete.
-Save the question list, assumptions and draft. If there are no questions, record
-that the list was checked; do not create questions to hit a target.
+**Check and save:** every question has an outcome, and every criterion that
+depends on an assumption names its ID. If there were no questions, write "None,
+checked on <date>" under Questions. Other markers stay until Step 5 or Step 6
+settles their question, and every question stays in the record.
 
 ### Step 5: check against the project again
 
-**Read:** the draft and assumptions alongside the project guidance from Step 1.
-This checks the actual draft; loading guidance earlier does not establish that
-the draft follows it.
+**Read:** in a new session, attach `spec.md` and the sources listed in
+`context-summary.md`, including the context files.
 
-**Do:** ask for a focused comparison, not a full rewrite.
+```
+Compare the attached spec.md with the project sources. List only binding rules
+the spec is missing, contradictions with the sources, and source references
+that claim more than the source says. For each, give the criterion or question
+ID, the exact source section and a proposed correction. Say whether each source
+is a binding rule or precedent. Do not change the spec.
+```
 
-**Example prompt (optional):**
+**Do:** read each cited passage. Where one binding rule gives one clear answer,
+apply the correction with the Step 3 prompt. Do the same for each Answered by
+source question once you have checked its source, so the correction fills in
+Answer and Source and removes the marker. Where sources disagree, may not apply
+or would override an agreed requirement, add a Blocking question naming the
+criteria, the sources and the decision owners. Other corrections can go ahead
+meanwhile. An open conflict blocks approval, whatever the AI says.
 
-> Compare the draft criteria and assumptions with the project sources. List only
-> missing applicable requirements, contradictions and overstated source labels.
-> For each, give the criterion/question ID, exact source section and proposed
-> correction. Distinguish binding rules from precedent. Do not change the spec.
+### Step 6: get answers, then give them to the AI
 
-Read the cited passages and distinguish a source correction from a decision.
-Correcting a misquoted value or wrong reference can be approved here when an
-applicable authoritative source gives one clear answer. Record the source and
-the correction. If sources disagree, their applicability is unclear or a proposed
-change would override an agreed requirement, create or update a blocking question
-for Step 6. Name the affected criteria, conflicting sources and responsible
-decision owner; do not choose a rule to ignore. You may correct unaffected items
-while that question remains open.
+**Part A, human decisions.** Take every open Blocking question, Pending
+assumption and conflict to its owner in `review.md`, the product owner for
+behaviour or the rule owner for a binding rule, with a technical reviewer if
+needed. In `spec.md`, fill in each question's Answer and each assumption's
+Status, with Decided by giving the name, role and date. When the owner confirms
+an assumption, set its question's Answer to "Confirmed as A<n>". If they reject
+it, record their answer on its question, or make the question Blocking if they
+have none yet. If you are the decision owner, say so. "Use your judgement"
+leaves the question Open. Record any new question or wider scope an answer
+creates, and sort each new question with the Step 4 table before Part B. Have
+the product owner confirm Out of scope too, and again whenever it changes.
 
-If using the example below, replace `[approved corrections]` with only the IDs
-and exact changes you have confirmed. Exclude conflicts awaiting a decision.
+**Part B, the AI applies them.** In a new session, attach `spec.md` and the
+sources listed in `context-summary.md`.
 
-**Example prompt (optional):**
+```
+Apply the decisions below to the attached spec.md. Update only the affected
+criteria, constraints and scope, and remove the [NEEDS CLARIFICATION] marker
+for each answered question and each confirmed assumption. Cite the question or
+assumption ID in each changed criterion. Raise any new question or conflict
+with a binding rule as a question and do not settle it. Show the changed
+passages.
 
-> Apply only these approved corrections: [approved corrections]. Show the diff
-> or changed passages. Keep unresolved conflicts visible as questions. Do not
-> choose which binding rule to ignore or add unrelated requirements.
+Decisions:
+<paste the Questions and Assumptions entries you just filled in here>
+```
 
-**Check/output:** check the changes and save them. A missing authoritative rule
-or unresolved conflict blocks approval; it is not cleared by the AI's assertion.
+**Check and save:** compare the changes with the decisions and save `spec.md`.
+If the AI added anything no decision supports, remove it, or keep it as a new
+question for Part A and run Part B again once it is settled. Approval waits
+while any Blocking question is unanswered or any assumption is Pending.
 
-### Step 6: obtain answers, then give them to the AI
+### Step 7: review small groups of criteria
 
-**Part A — human decisions. Read:** the blocking questions, pending proposals
-affecting behaviour and conflicts. Take them to the person responsible for the
-product or rule. They may need a technical, security or domain reviewer.
+**Read:** in a new session, attach `spec.md` and the sources for one group of
+criteria small enough to read in full. The prompt uses the first seven rows of
+the [quality checklist](#what-to-verify-before-accepting-output).
 
-**Do:** record each question ID, concrete answer, who decided and the date. If
-you are also the decision owner, state that; the final approver remains separate.
-"Use your judgement" does not resolve an unspecified behaviour. Keep unanswered
-questions open. Check whether an answer introduces another question or expands
-scope, and get that decision recorded too.
+```
+Review only the criteria listed below in the attached spec.md against seven
+checks: necessary, appropriate (behaviour, binding rules and optional design
+choices kept separate), unambiguous, complete, singular, verifiable and
+traceable. Return only the issues, in a table with the criterion ID, failed
+check, the text that shows the problem and a proposed action. Do not rewrite
+the spec or delete requirements.
 
-**Part B — AI applies those decisions.** Replace `[answers]` with the actual
-records, for example "Q1: CSV export only; decided by the product owner [actual
-name], [actual date]." Replace every example field with real information; do not
-send the word `[answers]` or just the question numbers.
+Criteria:
+<paste the criterion IDs here, such as AC1, AC2, AC3>
+```
 
-**Example prompt (optional):**
+**Do:** record each issue and what you decided in `review.md`. Split compound
+criteria, clarify wording, move misplaced constraints with their sources, or
+send open behaviour back to Step 6 and review those criteria again once
+answered. A failed check **never justifies deleting a requirement**. Only the
+owner can remove one, and it goes under Removed with the reason. Apply accepted
+changes with the Step 3 prompt and move to the next group. Feasible, Correct and
+Conforming need a person, so ask the technical reviewer and each decision owner,
+check the template yourself, and record each under Person checks in `review.md`.
+Redo them for any criterion whose meaning changes after you recorded them.
 
-> Apply these recorded answers: [answers]. Update only affected criteria,
-> assumptions and scope. Cite each decision's question ID and preserve its
-> decision owner and date. Flag new questions or conflicts with project rules
-> instead of settling them yourself. Show the changed passages.
+After the last group, run this in a new session with `spec.md` and the sources
+listed in `context-summary.md` attached.
 
-**Check/output:** compare changes with the actual decisions. Save the question
-and decision records together with the draft; return to the owner for new
-blocking questions. Do not proceed to approval while any blocking questions remain unresolved.
+```
+List every behaviour, limit, number and assumption in the attached spec.md
+that has no source and no confirmed decision. Give IDs and affected criteria
+only. Do not add or remove anything.
+```
 
-### Step 7: review small sections and resolve issues
+In the same session, check the spec against itself. Design runs a similar check
+on the approved spec.
 
-**Read:** one manageable group of criteria, its sources and decisions, then the
-[quality checklist below](#what-to-verify-before-accepting-output). Choose
-a group you can read fully before continuing; there is no required batch size.
+```
+Read the attached spec.md. Do any criteria, constraints, assumptions, recorded
+decisions or out-of-scope items contradict each other? Quote both sides of
+each conflict with their IDs. Do not change the spec.
+```
 
-**Do:** check each criterion in the chosen group against the quality checklist.
-Record only the issues found, with the criterion ID, failed check, supporting
-source and proposed action. Review those issues before approving any changes,
-then repeat for the next group. You may do this yourself or ask AI to assist.
+**Check and save:** for the first list, if an item already has a source or a
+confirmed decision, note that under Step 7 issues in `review.md` and leave the
+spec as it is. The owner confirms or removes each remaining item. Record each
+confirmation in `spec.md`, as the assumption's Status or as a new Blocking
+question with Answer and Decided by filled in, and cite its ID in the criterion.
+Removed items go under Removed. For the contradictions, dismiss an intentional
+one with a one-line reason under Step 7 issues, and add the rest as Blocking
+questions for the decision owners of both sides. Check no requirement or binding
+rule was lost, and stop once every issue in `review.md` is settled.
 
-If using the example prompt, replace `[criterion IDs]` with the IDs of the group
-you have chosen, for example `AC1, AC2, AC3`. Use your actual IDs.
+### Step 8: request approval
 
-**Example prompt (optional):**
+**Do:** first rerun Steps 5 and 7 for any criterion whose meaning changed after
+you last ran them, including changes from Step 6. Changes made to fix a step's
+own findings, and edits that only touch a source, ID or marker, don't need that
+step again. Stop when a rerun finds no new issue. Then open `spec.md` and
+`review.md` and confirm the list below. The first six match the Gate 1 checks
+the approver applies.
 
-> Review only these criteria: [criterion IDs]. Check necessity, appropriate
-> separation of behaviour and constraints, ambiguity, completeness, one checkable
-> obligation per criterion, verifiability and traceability. Return only issues
-> in a table: criterion ID, failed check, evidence and proposed action. Do not
-> rewrite the spec or delete requirements. Stop after this group for human review.
+- every criterion is testable, so a tester could write a check without asking what it means
+- no `[NEEDS CLARIFICATION]` marker remains, no question's Answer is Open, and every answer has a source, a named, dated decision or an H item
+- every assumption is numbered and linked to its criteria, none is Pending, and each Confirmed or Rejected one is reflected in the criteria
+- every criterion cites the request, a binding rule or a recorded decision, and nothing else was added
+- Out of scope is filled in and confirmed by the product owner
+- no missing binding rule or contradiction with the project's conventions found in Step 5 is still open
+- no contradiction within the spec from Step 7's final check is still open
+- each Design handoff item is an optional choice about how to build, with no required behaviour left undefined
+- the roles and Person checks in `review.md` are filled in
+- the files have the latest changes and someone without access to your chat can follow them
+- every ID reference and link resolves.
 
-Read each issue with its source. Split compound criteria, clarify wording or
-return unanswered behaviour to Step 6. If a required constraint is in the wrong
-section, move it and retain its source. A criterion failing a quality check is
-**not permission to delete the underlying requirement**. Remove an item only
-when the owner confirms it is unnecessary or out of scope; record the reason
-and decision owner. If outputs are too long to inspect, reduce the group.
+If any fails, keep Status Draft and return to the step that fixes it.
 
-Ask for only the changes you have approved, inspect them, save and continue
-until every criterion has been reviewed. Then check for proposals that still
-lack a source or confirmation. An example request is:
-
-**Example prompt (optional):**
-
-> List all proposed behaviour, limits, numbers and assumptions that lack a source
-> or a recorded confirmation. Give IDs and affected criteria only. Do not add
-> requirements or remove anything.
-
-**Check/output:** have the owner confirm or remove each proposal. Verify that
-no required behaviour or binding rule was lost and all references still match.
-Stop rewriting once the review issues are resolved; more text is not a completion
-condition. Any unresolved issue remains visible and prevents approval where it
-fails the gate.
-
-### Step 8: save the artifacts and request approval
-
-**Read:** the complete saved specification, supporting records and the
-[six Plan Approved checks](plan-approved.md#what-gets-checked). Do not ask the AI
-to guess which artifacts this stage requires.
-
-**Do:** replace `[location]` with the agreed document/file/work-item location.
-If the tool cannot save there, ask it to produce the content and save it yourself.
-
-**Example prompt (optional):**
-
-> Save the current draft at [location], or provide it for me to save if you cannot
-> access that location. Include: the request and source references; numbered
-> acceptance criteria; applicable project constraints; out-of-scope items;
-> numbered assumptions with affected criteria and confirmation status;
-> questions with answers, decision owners and dates; removed/deferred items and
-> reasons; design handoff items; and a review/approval section. Preserve unresolved
-> items. Mark Draft, not approved. Report each artifact's location and anything
-> missing. Do not invent an approval or a decision owner.
-
-Open the saved artifact yourself. Confirm it contains the latest changes and
-can be read by the reviewer without access to your chat. Check all links and
-that assumptions and criteria reference each other correctly.
-
-Before requesting approval, check the question record against the specification.
-Resolved questions keep their answers and sources or named, dated decisions;
-their unresolved markers must be replaced in the affected criteria. Deferred
-items must concern optional Design choices and have a recorded reason, with no
-required behaviour left undefined. Confirm that assumptions affecting requirements
-have been accepted or rejected and reflected in the criteria. If a blocking
-question or unresolved requirements marker remains, keep Draft status and return
-it to Step 6. Preserve the history rather than deleting the question record.
-
-Give an independent approver the saved version and supporting sources. The
-approver checks all six gate criteria, records a decision against that version
-with their name and date, and either approves or returns specific failures for
-revision. An AI checklist is not approval. If you cannot obtain an independent
-reviewer, keep Draft status and do not treat the plan as approved.
-
-**Output:** a saved approval record or a saved list of required corrections.
-Only an approved version goes to [Design and Context Engineering](design-and-context-engineering.md).
+Edits keep the same Version. The first version you send is 0.1, and each later
+send raises it by 0.1. Tag each commit you send, for example
+`spec-<feature>-v0.1`, so each decision names one exact version. Give the
+approver that version of `spec.md`, `review.md` and the sources. They record
+their decision in `review.md` with their name, the date and the version, listing
+any failures. On approval, set Status to Approved in a commit that changes only
+that line, and tag it, for example `spec-<feature>-v0.1-approved`. That tag is
+how Design and later stages find the approved copy. An AI checklist is not
+approval, and without an independent approver the spec stays Draft. Only an
+approved version goes to [Design and Context
+Engineering](design-and-context-engineering.md).
 
 ### When Design sends the spec back
 
-Design records a change request rather than silently changing approved intent.
-The request names affected criteria/assumptions and why they must change. Obtain
-new decisions through Step 6, rerun Step 7 for the affected parts and seek renewed
-approval through Step 8. Keep the earlier approved version and link the change.
+Design never edits an approved spec. It raises a spec change request in
+`docs/design/<feature>/spec-change-requests.md` or on the work item, giving the
+spec section, the exact text, the problem and one question. While a request is
+open, set Status back to Draft. Design keeps working from the last approved tag,
+and Version rises when the changed spec goes to the approver. Add each request
+as a Blocking question with its request ID and settle it through Step 6,
+recording the answer, name and date in both places. If the answer adds or
+changes a criterion, constraint, scope item or assumption, rerun Steps 5 and 7
+for the affected criteria and then Step 8. Otherwise the approver confirms in
+`review.md` that nothing changed in substance, against the new version, and
+Status returns to Approved with a new approved tag. Link each change to its
+request. Answer quickly, because Design waits on any request that affects its
+decisions.
 
 ## What to verify before accepting output
 
-Use the following questions to review the specification. AI can help identify
-issues, but the author and reviewer must check the sources and resolve the
-decisions. This checklist supports a review; it does not certify compliance
-with a requirements standard.
+The Step 7 prompt covers the first seven rows and the last three need a person.
+The characteristics follow published summaries of ISO/IEC/IEEE 29148, which
+disagree on whether Traceable is one of them. The full standard couldn't be
+checked, so treat this as a working checklist. It supports review and doesn't
+certify compliance with the standard.
 
 | Characteristic | Review question | Responsibility |
 | --- | --- | --- |
-| Necessary | Does it serve the request or an applicable binding rule? | Author and owner |
-| Appropriate | Are behaviour, mandatory constraints and optional design choices separated? | Author, with technical help |
+| Necessary | Does it serve the request or a binding rule? | Author and owner |
+| Appropriate | Are behaviour, binding rules and optional design choices kept separate? | Author, with technical help |
 | Unambiguous | Could two readers expect different results? | Author and owner |
 | Complete | Are needed inputs, outcomes and relevant failure cases stated? | Author and owner |
 | Singular | Can each obligation be checked separately? | Author |
-| Feasible | Is there a known obstacle to proceeding? Detailed feasibility continues in Design. | Technical reviewer; escalate known blockers before approval |
 | Verifiable | Can someone describe a concrete check without inventing a decision? | Author and reviewer |
+| Traceable | Does it cite a real source or named decision, with assumption IDs linked? | Author and approver |
+| Feasible | Is there a known obstacle to proceeding? Detailed feasibility continues in Design. | Technical reviewer, who escalates known blockers before approval |
 | Correct | Does it represent the owner's need? | Owner and approver |
-| Conforming | Does it follow the agreed format, if one exists? | Author; record if none is agreed |
-| Traceable | Does it cite a real source or named decision, with assumption dependencies linked? | Author and approver |
+| Conforming | Does it follow the agreed template? | Author |
 
 ## Governance and accountability
 
-Agree what information may enter the AI tool before sharing project material.
-Questions about sensitive data, security, accessibility or regulated behaviour
-go to the responsible specialist. Their binding requirements stay visible in
-the specification; later security and release checks cannot be assumed to
-supply missing requirements.
-
-Record who prepared the specification, who made each decision and who approved
-which version. Record AI assistance using your organisation's agreed method.
-The approval record belongs with the specification or in a linked document or
-work item with version history. Accountability follows those decisions,
-regardless of how much of the draft the AI wrote.
+Agree what may be shared with the AI tool before you start. Questions about
+sensitive data, security, accessibility or regulated behaviour go to the owner
+of the rule they concern, and their binding rules are written into the spec,
+since later security and release checks won't add missing requirements. The
+decisions in `spec.md` and the roles, AI use and approvals in `review.md` are
+the accountability record, unless your organisation has its own method.
+Accountability sits with those people however much of the draft the AI wrote.
 
 ## Metrics for success
 
-Evaluate the specification by whether its requirements are supported, unresolved
-decisions are visible, and an independent reviewer can approve it. More prompts
-or a longer document do not establish better quality. Record task time and AI
-usage where reliable measurements are available, but do not use the number of
-clarification questions as a success target.
+These are our own metrics and have not been tested yet. Measure them per
+feature. Don't target a number of clarification questions, since a good spec can
+have many or none.
+
+| Metric | How to measure | What it tells you |
+| --- | --- | --- |
+| Traced criteria | Criteria citing a request quote, rule section or decision ID at approval, out of all criteria | Should be all of them. Anything less means an unsupported requirement reached Gate 1. |
+| Gate 1 returns | Times the approver sent the spec back before approving it | Repeated returns may point to a skipped step, or to an unclear request. |
+| Spec change requests | Requests from Design per feature, and how many changed a criterion | A rising count may mean Planning is missing questions that Design later finds. |
+| Answer time | Days from a Blocking question or spec change request being raised to its answer | Long waits stall Design. |
+
+Record time spent and AI usage too where you can measure them reliably.
 
 ## Adapting the workflow
 
-Keep the same decision and source checks while adjusting review effort to the
-complexity and consequences of the change. A new reader may inspect one
-criterion at a time; an experienced reader may work with larger groups. Neither
-approach removes the need to resolve questions and obtain independent approval.
-Specialist software also requires the relevant safety, regulatory and domain
-reviews. A project-specific template can organise the artifacts listed above
-without changing their purpose.
-
-Planning defines outcomes and mandatory constraints. Optional architecture and
-implementation choices belong to [Design and Context Engineering](design-and-context-engineering.md).
-Coding and executing tests follow in their respective stages. Hand over the
-approved version with its supporting sources and decision record so those
-stages can act on agreed intent.
+Scale review effort to the size and risk of the change. A new reader may check
+one criterion at a time and an experienced one larger groups, but every question
+is still resolved and every spec independently approved. Specialist software
+also needs its safety, regulatory and domain reviews. Planning sets outcomes and
+binding rules, and optional architecture and implementation choices belong to
+[Design and Context Engineering](design-and-context-engineering.md).

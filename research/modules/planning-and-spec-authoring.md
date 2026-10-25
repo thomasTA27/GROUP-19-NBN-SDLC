@@ -318,3 +318,163 @@ engineering organisations measure whether AI improved anything. Captured in
 **Sources reviewed and not used.** Several secondary write-ups of Spec Kit and
 Agent Skills were read while orienting. Not cited — where they pointed at
 something useful I went to the primary source instead.
+
+---
+
+## Update, 2026-10-25 (William): research behind the revised module
+
+Added while revising the module after usability testing. Nothing above has been
+changed. Each entry says what the module now claims, where the claim comes from,
+and how much weight the source can carry.
+
+### Starting a new AI session at each step
+
+**What the module says.** Start a new session at each step and attach the files
+that step lists. Models do worse when a task's details arrive over several turns
+and hold on to early assumptions, so one complete prompt is more reliable.
+
+**Source.** Laban et al., *LLMs Get Lost In Multi-Turn Conversation* (ICLR 2026,
+peer-reviewed). Across six generation tasks, every model tested averaged a 39%
+drop when an underspecified instruction was revealed over several turns,
+compared with one fully specified prompt. Best-case ability fell only slightly.
+Most of the drop was unreliability between runs. The authors trace it to models
+making assumptions early, proposing full answers too soon and leaning on their
+own earlier wrong attempts. The drop appears even in two-turn conversations.
+Putting all the pieces into one prompt recovered about 95% of single-prompt
+performance, and the authors suggest starting a new conversation with the
+information consolidated.
+
+**Limits.** The tasks split one instruction into pieces and reveal them turn by
+turn. Revising a saved document across several steps is close to that but not the
+same, and the paper doesn't separate conversation length from underspecification.
+Applying it as "a new session per step, with the saved files attached" is our
+extension and hasn't been tested.
+
+### Why a clean AI review proves little
+
+**What the module says.** A new session is still the same model and can rate its
+own writing too kindly, so also check the criteria a review passed.
+
+**Source.** Panickssery et al., *LLM Evaluators Recognize and Favor Their Own
+Generations* (NeurIPS 2024, peer-reviewed). GPT-4, GPT-3.5 and Llama 2 could
+recognise their own outputs, and that recognition correlated with rating their
+own outputs higher, even without labels saying which text was whose.
+
+**Limits.** Only news summaries were tested, on two datasets. The authors say the
+causal link isn't proven and that they couldn't rule out the preferred outputs
+simply being better. Extending it to spec review is our inference. The bias comes
+from the model, not the conversation, so a new session doesn't remove it. That is
+why the module puts the human check on the criteria the AI passed.
+
+**Reviewed, not cited in the module.** Huang et al., *Large Language Models Cannot
+Self-Correct Reasoning Yet* (ICLR 2024). Without outside feedback, models asked
+to review their own answers in the same conversation often got worse. Its tasks
+were maths and question answering. It is a reason the review steps attach the
+project sources for the AI to check against.
+
+### ISO/IEC/IEEE 29148: one more data point on the list
+
+arXiv 2408.10886 (source 6 above) lists nine characteristics in its Table I and
+cites the 2018 edition: appropriate, complete, conforming, correct, feasible,
+necessary, singular, unambiguous and verifiable. Traceable isn't among them. So
+the secondary sources disagree on which characteristics are in the list, as well
+as on the count. One reviewer suggested Traceable comes from the 2011 edition.
+The free 2011 preview shows only the table of contents, so that couldn't be
+confirmed.
+
+**What the module says now.** The characteristics follow published summaries of
+the standard, which disagree on whether Traceable is one of them, so the list is
+a working checklist. That keeps the recommendation above. The module also uses
+"Appropriate" to mean behaviour, binding rules and optional design choices kept
+separate. That is our reading, and the standard's own wording may be about the
+level of detail instead. It can't be checked without the full text.
+
+### Context loading in agentic tools
+
+**What the module says.** A chat tool may see only what you attach. Agentic
+tools such as Claude Code and Copilot agent mode also load context files and can
+read the repository.
+
+**Sources.** Claude Code's memory documentation describes `CLAUDE.md` files and
+`.claude/rules/` being loaded into context. GitHub's repository instructions
+documentation describes `.github/copilot-instructions.md` and scoped
+`.github/instructions/*.instructions.md` files applied by Copilot. Both are vendor
+documentation and were checked for the Design module on 2026-10-23.
+
+### The clarification marker cap in Spec Kit
+
+A secondary write-up of Spec Kit says its spec skill allows at most three
+`[NEEDS CLARIFICATION]` markers and asks about them at the end of the run. That
+is unconfirmed against GitHub's own pages, which couldn't be opened from the
+research environment. If it holds, a team using Spec Kit's template will be
+capped at three questions per spec, while the module says there is no expected
+number. It also bears on open question 5 above.
+
+### Positions in the module that are our construction
+
+None of these come from a source. They are the team's method, built so a
+first-time reader can follow the steps.
+
+- The `docs/specs/<feature>/` layout with `context-summary.md`, `spec.md` and
+  `review.md`, and the two templates
+- IDs AC, Q, A and H, the four question outcomes (Blocking, Answered by source,
+  Assumption, Design handoff), and the rule that a Pending assumption blocks
+  approval like an open Blocking question
+- Version numbering, the Status flow, and returning to Draft while a spec change
+  request is open
+- Counting a mock-up supplied with the request as part of the request
+- The four metrics, which are untested
+- Naming an owner for each binding-rule document, with the owner of the more
+  detailed document settling a rule stated in two places, and both owners
+  deciding when the documents disagree
+- Rerunning Steps 5 and 7 for criteria whose meaning changed, and the stopping
+  rule: fixes to a step's own findings and edits to a source, ID or marker don't
+  need that step again
+- Keeping specs in git with a tag for each version sent and each approved
+  version, and raising the version only when the spec is sent to the approver
+- The correction formats, the per-owner person checks, and the product owner
+  confirming Out of scope
+- Checking the spec against itself for contradictions at the end of Step 7,
+  with a prompt that mirrors Design's consistency check
+
+### Open questions added
+
+**7. Whether one session per step is slow in practice.** It costs a reattachment
+per step. Worth timing in the next usability round.
+
+**8. Spec Kit's marker cap against the module's "no expected number".** Needs
+checking against Spec Kit's own template, then a team decision.
+
+### References added
+
+**8. Laban et al. (2025). LLMs Get Lost In Multi-Turn Conversation.** ICLR 2026.
+https://arxiv.org/abs/2505.06120
+*Peer-reviewed.* Source for the session guidance.
+
+**9. Panickssery et al. (2024). LLM Evaluators Recognize and Favor Their Own
+Generations.** NeurIPS 2024.
+https://papers.nips.cc/paper_files/paper/2024/hash/7f1f0218e45f5414c79c0679633e47bc-Abstract-Conference.html
+*Peer-reviewed.* Source for the caution about AI reviewing its own draft.
+
+**10. Huang et al. (2024). Large Language Models Cannot Self-Correct Reasoning
+Yet.** ICLR 2024.
+https://arxiv.org/abs/2310.01798
+*Peer-reviewed.* Reviewed, not cited in the module.
+
+**11. Anthropic. Claude Code memory documentation.**
+https://code.claude.com/docs/en/memory
+*Vendor documentation.* Context files loaded by Claude Code.
+
+**12. GitHub. Adding repository custom instructions for Copilot.**
+https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions
+*Vendor documentation.* Context files applied by Copilot.
+
+**13. GitHub Spec Kit: spec-driven development in practice.**
+https://developertoolkit.ai/en/ecosystem/frameworks/spec-kit/
+*Secondary write-up.* Source for the three-marker cap. **Unverified** against
+Spec Kit's own pages.
+
+**14. ISO/IEC/IEEE 29148:2011 preview.**
+https://webstore.ansi.org/preview-pages/ISO/preview_ISO+IEC+IEEE+29148-2011.pdf
+*Standards body preview.* Table of contents only, so it couldn't confirm whether
+the 2011 edition lists Traceable.
