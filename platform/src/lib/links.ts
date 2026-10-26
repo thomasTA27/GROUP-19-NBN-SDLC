@@ -3,8 +3,8 @@ import { getBoxBySlug } from "@/data/lifecycle-map";
 
 // Where the repo lives and which branch GitHub links should point at.
 // Keep both here so they only need to change in one place.
-const GITHUB_REPO_URL = "https://github.com/thomasTA27/GROUP-19-NBN-SDLC";
-const GITHUB_BRANCH = "main";
+export const GITHUB_REPO_URL = "https://github.com/thomasTA27/GROUP-19-NBN-SDLC";
+export const GITHUB_BRANCH = "main";
 
 export type LinkResolution =
   | { kind: "internal"; href: string }
