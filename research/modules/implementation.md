@@ -768,6 +768,13 @@ checked against official documentation by the reviewer, not re-fetched by the au
   alerts was announced in GitHub's changelog of 9 September 2026, in public preview; it is not
   relied on in the module and would need capturing here before it is.
 
+**Accountability deliberately differs from the Design module.** Design says "the approver who
+merges is accountable for the change". This module says the committer who signs off is
+accountable for the change, and the person who merges is accountable for the merge decision.
+The difference is intentional: an Implementation committer certifies NBN's DCO for code they
+reviewed, which a design review PR has no equivalent of. Do not align the two without
+revisiting that reason.
+
 **This file describes earlier states of the module in several places** (the original exit
 condition, the cut sections, time to restore as a tracked metric, and the streaming-diff
 heuristic's location). The update sections above record what changed; where an original entry
