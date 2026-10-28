@@ -145,7 +145,7 @@ only ever run one easy scenario**.
   gaps.** Implementation already requires a named approver; this stage inherits
   that.
 
-Full treatment in [white-paper/governance/](../governance/).
+Full treatment in [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md).
 
 ## How authorship is recorded
 
