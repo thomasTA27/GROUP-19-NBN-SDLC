@@ -47,10 +47,10 @@ Each check uses the tier at the grain it runs at. The mutation count in item (c)
 
 **Where to start the agent.** Open the agent from the project folder, not a parent directory. In VS Code, agent settings, agent hooks, instruction files and custom agents load only from the folder you open, so a session opened one level up silently loses them. The Copilot CLI also reads instruction files from the repository root and every folder between it and where it started, so in a project nested inside another repository the outer repository's instruction files load alongside yours. Git hooks and CI depend instead on which repository git finds. In a project nested inside another repository, the git hooks and CI you rely on may be the outer one's: if the project is a plain folder inside it, commits run the outer repository's hooks and checks rather than your project's; if it is its own repository, the outer repository's CI never sees its commits. Run `git rev-parse --show-toplevel` from the project folder: if it prints a parent directory, the project is a plain folder inside the outer repository. If it prints the project folder, run it again from the parent folder: if that also succeeds, the project is its own repository nested inside another.
 
-**Baseline.** Run every check the project already has and record what fails. A failing baseline is recorded as known and is not fixed in this change.
+**Baseline.** Run every check the project already has and record what fails, down to each failing test or error, so a later phase can tell failures that were already there from new ones. A failing baseline is recorded as known and is not fixed in this change.
 
 ```
-Run these checks now and change nothing. <build> <lint> <typecheck> <test> <dependency audit>. For each one paste the last lines and the exit code. Do not install, upgrade or fix anything. Then run git status and tell me whether any file changed, and which.
+Run these checks now and change nothing. <build> <lint> <typecheck> <test> <dependency audit>. For each one paste the last lines and the exit code. For any check that fails, list each failing item by name: for tests, the test file and test name; for lint and typecheck, the file, line and rule or error code; for the dependency audit, the package and advisory; for the build, the error. Do not install, upgrade or fix anything. Then run git status and tell me whether any file changed, and which.
 ```
 
 **Controls.** Confirm the controls are in effect rather than merely present. Commit hooks fire on a test commit, CI runs on a pull request from this folder, the expected instruction files, and no others, load in the agent, and a secret, dependency and SAST scanner exists and runs. A control that is configured but never fires is the same as one that is absent.
@@ -62,6 +62,8 @@ Run these checks now and change nothing. <build> <lint> <typecheck> <test> <depe
 ### 1. Intent and solution shaping
 
 Before anything is written, the developer states what to build and how the change should be structured, and the agent turns that into a plan to approve.
+
+Work sent back from Testing starts here too, as a new change. Its input is the gaps or failing tests listed in the testing record (`docs/testing/<feature>.md`), read alongside the original acceptance criteria.
 
 A **work package** is one unit of the change: a set of files that can be written, reviewed and verified on their own, covering one or more acceptance criteria. Most changes break into several. Keep each one small enough that a single failure is easy to locate.
 
@@ -302,7 +304,9 @@ and the reason if lower>
 
 **Agent and model:** <each tool and model used, and when it changed if it did>
 
-**Known failing baseline:** <checks already failing at Step 0, not fixed here>
+**Known failing baseline:** <each check failing at Step 0, with every
+failing item named as the baseline prompt asks, not fixed here; or none.
+If the list is long, attach it to the PR and name the attachment here>
 
 **Controls missing:** <anything Step 0 found absent>
 
@@ -338,7 +342,7 @@ The full set is a starting position rather than a permanent standard, so expect 
 
 - Architectural and design decisions (Design & Context Engineering, upstream)
 - Requirements and acceptance criteria (Planning, approved at Gate 1). Conflicts found here go back as a spec change request (see Spec conflicts).
-- Comprehensive test strategy and QA (Testing phase)
+- Measuring the whole feature's test suite once all its pull requests have merged (Testing & QA)
 - The Security Gate, which sits between Testing and Deployment, and release, deploy and operate concerns
 - Unattended work by the asynchronous coding agent. No developer is present, so this module's checks do not apply as written.
 
