@@ -1,114 +1,166 @@
-# Gate: Plan Approved
+# Gate 1: Plan Approved
 
-*Sits between Planning and Spec Authoring, and Design and Context Engineering.
-Nothing moves to the next phase until this gate passes.*
+*The exit gate of Planning and Spec Authoring. A feature's Design and Context
+Engineering work starts only from a spec version that has passed it.*
 
 ## What this gate is
 
-A blocking checkpoint. No work happens in it — a named person reads the spec and
-either approves it or sends it back.
+A blocking checkpoint. No new work happens in it. A named approver reads the
+spec and either approves it or sends it back.
 
-The point is cost. Catching a wrong approach here takes minutes. Catching the same
-mistake after the code exists takes hours, and the reviewer is under pressure to
-approve rather than restart.
+We place the gate here because a wrong requirement caught now costs a revision
+of the spec. Caught after the code exists, it costs rework, and a reviewer
+facing finished code may feel pressure to let it through.
 
 ## Who approves
 
-**One named person**, and their name is recorded with the date.
+**One named approver**, recorded in Planning's `review.md` with the date and the
+spec version they reviewed.
 
-| Who | When |
-|---|---|
-| Tech lead or senior developer | Default. They check the approach is buildable and matches how the codebase works. |
-| Product owner | When the spec changes what the product does, not just how it is built. |
-| Both | When a clarification question touched customer data, network configuration, or anything with a regulatory angle. |
+The approver is a tech lead or senior developer. They check that the criteria
+can be built and are consistent with the binding rules. The product owner and
+rule owners don't approve the spec as well, because their agreement is already
+recorded as their Correct confirmations under Person checks.
 
-The approver must not be the person who wrote the spec. That is the whole point of
-a gate.
-
-**Who this is at NBN is not yet known.** Needs client input.
+The approver is never the spec's author, which is what makes this a gate.
 
 ## What gets checked
 
-Six things. If any fail, the spec goes back.
+First, the approver confirms that `review.md` names every role and that its
+Person checks are complete, with the technical reviewer's Feasible finding and
+each decision owner's Correct confirmation for the criteria they own. Then they
+apply six checks. These match Planning's Step 8 checklist, so an author who
+works through that list should pass. If anything fails, the spec goes back.
+
+The approver also reads the criteria against the request and judges whether they
+describe what was asked for. No tool can make that judgement, and it is why this
+gate is a person.
 
 **1. Every criterion is testable.** No requirement that says the system "handles
-it as specified" or "behaves appropriately". A tester must be able to write a test
-from it without asking what it means.
+it as specified" or "behaves appropriately". A tester must be able to write a
+test from it without asking what it means.
 
-**2. No unresolved clarification markers.** Every `[NEEDS CLARIFICATION]` has an
-answer, and the answer is recorded with who gave it.
+**2. No open questions.** No `[NEEDS CLARIFICATION]` marker remains and no
+question's Answer is Open. Each answer cites its source, a named and dated
+decision, or the Design handoff item it was passed to. Each Design handoff item
+asks only how to build something, with no required behaviour left undefined.
 
-**3. Assumptions are visible and numbered.** Anything the AI decided rather than
-asked about is listed, with the criteria that depend on it. The approver reads
-these hardest — this is where invented requirements hide.
+**3. Assumptions are numbered and settled.** Every assumption is numbered and
+linked to the criteria that depend on it, and its owner has confirmed or
+rejected it, so none is Pending. The criteria reflect each outcome. The approver
+reads these closely, because this is where invented requirements hide.
 
-**4. Nothing was invented.** Every requirement traces back to the ticket, the
-design, or a recorded decision. If nobody asked for it, it comes out.
+**4. Nothing was invented.** Every criterion and constraint cites the request,
+including any mock-up supplied with it, a binding rule or a recorded decision,
+and no behaviour, limit or number is left without a source. Anything without one
+goes back to the author, who asks its decision owner whether it belongs. If it
+does, that answer is recorded as a decision and becomes its source. Only the
+owner can remove it, and the removal is recorded under Removed.
 
-**5. Out of scope is stated.** What the feature deliberately does not do, written
-down, so it does not get added back later.
+**5. Out of scope is stated.** The spec says what the feature deliberately does
+not do, and the product owner has confirmed it, so it does not get added back
+later.
 
-**6. The spec matches the project's conventions.** The AI read the project's
-context files and the spec does not contradict them.
+**6. No open conflicts.** No missing binding rule or contradiction with a
+binding rule is still open, and no contradiction within the spec is open unless
+it was dismissed with a reason in `review.md`. An open conflict fails this check
+whatever the AI reported.
 
-Criteria 1 and 4 come from the ISO/IEC/IEEE 29148 characteristics used in the
-Planning module. The rest came out of testing the module on a real feature.
+Checks 1 and 4 draw on the Verifiable and Traceable rows of Planning's quality
+checklist. Check 2 follows GitHub Spec Kit's clarification markers. Checks 3, 5
+and 6 are this methodology's own.
 
 ## What happens when it fails
 
-The spec goes back to the author with the failing item named. It does not go
-forward with a note saying "fix this later" — that is how a gate stops being a
-gate.
+The approver lists each failing check in `review.md` against the version they
+reviewed, and the spec stays Draft. It does not go forward with a note to fix it
+later, because then the gate no longer blocks anything. The author fixes it in
+the Planning step that covers the failed check and sends a new version, as
+Planning's Step 8 describes.
 
-A failure here is cheap and expected. In our own evidence run, the first draft
-failed on criterion 1: three of nine acceptance criteria were not testable.
+| Failed check | Planning steps |
+|---|---|
+| Person checks or roles | Before you start, Step 7 |
+| 1. Testable | Steps 3 and 7 |
+| 2. Open questions | Steps 4 to 6 |
+| 3. Assumptions | Steps 4 and 6 |
+| 4. Nothing invented | Steps 3 and 7 |
+| 5. Out of scope | Step 6 Part A |
+| 6. Open conflicts | Steps 5 and 7 |
+
+A return here is normal.
+
+## How approval is recorded
+
+The approver records the decision in `review.md` with their name, the date and
+the spec version they reviewed, and that entry is committed first. On approval,
+the author then commits the Status change to Approved on its own, tagged for
+example `spec-<feature>-v0.1-approved`. Design finds the approved copy by that
+tag. A team that keeps specs in Jira or Confluence uses their version history in
+place of tags, as Planning describes.
+
+## When the spec changes after approval
+
+Design never edits an approved spec. It raises a spec change request, and the
+spec returns to Draft while the request is open. Design carries on with items
+the request doesn't affect, from the last approved tag. If the answer adds or
+changes a criterion, constraint, scope item or assumption, the new version goes
+through all six checks again. Otherwise the approver confirms in `review.md`
+that nothing changed in substance. Either way the spec gets a new Version and a
+new approved tag.
 
 ## What AI tooling supports this review
 
-**Claude Code plan mode** is the closest thing to this gate implemented in a tool.
-Claude reads files and explores but does not edit source until a plan is approved.
-It is a permission boundary rather than a convention — the edit tools are blocked
-until approval, so a developer cannot skip it by accident.
+**Plan mode** is the closest thing to this pattern in the tools. In Copilot CLI,
+`/plan` has Copilot write a plan and wait for approval before implementing. In a
+local VS Code session, Copilot's Plan agent researches the project without
+editing files by default, then hands off to implementation. In Claude Code, plan
+mode blocks edits until the developer approves the plan or leaves plan mode,
+except in sessions set up to bypass permissions. When a Claude Code plan is
+ready, the developer can approve it and let Claude work, approve it and review
+each edit, or keep planning with feedback.
 
-When the plan is ready, the approver can approve and let Claude work
-automatically, approve but review each edit, or keep planning with feedback. That
-third option is the one that matters here: a gate has to allow "no, do it
-differently" as an outcome.
+Plan mode approves the AI's plan of work. This gate approves the spec, so plan
+mode supports it without replacing it. What carries over is that a gate has to
+allow "no, do it differently" as an outcome.
 
-**GitHub Spec Kit** treats its checklists as unit tests for the specification —
-no clarification markers remaining, requirements testable and unambiguous, success
-criteria measurable. That is the same idea as this gate, run by the tool rather
-than a person.
+**GitHub Spec Kit** marks open questions with `[NEEDS CLARIFICATION]`, the
+marker check 2 relies on, and has the AI check a spec against checklists that
+an earlier version of its README described as "unit tests for English". That is
+useful before the gate, but it is the AI reviewing its own output, which
+Planning says is not approval.
 
-**The limit of both.** Tooling can check that markers are resolved and criteria
-are phrased testably. It cannot check whether the spec describes the right thing.
-That is what the human is for, and it is why this gate is a person and not a
-script.
+**The limit of these tools.** Tooling can check that markers are resolved and
+criteria are phrased testably. It cannot check whether the spec describes the
+right thing, which is the approver's judgement described under What gets
+checked.
 
 ## Sources
 
-**1. Claude Code — Choose a permission mode**
+**1. Claude Code: Choose a permission mode**
 https://code.claude.com/docs/en/permission-modes
-*Vendor documentation.* Source for plan mode as an enforced approval step, and
-for the approve/revise options available at the gate.
+*Vendor documentation.* Source for plan mode blocking edits until a plan is
+approved or the developer leaves plan mode, the bypass-permissions exception,
+and the options available when a plan is ready.
 
-**2. GitHub — Spec Kit: Specification-Driven Development**
+**2. Visual Studio Code: Plan work with agents in VS Code**
+https://code.visualstudio.com/docs/agents/run/planning
+*Vendor documentation.* Source for Copilot's Plan agent researching without
+editing files by default in a local session, then handing off to implementation.
+
+**3. GitHub: Best practices for GitHub Copilot CLI**
+https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-best-practices
+*Vendor documentation.* Source for `/plan` writing a plan and waiting for
+approval before implementing.
+
+**4. GitHub: Spec Kit, Specification-Driven Development**
 https://github.com/github/spec-kit/blob/main/spec-driven.md
-*Vendor documentation, open source.* Source for specification checklists as
-"unit tests for the specification".
-
-**3. ISO/IEC/IEEE 29148:2018 — Requirements engineering**
-https://www.iso.org/standard/72089.html
-*Standards body.* The quality characteristics behind criteria 1 and 4. Note the
-full standard is paywalled and not held by RMIT — see the Planning module for the
-access caveat.
-
-**4. Our own evidence run**
-[white-paper/evidence/planning-and-spec-authoring.md](../../evidence/planning-and-spec-authoring.md)
-Criteria 2, 3, 5 and 6 came from running the Planning module on a real feature and
-recording what the gate would have needed to catch.
+*Vendor documentation, open source.* Source for the `[NEEDS CLARIFICATION]`
+marker. The current README no longer describes the checklist command. An
+earlier version, preserved in forks such as https://github.com/evm/spec-kit,
+describes checklists as "unit tests for English".
 
 ## Open questions
 
-- Whether approval is recorded in the ticket, the repo, or both. A spec in Jira
-  has no commit to attach a sign-off to.
+- Who the approver is at NBN, and who owns its security, privacy and network
+  rules. This needs client input.
