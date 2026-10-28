@@ -67,6 +67,8 @@ A **work package** is one unit of the change: a set of files that can be written
 
 The output is a list of work packages, each naming the acceptance criteria it covers, the files it may change and what it must not change. Approve the plan before any code exists.
 
+Design's notes list the doc entries this change must write, under "Doc entries required" in `docs/design/<feature>/decisions.md`. Put each entry in the work package that builds what it documents.
+
 Set each package's risk tier here, before anything is written, and record it in the scratch file for the PR caveats. Use the agent's answers as input, not as the classification. Check them against the files the package may change and the handlers it calls, and classify any package you cannot confirm yourself as higher risk. The tier is not the agent's call: an agent that has misjudged what a change can cause will misjudge the tier the same way.
 
 Scope matters more than line count: a well-scoped small task succeeds more reliably than a vague one, and task size is a strong predictor of whether AI-assisted work lands cleanly.
@@ -213,7 +215,7 @@ Security checks run inside this phase rather than waiting for the gate. Secret, 
 - **(d)** Do the scans pass on the diff? Secret, dependency and SAST scanning, plus a check that any new dependency actually exists and is the intended package. Where a scanner is missing, Step 0 recorded that, and it goes in the PR caveats.
 - **(e)** Has every factual claim the AI made about a library, API, platform or browser been probed or listed as unverified in the PR?
 - **(f)** Has a **human** who did not write the code reviewed the branch? Required once over the whole branch before the PR whenever any work package on it is higher risk. A model cannot discharge this item. May be skipped only when every work package on the branch is lower risk, with the skip and the reason recorded in the PR caveats, in which case the independent-session review in item (h) stands as the branch's review.
-- **(g)** Does the repository still describe itself accurately? Instruction files and docs match the code, and the added lines are free of text hazards such as non-ASCII characters, mixed tabs and spaces, or inconsistent line endings.
+- **(g)** Does the repository still describe itself accurately? Every doc entry listed under "Doc entries required" is written, instruction files and docs match the code, and the added lines are free of text hazards such as non-ASCII characters, mixed tabs and spaces, or inconsistent line endings.
 - **(h)** Has the independent-session review run once over the whole branch, in a fresh session, preferably on a different model? Required on every branch. Where any work package is higher risk, it runs before the human review in (f) and its findings go to that reviewer, as an addition and never a replacement. Where every package is lower risk and (f) is skipped, it is the branch's review. A finding that contradicts a lower-risk classification makes that package higher risk, and (f) is then required. Update its risk tier line in the caveats and re-run its mutation check at the higher-risk count. Record the session or model used and the findings in the PR caveats.
 
 **Prompts for items (c), (g) and (h)**
