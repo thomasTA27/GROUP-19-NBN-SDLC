@@ -1,0 +1,36 @@
+signal=null status=1
+
+<--- Last few GCs --->
+
+[27116:000001F00DD6D000]    22679 ms: Mark-Compact 4105.5 (4188.1) -> 4029.9 (4112.5) MB, pooled: 1 MB, 1415.57 / 0.00 ms  (average mu = 0.052, current mu = 0.026) allocation failure; scavenge might not succeed
+[27116:000001F00DD6D000]    24004 ms: Mark-Compact 4143.2 (4225.9) -> 4067.7 (4150.3) MB, pooled: 1 MB, 1287.03 / 0.00 ms  (average mu = 0.042, current mu = 0.028) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 00007FF7E8744BB7 node::SetCppgcReference+21127
+ 2: 00007FF7E86A4C6B EVP_MD_meth_get_input_blocksize+102619
+ 3: 00007FF7E92B2A11 v8::Isolate::ReportExternalAllocationLimitReached+65
+ 4: 00007FF7E929F4C6 v8::Function::Experimental_IsNopFunction+3318
+ 5: 00007FF7E90FBB10 v8::internal::StrongRootAllocatorBase::StrongRootAllocatorBase+33904
+ 6: 00007FF7E90F4F5A v8::internal::StrongRootAllocatorBase::StrongRootAllocatorBase+6330
+ 7: 00007FF7E90F0775 v8::CpuProfileNode::GetScriptResourceNameStr+190293
+ 8: 00007FF7E8A77AAD BIO_ssl_shutdown+189
+ 9: 7FF8000000000000 
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Channel closed[39m
+[90m [2m❯[22m target.send node:internal/child_process:[2m753:16[22m[39m
+[90m [2m❯[22m ProcessWorker.send D:/Clients/Capstone/GROUP-19-NBN-SDLC/mock-project%20part-B(Test)/frontend/node_modules/.pnpm/tinypool@1.1.1/node_modules/tinypool/dist/index.js:[2m140:41[22m[39m
+[90m [2m❯[22m MessagePort.<anonymous> D:/Clients/Capstone/GROUP-19-NBN-SDLC/mock-project%20part-B(Test)/frontend/node_modules/.pnpm/tinypool@1.1.1/node_modules/tinypool/dist/index.js:[2m149:62[22m[39m
+[90m [2m❯[22m [nodejs.internal.kHybridDispatch] node:internal/event_target:[2m843:20[22m[39m
+[90m [2m❯[22m MessagePort.<anonymous> node:internal/per_context/messageport:[2m23:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ERR_IPC_CHANNEL_CLOSED' }[39m
+
+
+

@@ -1,0 +1,55 @@
+// DIAGNOSTIC ONLY (not part of the project). Applies one Stryker mutant from the ORIGINAL mutation.json
+// to a disposable copy and runs the ordinary Vitest suite (forks pool, working TZ), then restores the file.
+// usage: node probe.mjs <workerDir> <project> <outFile> <id,id,...> [tz]
+import { readFileSync, writeFileSync, appendFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { join } from 'node:path'
+
+const [workerDir, project, outFile, idList, tz] = process.argv.slice(2)
+const report = JSON.parse(readFileSync(join(project, 'testing-and-qa/reports/mutation.json'), 'utf8'))
+const byId = new Map()
+for (const [file, fr] of Object.entries(report.files)) for (const m of fr.mutants) byId.set(String(m.id), { ...m, file })
+
+function lineColToOffset(text, line, col) {
+  let off = 0
+  for (let l = 1; l < line; l++) off = text.indexOf('\n', off) + 1
+  return off + col - 1
+}
+
+for (const id of idList.split(',')) {
+  const m = byId.get(id)
+  if (!m) { appendFileSync(outFile, JSON.stringify({ id, error: 'unknown id' }) + '\n'); continue }
+  const path = join(workerDir, 'frontend', m.file)
+  const original = readFileSync(path, 'utf8')
+  const lf = original.includes('\r\n')
+  const text = original.replace(/\r\n/g, '\n')
+  const s = lineColToOffset(text, m.location.start.line, m.location.start.column)
+  const e = lineColToOffset(text, m.location.end.line, m.location.end.column)
+  const mutated = text.slice(0, s) + m.replacement + text.slice(e)
+  writeFileSync(path, lf ? mutated.replace(/\n/g, '\r\n') : mutated)
+  const t0 = Date.now()
+  let res
+  try {
+    const env = { ...process.env }
+    if (tz) env.TZ = tz
+    res = spawnSync(process.execPath, ['node_modules/vitest/vitest.mjs', 'run', ...(process.env.PROBE_FILES ? process.env.PROBE_FILES.split(' ') : []), '--reporter=json', '--outputFile=probe-result.json'], {
+      cwd: join(workerDir, 'frontend'), env, encoding: 'utf8', timeout: Number(process.env.PROBE_TIMEOUT ?? 180000),
+    })
+  } finally {
+    writeFileSync(path, original)
+  }
+  if (process.env.PROBE_LOG) writeFileSync(`${process.env.PROBE_LOG}-${id}.txt`, `signal=${res?.signal} status=${res?.status}
+` + ((res?.stdout ?? '') + (res?.stderr ?? '')).slice(-3000))
+  try { writeFileSync(join(workerDir, 'frontend/probe-result.json'), '') } catch {}
+  let failed = [], total = null, passed = null, parseError = null
+  try {
+    const j = JSON.parse(readFileSync(join(workerDir, 'frontend/probe-result.json'), 'utf8'))
+    total = j.numTotalTests; passed = j.numPassedTests
+    for (const f of j.testResults) for (const a of f.assertionResults) if (a.status === 'failed') failed.push(`${f.name.replace(/\\/g, '/').split('/frontend/')[1]} > ${a.fullName}`)
+    if (j.testResults.some((f) => f.status === 'failed' && f.assertionResults.length === 0)) failed.push('SUITE-LEVEL FAILURE (file did not load)')
+  } catch (err) { parseError = String(err) }
+  appendFileSync(outFile, JSON.stringify({
+    id: Number(id), status: m.status, file: m.file, tz: tz ?? 'default', exit: res?.status, signal: res?.signal,
+    seconds: Math.round((Date.now() - t0) / 1000), total, passed, failedCount: failed.length, failed: failed.slice(0, 8), parseError,
+  }) + '\n')
+}

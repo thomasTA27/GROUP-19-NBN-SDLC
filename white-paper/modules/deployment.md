@@ -18,7 +18,7 @@ Nothing in the research gives AI outright go/no-go or rollback authority here. I
 
 The best current industry evidence, DORA's 2025 State of AI-assisted Software Development report, finds this increases throughput but shows a negative relationship with delivery stability, a gap tied to team discipline: teams with strong testing, version control and feedback loops see real gains, teams without don't. Our recommendation: treat that discipline as a precondition, not a footnote. Don't turn on this phase's AI release automation until it's in place, or you get exactly DORA's pattern of throughput up, stability flat. We also treat the absence of full rollback authority as a deliberate boundary, not a gap the technology will close (see Governance below).
 
-## How to execute this phase
+## AI-Assisted Workflow
 
 A chronological runbook from Gate 3 sign-off to full production traffic. Each step names who acts: a human, the ACA tool, or the deployment-review skill.
 
@@ -75,16 +75,16 @@ The release record itself needs no new tooling at NBN, just the habit of treatin
 ## Governance and security touchpoints
 
 - Giving this phase's automation standing production credentials widens its own attack surface; scope those credentials as a security review item, not just an ops convenience.
-- A named person, or role, needs standing authority to halt this phase's automation (a kill switch), set before it goes live, not improvised during an incident. See [white-paper/governance/research.md](../governance/research.md) for the broader human-oversight pattern.
+- A named person, or role, needs standing authority to halt this phase's automation (a kill switch), set before it goes live, not improvised during an incident. See [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md) for the broader human-oversight pattern.
 - None of this module's sources say what should happen when the ACA tool's result or the skill's Flag and a human's read of production telemetry disagree. Our recommendation: the human's read wins by default, since that person may know something elsewhere in the system the AI's metrics don't capture. Log the disagreement, not just the final decision.
-- NBN's Security of Critical Infrastructure (SOCI) Act obligations, including its Critical Infrastructure Risk Management Program (CIRMP) requirements, mean deploy and rollback automation isn't just a team-level choice; it sits inside a board-approved risk management program (see [white-paper/governance/research.md](../governance/research.md)). Engineers follow NBN's internal policy that implements SOCI, not the Act directly.
+- NBN's Security of Critical Infrastructure (SOCI) Act obligations, including its Critical Infrastructure Risk Management Program (CIRMP) requirements, mean deploy and rollback automation isn't just a team-level choice; it sits inside a board-approved risk management program (see [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md). Engineers follow NBN's internal policy that implements SOCI, not the Act directly.
 - Full cross-cutting AI-use policy lives in [white-paper/governance/](../governance/); this list is only the checkpoints specific to shipping a release.
 
 ## How authorship is recorded
 
 Authorship here builds on what Gate 3 already established: a named person approved this release. The record adds what shipped and how much was AI-assisted, against what that person approved.
 
-GitHub's release notes attribution is a concrete, adoptable pattern: a pull request opened by an agent is now credited to the human who directed it ("by @monalisa with @copilot"), not the agent alone. The same applies here: a deployment-review readout or a pipeline fix is a recommendation an agent produced, and the record should show which human accepted it and when, consistent with the commit-trailer conventions used upstream (see [white-paper/governance/research.md](../governance/research.md)).
+GitHub's release notes attribution is a concrete, adoptable pattern: a pull request opened by an agent is now credited to the human who directed it ("by @monalisa with @copilot"), not the agent alone. The same applies here: a deployment-review readout or a pipeline fix is a recommendation an agent produced, and the record should show which human accepted it and when, consistent with the commit-trailer conventions used upstream (see [white-paper/governance/attribution.md](../governance/attribution.md) and [white-paper/governance/accountability.md](../governance/accountability.md)).
 
 ## A deployment skill for AI assistants
 
@@ -109,13 +109,13 @@ description: Checks a release's delta and record completeness, and writes a plai
 
 This skill never scores telemetry, classifies a canary, or triggers a promote, rollback, or hold: the ACA tool already did that against approved thresholds. It makes that result easier for a human to act on, and catches what the ACA tool cannot see.
 
-## Checks
+### Checks
 
 1. Release delta: read the merged diff and list every changed service, endpoint, and schema change or migration; flag anything not declared in the release ticket.
 2. Record completeness: confirm the release record has a named Gate 3 approval and the other required fields; flag anything missing.
 3. ACA readout: read the score and classification the ACA tool already produced, do not recompute it, and summarise it in plain language, including what triggered a Marginal or Rollback result.
 
-## Output
+### Output
 
 Clear or Flag, never a promote, rollback, or hold decision.
 
@@ -149,7 +149,7 @@ jobs:
 
 GitHub recommends its separate Agentic Workflows feature over calling Copilot CLI directly for most automation, since it carries extra guardrails suited to running unattended (see "Automating tasks with Copilot CLI and GitHub Actions", [research/modules/deployment.md](../../research/modules/deployment.md#4-github-copilot-cli-automation-in-actions-and-release-note-attribution)).
 
-## Relevance to GitHub Copilot
+### Relevance to GitHub Copilot
 
 NBN's engineers use GitHub Copilot. Here is where it already fits this phase, and where it doesn't.
 
